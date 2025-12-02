@@ -1,0 +1,75 @@
+<form class="{{cssClass}} flexcol" autocomplete="off">
+    <header class="sheet-header flexrow">
+       <img class="profile" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+      
+        <div class="header-details flexrow">
+          <h1 class="charname">
+            <input name="name" type="text" value="{{item.name}}" placeholder="Item Name" />
+          </h1>
+          <div class="item-subtitle">
+            <h4 class="item-type">{{localize "MTA.Key"}} </h4>
+            <span class="item-status"></span>
+          </div>
+          <ul class="summary">
+            <li>
+              <label>{{ localize "MTA.UnlockAttribute" }}</label> 
+              <select name="system.unlockAttribute">
+                {{#select system.unlockAttribute}}
+                {{#each config.attributes as |cvalue ckey|}}
+                <option value="{{ckey}}">{{cvalue}}</option>
+                {{/each}}
+                {{/select}}
+              </select>
+            </li>
+            <li> 
+              <label>{{localize "MTA.Innate"}}</label> 
+              <label class="checkBox">
+                <input data-dtype="Boolean" name="system.innate" type="checkbox" {{checked system.innate}}>
+                <span></span>
+              </label>
+            </li>
+          </ul>
+        </div>
+    </header>
+  <div class="gold-border"> </div>
+
+    {{!-- Sheet Tab Navigation --}}
+    <nav class="sheet-tabs tabs" data-group="primary">    
+      <a class="item" data-tab="description">{{localize "MTA.Description"}}</a>
+      <a class="item" data-tab="traits">{{localize "MTA.Traits"}}</a>
+    </nav>
+
+    {{!-- Sheet Body --}}
+    <section class="sheet-body">
+
+      {{!-- Description Tab --}}
+      <div class="tab" data-tab="description">
+        <div class="item-stat-block">
+          <div class="form-line">
+            <label> {{localize "MTA.Resonance"}} </label>
+            <textarea name="system.resonance" placeholder="Resonance">{{system.resonance}}</textarea>
+          </div>
+          <div class="form-line">
+            <label> {{localize "MTA.Doom"}} </label>
+            <textarea name="system.doom" placeholder="Doom">{{system.doom}}</textarea>
+          </div>
+        </div>
+        <div class="form-line">
+          <label class="wide"> {{localize "MTA.Description"}} </label>
+          <div class="wide editor-container">
+            {{editor enrichedDescription target="system.description" button=true owner=owner editable=editable}}
+          </div>
+        </div>
+      </div>
+
+      {{!-- Attributes Tab --}}
+      <div class="tab traits" data-group="primary" data-tab="traits">
+        <div class="item-stat-block">
+          {{{specialEffectList this}}}
+          {{{effectList this}}}
+          {{{dicePoolList this}}}
+        </div>
+      </div>
+      
+    </section>
+</form>

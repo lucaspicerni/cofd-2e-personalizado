@@ -1,0 +1,33 @@
+<form class="{{cssClass}} flexcol" autocomplete="off">
+    <header class="sheet-header flexrow">
+       <img class="profile" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+      
+        <div class="header-details flexrow">
+          <h1 class="charname">
+            <input name="name" type="text" value="{{item.name}}" placeholder="Item Name" />
+          </h1>
+          <div class="item-subtitle">
+            <h4 class="item-type">{{localize "MTA.GeneralDicePool"}}</h4>
+            <span class="item-status"></span>
+          </div>
+        </div>
+    </header>
+<div class="gold-border"> </div>
+
+    {{!-- Sheet Body --}}
+    <section class="sheet-body">
+        <div class="tab traits">
+          <div class="item-stat-block">
+            <div class="form-line">
+              <label>{{localize "MTA.DicePool"}}</label> <input name="system.value" type="number" data-dtype="Number" value="{{system.value}}" />
+            </div>
+            <div class="form-line">
+              <label class="wide"> {{localize "MTA.Description"}} </label>
+              <div class="wide editor-container">
+                {{editor enrichedDescription target="system.description" button=true owner=owner editable=editable}}
+              </div>
+            </div>
+          </div>
+        </div>
+    </section>
+</form>

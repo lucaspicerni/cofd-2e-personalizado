@@ -1,0 +1,51 @@
+<form class="{{cssClass}} flexcol" autocomplete="off">
+  <header class="sheet-header flexrow">
+     <img class="profile" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    
+      <div class="header-details flexrow">
+        <h1 class="charname">
+          <input name="name" type="text" value="{{item.name}}" placeholder="Item Name" />
+        </h1>
+        <div class="item-subtitle">
+          <h4 class="item-type">{{localize "MTA.DemonPower"}}</h4>
+          <span class="item-status"></span>
+        </div>
+        <ul class="summary">
+          <li> 
+             <label> Rating </label> <input name="system.rating" type="number" data-dtype="Number" value="{{system.rating}}" />
+          </li>
+          <li>
+            <label> Torment </label>
+            <label class="checkBox">
+              <input data-dtype="Boolean" name="system.torment" type="checkbox" {{checked system.torment}}>
+              <span></span>
+            </label>
+          </li>
+        </ul>
+      </div>
+  </header>
+<div class="gold-border"> </div>
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="sheet-tabs tabs">    
+    <a class="item" data-tab="description">Description</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+    
+      {{!-- Description Tab --}}
+      <div class="tab" data-tab="description">
+          {{editor enrichedDescription target="system.description" button=true owner=owner editable=editable}}
+          <div class="item-stat-block">
+            {{{specialEffectList this}}}
+            {{{effectList this}}}
+            {{{dicePoolList this}}}
+            <div class="form-line">
+              <label> Lore </label> 
+              <input name="system.lore" type="text" value="{{system.lore}}" data-koptions="Lore of Celestials/Lore of Flame/Lore of Fundament/---/Lore of the Winds/Lore of Awakening/Lore of the Firmament/---/Lore of the Earth/Lore of the Forge/Lore of Paths/---/Lore of Light/Lore of Patterns/Lore of Portals/---/Lore of Longing/Lore of Storms/Lore of Transfiguration/---/Lore of the Beast/Lore of the Flesh/Lore of the Wild/---/Lore of Death/Lore of the Realms/Lore of Decay"/>
+            </div>
+          </div>
+      </div>
+  </section>
+</form>

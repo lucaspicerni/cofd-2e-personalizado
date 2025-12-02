@@ -1,0 +1,69 @@
+{
+  "id": "mta",
+  "title": "Chronicles of Darkness 2e",
+  "description": "2nd edition of the Chronicles of Darkness system by White Wolf.",
+  "version": "0.16.3",
+  "socket": true,
+  "authors": [
+		{
+			"name": "SoulCake",
+			"discord": "SoulCake#7804",
+			"ko-fi":"soulcake"
+		}
+	],
+  "compatibility": {
+    "minimum": "12",
+    "verified": "12",
+    "maximum": "12"
+  },
+  "url": "https://gitlab.com/MarlQ/mta",
+  "manifest": "https://gitlab.com/MarlQ/mta/-/raw/master/system.json",
+  "download": "https://gitlab.com/MarlQ/mta/-/archive/0.16.3/mta-0.16.3.zip",
+  "changelog": "https://gitlab.com/MarlQ/mta/-/releases/0.16.3",
+  "readme": "https://gitlab.com/MarlQ/mta/-/blob/master/README.md",
+  "bugs": "https://gitlab.com/MarlQ/mta/-/issues",
+  "esmodules": ["module/mta.js"],
+  "styles": ["styles/default.css", "styles/override.css"],
+  "packs": [
+    {
+      "name": "macros",
+      "label": "Macros",
+      "system": "mta",
+      "path": "./packs/macros.db",
+      "type": "Macro"
+    }
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "fr",
+      "name": "French",
+      "path": "lang/fr.json"
+    },
+    {
+      "lang": "es",
+      "name": "Spanish",
+      "path": "lang/es.json"
+    },
+    {
+      "lang": "ru",
+      "name": "Russian",
+      "path": "lang/ru.json"
+    },
+        {
+      "lang": "pt-BR",
+      "name": "Português (Brasil)",
+      "path": "lang/pt-BR.json"
+    }
+  ],
+  "initiative": "1d10 + @derivedTraits.initiativeMod.final",
+  "grid": {
+    "distance": 1,
+    "units": "m"
+  },
+"primaryTokenAttribute": "health"
+}

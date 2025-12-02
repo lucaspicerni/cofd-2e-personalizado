@@ -1,0 +1,71 @@
+<div id="tokenHotBar" class="tokenHotBar">
+  <div class="tokenMacroBar">
+    <h4> 
+      {{characterName}}
+      <div class="status">
+        <i class="fas fa-universal-access"></i>
+        <div class="status-menu">
+          <ul class="fa-ul">
+            <li class="showConditions">
+                <span class="fa-li fa">
+                  <i class="{{#if showConditions}}fas fa-check-square {{else}}far fa-square{{/if}}"></i> 
+                </span>
+              {{ localize "MTA.ShowConditions" }}
+            </li>
+            <li class="showTilts">
+              <span class="fa-li fa">
+                <i class="{{#if showTilts}}fas fa-check-square {{else}}far fa-square{{/if}}"></i>
+              </span>
+              {{ localize "MTA.ShowTilts" }}
+          </li>
+          </ul>
+        </div>
+      </div>
+      <div class="settings">
+        <i class="fas fa-cog"></i>
+        <div class="settings-menu">
+          <ul class="fa-ul">
+            <li class="showNonWielded">
+                <span class="fa-li fa">
+                  <i class="{{#if showNonWielded}}fas fa-check-square {{else}}far fa-square{{/if}}"></i> 
+                </span>
+              {{ localize "MTA.ShowUnwielded" }}
+            </li>
+            <li class="showEquipment">
+              <span class="fa-li fa">
+                <i class="{{#if showEquipment}}fas fa-check-square {{else}}far fa-square{{/if}}"></i>
+              </span>
+              {{ localize "MTA.ShowEquipment" }}
+          </li>
+          </ul>
+        </div>
+      </div>
+      
+    </h4>
+    <ol class="flexrow macro-list">
+      {{#each macros}}
+      <li class="macro {{#if sheetMacro}} sheetMacro {{/if}} {{#if notEquipped}} unequipped {{/if}} tooltip fast {{#if description}}expand{{/if}} {{type}}" data-index={{@index}}>
+        <img src="{{img}}" alt="{{name}}">
+        <span class="tooltip-text">
+          {{name}}
+          {{#if description}}<div class="tooltip-expand">{{{description}}}</div>{{/if}}
+        </span>
+      </li>
+      {{/each}}
+    </ol>
+  </div>
+  <div class="buttonArray">
+    <div class="damage-increase">
+      <i class="fas fa-minus"></i>
+      <input class="damage-number" type="number" value="{{tokenBarDamageValue}}" data-dtype="Number">
+      <i class="fas fa-plus"></i>
+    </div>
+    
+    <div class="button modernButton damage-type" data-damagetype="{{tokenBarDamageType}}">
+      <i class="fas fa-chevron-left"></i>
+      <i class="button-content">{{tokenBarDamageTypeLocalized}}</i>
+      <i class="fas fa-chevron-right"></i>
+    </div>
+    <div class="button modernButton {{#if isHeal}}green{{else}}red{{/if}} damage-apply">{{#if isHeal }}{{ localize "MTA.ToHeal" }}{{else}}{{ localize "MTA.ToDamage" }}{{/if}}</div>
+  </div>
+</div>

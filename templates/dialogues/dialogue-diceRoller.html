@@ -1,0 +1,161 @@
+<div class="kUltraBlock">
+
+  <div class="flexBlock">
+    <div>
+      <dl>
+        {{#if dicePool}}
+        <dt>{{ localize "MTA.DicePool" }}:</dt>
+        <dd>
+          <div class="niceNumber">
+            <input name="dicePoolBase" type="number" value="{{dicePool}}" readonly>
+            <div class="theNumber"><input name="dicePoolBonus" type="text" value="{{penalty}}" 
+              onchange="
+              {
+                let val=this.value.replace(/[^-\d]/g, '');
+                let neg = val.charAt(0) === '-';
+                val=val.replace(/[-]/g, '');
+                val=Math.clamp(+val,-99,99);
+                val = neg ? -val : val;
+                val=((val==''||val<0)?'':'+')+val;
+                this.value=val;
+              }"></div>
+            <div class="numBtns">
+              <div class="plusBtn">+</div>
+              <div class="minusBtn">−</div>
+            </div>
+          </div>
+        </dd>
+        {{else}}
+        <dt>{{ localize "MTA.DicePool" }}:</dt>
+        <dd>
+          <div class="niceNumber" >
+            <div class="theNumber first"><input name="dicePoolBonus" type="number" value="0" onchange="this.value=Math.clamp(this.value,-99,99);"></div>
+            <div class="numBtns">
+              <div class="plusBtn">+</div>
+              <div class="minusBtn">−</div>
+            </div>
+          </div>
+        </dd>
+        {{/if}}
+        {{#if enableDifficulty}}
+        <dt>{{ localize "MTA.Difficulty" }}:</dt>
+        <dd>
+          <p>
+            <div class="niceNumber" >
+              <div class="theNumber first"><input name="dicePoolDifficulty" type="number" value="8" onchange="this.value=Math.clamp(this.value,1,10);"></div>
+              <div class="numBtns">
+                <div class="plusBtn">+</div>
+                <div class="minusBtn">−</div>
+              </div>
+            </div>
+          </p>
+        </dd>
+        {{/if}}
+        <dt>{{ localize "MTA.Modifiers" }}:</dt>
+        <dd>
+          <div>
+            <div>
+              <div class="buttonset">
+                <label><input type="radio" name="explodeThreshold" value="8"><span>{{ localize "MTA.EightAgain" }}</span></label>
+                <label><input type="radio" name="explodeThreshold" value="9"><span>{{ localize "MTA.NineAgain" }}</span></label>
+                <label><input type="radio" name="explodeThreshold" value="10" checked><span>{{ localize "MTA.TenAgain" }}</span></label>
+                <label><input type="radio" name="explodeThreshold" value="11"><span>{{ localize "MTA.None" }}</span></label>
+              </div>
+            </div>
+            <p>
+              <label class="checkBox marginR">
+                <input data-dtype="Boolean" name="rote_action" type="checkbox" {{checked isMagical}}>
+                <span>{{ localize "MTA.RoteAction" }}</span>
+              </label>
+            </p>
+            <p>
+              <label class="checkBox marginR">
+                <input data-dtype="Boolean" name="advancedAction" type="checkbox" {{checked advancedAction}}>
+                <span>{{ localize "MTA.AdvancedAction" }}</span>
+              </label>
+            </p>
+            <p>
+              <label class="checkBox marginR">
+                <input data-dtype="Boolean" name="extended" type="checkbox" {{checked extended}}>
+                <span>{{ localize "MTA.Extended" }}</span>
+              </label>
+            </p>
+            {{#if canSpendWillpower}}
+            <p>
+              <label class="checkBox marginR">
+                <input data-dtype="Boolean" name="spendWillpower" type="checkbox" {{checked spendWillpower}}>
+                <span>{{ localize "MTA.Willpower" }}</span>
+              </label>
+            </p>
+            {{/if}}
+          </div>
+        </dd>
+        {{#if spendAmmo}}
+        <dt>{{ localize "MTA.AmmoPerShot" }}:</dt>
+        <dd>
+          <div class="niceNumber">
+            <div class="theNumber first"><input name="ammoPerShot" type="number" value="1" onchange="this.value=Math.clamp(this.value,-99,99);"></div>
+            <div class="numBtns">
+              <div class="plusBtn">+</div>
+              <div class="minusBtn">−</div>
+            </div>
+          </div>
+        </dd>
+        {{/if}}
+        {{#if damageRoll}}
+        <dt>{{ localize "MTA.Attack" }}:</dt>
+        <dd>
+          <div>
+            <p>
+              <label class="checkBox marginR">
+                <input data-dtype="Boolean" name="applyDefense" type="checkbox" {{checked applyDefense}}>
+                <span>{{ localize "MTA.ApplyDefense" }} [-{{defense}}]</span>
+              </label>
+            </p>
+            <p>
+              <label class="checkBox marginR">
+                <input data-dtype="Boolean" name="ignoreArmor" type="checkbox" {{checked ignoreArmor}}>
+                <span>{{ localize "MTA.IgnoreArmor" }} [{{armor}}]</span>
+              </label>
+            </p>
+            <p>
+              <label class="checkBox marginR">
+                <input data-dtype="Boolean" name="ignoreBallistic" type="checkbox" {{checked ignoreBallistic}}>
+                <span>{{ localize "MTA.IgnoreBallistic" }} [{{ballistic}}]</span>
+              </label>
+            </p>
+            <p>
+              <label class="checkBox marginR">
+                <input data-dtype="Boolean" name="noSuccessesToDamage" type="checkbox" {{checked noSuccessesToDamage}}>
+                <span>{{ localize "MTA.NoSuccessesToDamage" }}</span>
+              </label>
+            </p>
+          </div>
+        </dd>
+        {{/if}}
+        {{#if specialties}}
+        <dt>{{ localize "MTA.Specialties" }}:</dt>
+        <dd>
+          <div>
+            {{#each specialties}}
+              <p>
+                <label class="checkBox marginR">
+                  <input data-dtype="Boolean" name="specialty_{{this}}" type="checkbox">
+                  <span>{{this}}</span>
+                </label>
+              </p>
+            {{/each}}
+          </div>
+        </dd>
+        {{/if}}
+      </dl>
+    </div>
+    <div>
+      <div class="megaBtn">
+        <button type="button" class="button roll-execute stoneButton">{{ localize "MTA.Execute" }}</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>

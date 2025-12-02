@@ -1,0 +1,507 @@
+<form class="{{cssClass}} flexrow nowrap" autocomplete="off">
+
+  <div>
+    <!-- Left Side -->
+
+    <div class="item-stat-block">
+
+      <div class="stat-group">
+        <div class="sheet-header">
+          <h3 {{#if spellName}}data-tooltip="{{object.description}}" class="spell-name""{{/if}} data-tooltip-class="mta-tooltip">
+            {{#if spellName}}
+              <span>{{spellName}}</span>
+              <span class="mini-text">(LER DESCRIÇÃO)</span>
+              {{else}}{{ localize "MTA.SpellDetails" }}
+            {{/if}}</h3>
+        </div>
+        <div class="gold-border"> </div>
+
+        
+        <div class="form-line">
+          <div class="wide yantra-box">
+            {{#each object.combinedSpells}}
+              <label data-tooltip="{{this.description}}" data-tooltip-class="mta-tooltip" class="checkBox checkButton combinedSpellButton" data-value="{{@index}}">
+                <input data-dtype="Boolean" type="checkbox" data-value="{{@index}}" checked>
+                <span data-value="{{@index}}">{{this.name}} ({{ localize this.arcanum }} {{this.level}})</span>
+              </label>
+            {{/each}}
+          </div>
+          <div class="wide">
+            <select class="addCombinedSpell">
+              <option value="" selected disabled hidden>+{{ localize "MTA.Spell" }}</option>
+              {{#each combinedSpellOptions}}
+                <option value="{{@index}}">{{this.name}} ({{ localize this.system.arcanum }} {{this.system.level}})</option>
+              {{/each}}
+            </select>
+            <span>{{combinedSpellCount}}/{{combinedSpellMax}}</span>
+          </div>
+        </div>
+
+        <div class="form-line">
+          <label> {{ localize "MTA.Arcanum" }} </label>
+          <select name="object.arcanum">
+            {{#select object.arcanum}}
+              {{#each config.arcana as |cvalue ckey|}}
+                <option value="{{ckey}}">{{cvalue}}</option>
+              {{/each}}
+            {{/select}}
+          </select>
+        </div>
+
+        <div class="form-line">
+          <label> {{ localize "MTA.Level" }} </label> <input name="object.level" type="number" data-dtype="Number" value="{{object.level}}" />
+        </div>
+        <div class="form-line">
+          <label> {{ localize "MTA.PrimaryFactor" }} </label>
+          <select name="object.primaryFactor">
+            {{#select object.primaryFactor}}
+              {{#each config.primaryFactors}}
+                <option value="{{this}}">{{ptPrimary this}}</option>
+              {{/each}}
+            {{/select}}
+          </select>
+          <label class="wide small"> {{ localize "MTA.PrimaryFactorInstructions" }} </label>
+        </div>
+
+        <div class="form-line">
+          <label> {{ localize "MTA.YantraDice" }} </label> <input name="object.yantraBonus" type="number" data-dtype="Number" value="{{object.yantraBonus}}" />
+          <label class="wide small"> {{ localize "MTA.YantraAfterPenalties" }}: {{yantraBonusFinal}} </label>
+        </div>
+
+        <div class="form-line">
+          <div class="wide yantra-box">
+            {{#each object.yantras}}
+              <label class="checkBox checkButton yantraButton" data-value="{{@index}}">
+                <input data-dtype="Boolean" type="checkbox" data-value="{{@index}}" checked>
+                <span data-value="{{@index}}">{{this.localised}} (+{{this.value}})</span>
+              </label>
+            {{/each}}
+          </div>
+          <div class="wide">
+            <select class="addYantra">
+              <option value="" selected disabled hidden>+{{ localize "MTA.Yantra" }}</option>
+              {{#each yantraOptions}}
+                <option {{#if this.custom}}class="custom-yantra"{{/if}} value="{{@index}}">{{this.localised}} (+{{this.value}})</option>
+              {{/each}}
+            </select>
+            <span>{{yantraCount}}/{{yantraMax}}</span>
+          </div>
+        </div>
+
+        <div class="form-line">
+          <label> {{ localize "MTA.DiceMod" }} </label> <input name="object.bonusDice" type="number" data-dtype="Number" value="{{object.bonusDice}}" />
+        </div>
+
+        <div class="form-line">
+          <label>  {{ localize "MTA.WithstandRating" }} </label> <input name="object.withstandRating" type="number" data-dtype="Number" value="{{object.withstandRating}}" />
+          <label class="wide small"> {{ localize "MTA.WithstandInstructions" }} </label>
+        </div>
+        <div class="form-line">
+          <div class="wide">
+            <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.castPraxis" type="checkbox" {{checked object.castPraxis}}>
+              <span> {{ localize "MTA.Praxis" }} </span>
+            </label>
+            <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.castRote" type="checkbox" {{checked object.castRote}}>
+              <span> {{ localize "MTA.Rote" }} </span>
+            </label>
+            <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.castRoteOwn" type="checkbox" {{checked object.castRoteOwn}}>
+              <span> {{ localize "MTA.SelfDesigned" }} </span>
+            </label>
+            <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.castGrimoire" type="checkbox" {{checked object.castGrimoire}}>
+              <span> {{ localize "MTA.Grimoire" }} </span>
+            </label>
+            <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.isInured" type="checkbox" {{checked object.isInured}}>
+              <span> {{ localize "MTA.Inured" }} </span>
+            </label>
+            {{#if scelestiRank}}
+            <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.isBefouled" type="checkbox" {{checked object.isBefouled}}>
+              <span> {{ localize "MTA.Befouled" }} </span>
+            </label>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-group">
+        <div class="sheet-header">
+          <h3> {{ localize "MTA.Paradox" }} </h3>
+        </div>
+        <div class="gold-border"> </div>
+
+        <div class="form-line">
+          <label> {{ localize "MTA.ParadoxRollsScene" }} </label> <input name="object.paradox.previous_rolls" type="number" data-dtype="Number" value="{{object.paradox.previous_rolls}}" min="0" />
+        </div>
+        <div class="form-line">
+          <label> {{ localize "MTA.SleeperWitnesses" }} </label>
+          <select name="object.paradox.sleeper_witnesses">
+            {{#select object.paradox.sleeper_witnesses}}
+              {{#each config.spell_casting.sleeper_witnesses}}
+                <option value="{{this}}">{{ptWitnesses this}}</option>
+              {{/each}}
+            {{/select}}
+          </select>
+        </div>
+
+        <div class="form-line">
+          <label> {{ localize "MTA.ManaSpent" }} </label> <input name="object.paradox.mana_spent" type="number" data-dtype="Number" value="{{object.paradox.mana_spent}}" min="0" />
+        </div>
+        <div class="form-line">
+          <label> {{ localize "MTA.DedicatedMagicTool" }} </label>
+          <label class="checkBox">
+            <input object.data-dtype="Boolean" name="object.paradox.magical_tool_used" type="checkbox" {{checked object.paradox.magical_tool_used}}>
+            <span></span>
+          </label>
+        </div>
+        <div class="form-line">
+          <label> {{ localize "MTA.ParadoxMod" }} </label> <input name="object.paradox.bonus" type="number" data-dtype="Number" value="{{object.paradox.bonus}}" />
+        </div>
+
+      </div>
+
+    </div>
+
+
+  </div>
+
+
+  <div>
+    <!-- Right Side -->
+    <div class="item-stat-block">
+
+      <div class="stat-group">
+        <div class="sheet-header">
+          <h3> {{ localize "MTA.SpellFactors" }} </h3>
+        </div>
+        <div class="gold-border"> </div>
+
+        <div class="form-line {{#if valueChange.potency}} fadeRed {{/if}}">
+          <label> {{ localize "MTA.Potency" }} </label>
+          <span>
+            <select name="object.potency.value">
+              {{#select object.potency.value}}
+                {{#if object.potency.isAdvanced}}
+                  {{#each config.spell_casting.potency.advanced}}
+                    <option value="{{this}}">{{this}}</option>
+                  {{/each}}
+                {{else}}
+                  {{#each config.spell_casting.potency.standard}}
+                    <option value="{{this}}">{{this}}</option>
+                  {{/each}}
+                {{/if}}
+              {{/select}}
+            </select>
+          </span>
+          <span><label class="small"> {{ localize "MTA.Advanced" }} </label>
+            <label class="checkBox">
+              <input object.data-dtype="Boolean" name="object.potency.isAdvanced" type="checkbox" {{checked object.potency.isAdvanced}}>
+              <span></span>
+            </label>
+          </span>
+          <label class="small freeFactor"> {{#if object.potency.freeFactor}} {{ localize "MTA.FreePotency" }}: {{object.potency.freeFactor}} {{/if}} </label>
+          <label class="wide small"> {{#if object.potency.isAdvanced}} {{ localize "MTA.PlusTwoWithstandAgainstDispell" }} {{/if}} </label>
+        </div>
+        <div class="form-line">
+          <label> {{ localize "MTA.Duration" }} </label>
+          <span>
+            <select name="object.duration.value">
+              {{#select object.duration.value}}
+                {{#if object.duration.isAdvanced}}
+                  {{#each config.spell_casting.duration.advanced}}
+                    <option value="{{this}}">{{ptDuration this}}</option>
+                  {{/each}}
+                {{else}}
+                  {{#each config.spell_casting.duration.standard}}
+                    <option value="{{this}}">{{ptDuration this}}</option>
+                  {{/each}}
+                {{/if}}
+              {{/select}}
+            </select>
+          </span>
+          <span><label class="small"> {{ localize "MTA.Advanced" }} </label>
+            <label class="checkBox">
+              <input object.data-dtype="Boolean" name="object.duration.isAdvanced" type="checkbox" {{checked object.duration.isAdvanced}}>
+              <span></span>
+            </label>
+          </span>
+          <label class="small freeFactor"> {{#if object.duration.freeFactor}} {{ localize "MTA.FreeDuration" }}: {{object.duration.freeFactor}} {{/if}} </label>
+          <label class="wide small"> {{ localize "MTA.SpellWithInstaneousEffectsRecurEvery" }} {{ritualCastingTime}}. </label>
+          <span class="wide">
+            {{#if attainment_permanence}}
+            <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.attainment_permanence" type="checkbox" {{checked object.attainment_permanence}}>
+              <span> {{ localize "MTA.Permanence" }} </span>
+            </label>
+            {{/if}}
+            {{#if attainment_conditionalDuration}}
+            <select name="object.condition">
+              {{#select object.condition}}
+                  {{#each config.spell_casting.condition}}
+                    <option value="{{this}}">{{ptCondDuration this}}</option>
+                  {{/each}}
+              {{/select}}
+            </select>
+            {{/if}}
+          </span>
+        </div>
+        <div class="form-line">
+          <label> {{ localize "MTA.Scale" }} </label>
+          <span>
+            <select name="object.scale.value">
+              {{#select object.scale.value}}
+                {{#if object.scale.isAdvanced}}
+                  {{#each config.spell_casting.scale.advanced}}
+                    <option value="{{this}}">{{ptScale this}}</option>
+                  {{/each}}
+                {{else}}
+                  {{#each config.spell_casting.scale.standard}}
+                    <option value="{{this}}">{{ptScale this}}</option>
+                  {{/each}}
+                {{/if}}
+              {{/select}}
+            </select>
+          </span>
+          <span><label class="small"> {{ localize "MTA.Advanced" }} </label>
+            <label class="checkBox">
+              <input object.data-dtype="Boolean" name="object.scale.isAdvanced" type="checkbox" {{checked object.scale.isAdvanced}}>
+              <span></span>
+            </label>
+          </span>
+          {{#if attainment_everywhere}}
+          <span class="wide">
+            <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.attainment_everywhere" type="checkbox" {{checked object.attainment_everywhere}}>
+              <span> {{ localize "MTA.Everywhere" }} </span>
+            </label>
+          </span>
+          {{/if}}
+        </div>
+        <div class="form-line">
+          <label> {{ localize "MTA.CastingTime" }} </label>
+          <span>
+            <select name="object.casting_time.value">
+              {{#select object.casting_time.value}}
+                {{#if object.casting_time.isAdvanced}}
+                  {{#each config.spell_casting.casting_time.advanced}}
+                  <option value="{{this}}">{{ptCastTime this}}</option>
+                  {{/each}}
+                {{else}}
+                  {{#each casting_time}}
+                    <option value="{{this}}">{{ptCastTime this}}</option>
+                  {{/each}}
+                {{/if}}
+              {{/select}}
+            </select>
+          </span>
+          <span><label class="small"> {{ localize "MTA.Advanced" }} </label>
+            <label class="checkBox">
+              <input object.data-dtype="Boolean" name="object.casting_time.isAdvanced" type="checkbox" {{checked object.casting_time.isAdvanced}}>
+              <span></span>
+            </label>
+          </span>
+          {{#if attainment_timeInABottle}}
+          <span class="wide">
+            <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.attainment_timeInABottle" type="checkbox" {{checked object.attainment_timeInABottle}}>
+              <span> {{ localize "MTA.TimeInABottle" }} </span>
+            </label>
+          </span>
+          {{/if}}
+        </div>
+        <div class="form-line">
+          <label> {{ localize "MTA.Range" }} </label>
+          <span>
+            <select name="object.range.value">
+              {{#select object.range.value}}
+                {{#if object.range.isAdvanced}}
+                  {{#each config.spell_casting.range.advanced}}
+                    <option value="{{this}}">{{ptRange this}}</option>
+                  {{/each}}
+                {{else}}
+                  {{#each config.spell_casting.range.standard}}
+                    <option value="{{this}}">{{ptRange this}}</option>
+                  {{/each}}
+                {{/if}}
+              {{/select}}
+            </select>
+          </span>
+          <span><label class="small"> {{ localize "MTA.Advanced" }} </label>
+            <label class="checkBox">
+              <input object.data-dtype="Boolean" name="object.range.isAdvanced" type="checkbox" {{checked object.range.isAdvanced}}>
+              <span></span>
+            </label>
+          </span>
+          <span class="wide">
+            {{#if attainment_sympatheticRange}}
+            <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.attainment_sympatheticRange" type="checkbox" {{checked object.attainment_sympatheticRange}}>
+              <span> {{ localize "MTA.SympatheticRange" }} </span>
+            </label>
+            {{/if}}
+            {{#if attainment_temporalSympathy}}
+            <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.attainment_temporalSympathy" type="checkbox" {{checked object.attainment_temporalSympathy}}>
+              <span> {{ localize "MTA.TemporalSympathy" }} </span>
+            </label>
+            {{/if}}
+          </span>
+          
+        </div>
+        <div class="form-line">
+          <label> {{ localize "MTA.ReachMod" }} </label> <input name="object.additionalReach" type="number" data-dtype="Number" value="{{object.additionalReach}}" />
+        </div>
+        <div class="form-line">
+          <label> {{ localize "MTA.ManaMod" }} </label> <input name="object.manaMod" type="number" data-dtype="Number" value="{{object.manaMod}}" />
+        </div>
+      </div>
+
+      {{#if object.addons}}
+        <div class="stat-group">
+          <div class="sheet-header">
+            <h3>{{ localize "MTA.ReachEffects" }}</h3>
+          </div>
+          <div class="gold-border"> </div>
+          {{#each object.addons as |addon index|}}
+          <div class="form-line addon-form-line">
+            <label class="{{#unless addon.isStackable}}checkBox{{/unless}} addon-checkbox">
+              {{#if addon.isStackable}}
+                <input 
+                  data-dtype="Number" 
+                  name="object.addons.{{index}}.stacks" 
+                  type="number" 
+                  min="0" 
+                  value="{{addon.stacks}}" 
+                  class="addon-number-input" 
+                  {{#if addon.isDisabled}}disabled="disabled"{{/if}}
+                >
+              {{else}}
+                <input 
+                  data-dtype="Boolean" 
+                  name="object.addons.{{index}}.active" 
+                  type="checkbox" 
+                  {{checked addon.active}} 
+                  {{#if addon.isDisabled}}disabled="disabled"{{/if}}
+                >
+              {{/if}}
+              {{#if addon.combinedSpell}}
+                <span class="addon-combined-spell">({{addon.combinedSpell}})</span>
+              {{/if}}
+              <span>
+                {{#if addon.prereq}}
+                  {{#if addon.prereq.dots}}
+                    {{lookup ../reachArcanaOpts addon.prereq.key}}
+                    {{addon.prereq.dots}}{{#if addon.manaCost}},{{else if addon.willpowerCost}},{{else if addon.reachCost}},{{/if}}
+                  {{/if}}
+                {{/if}}
+                {{#if addon.reachCost}}+{{addon.reachCost}} {{ localize "MTA.Reach" }}{{#if addon.manaCost}},{{else if addon.willpowerCost}},{{/if}}{{/if}}
+                {{#if addon.manaCost}}{{addon.manaCost}} {{ localize "MTA.MageMana" }}{{#if addon.willpowerCost}},{{/if}}{{/if}}
+                {{#if addon.willpowerCost}}{{addon.willpowerCost}} {{ localize "MTA.Willpower" }}{{/if}}
+                :
+              </span>
+              {{addon.desc}}
+            </label>
+          </div>
+        {{/each}}
+        
+        </div>
+      {{/if}}
+
+      <div class="stat-group">
+        <div class="form-line {{#if valueChange.dicePool}} fadeRed {{/if}}">
+          <label> {{ localize "MTA.DicePool" }} </label>
+          <label> 
+            <label> {{object.spellcastingDice}} </label>
+            <span class="dicePoolMods">
+              <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.spell_tenAgain" type="checkbox" {{checked object.spell_tenAgain}}>
+              <span> {{ localize "MTA.TenAgain" }} </span>
+            </label>
+              <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.spell_nineAgain" type="checkbox" {{checked object.spell_nineAgain}}>
+              <span> {{ localize "MTA.NineAgain" }} </span>
+            </label>
+              <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.spell_eightAgain" type="checkbox" {{checked object.spell_eightAgain}}>
+              <span> {{ localize "MTA.EightAgain" }} </span>
+            </label>
+              <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.spell_roteQuality" type="checkbox" {{checked object.spell_roteQuality}}>
+              <span> {{ localize "MTA.RoteAction" }} </span>
+            </label>
+            </span>
+          </label>
+          <label class="wide small">{{#if object.woundPenalty}}(-{{object.woundPenalty}} {{ localize "MTA.DiceWoundPenalty" }}){{/if}}</label>
+          <label class="wide small"> {{#if spellImpossible}} {{ localize "MTA.SpellFails" }} {{else}} {{#if object.chance_die}} {{ localize "MTA.ChanceDie" }} {{/if}} {{/if}}</label>
+        </div>
+        <div class="form-line {{#if valueChange.reach}} fadeRed {{else}} {{#if valueChange.reachFree}} fadeRed {{/if}} {{/if}}">
+          <label> {{ localize "MTA.Reaching" }} </label>
+          <label> {{object.reach}} / {{object.reachFree}}</label>
+          {{#if activeSpellReach}}  <label> </label> <label class="small extraReach">(+{{activeSpellReach}} {{ localize "MTA.ReachInstructions" }})</label> {{/if}}
+        </div>
+        <div class="form-line {{#if valueChange.manaCost}} fadeRed {{/if}}">
+          <label> {{ localize "MTA.MageMana" }} </label>
+          <label> {{object.manaCost}} </label>
+        </div>
+        {{#if object.willpowerCost}}
+        <div class="form-line {{#if valueChange.willpowerCost}} fadeRed {{/if}}">
+          <label> {{ localize "MTA.Willpower" }} </label>
+          <label> {{object.willpowerCost}} </label>
+        </div>
+        {{/if}}
+        <div class="form-line {{#if valueChange.paradox}} fadeRed {{/if}}">
+          <label>  {{ localize "MTA.Paradox" }} </label>
+          <label> 
+            <label> {{object.paradox.value}} </label>
+            <span class="dicePoolMods">
+              <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.paradox_tenAgain" type="checkbox" {{checked object.paradox_tenAgain}}>
+              <span> {{ localize "MTA.TenAgain" }} </span>
+            </label>
+              <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.paradox_nineAgain" type="checkbox" {{checked object.paradox_nineAgain}}>
+              <span> {{ localize "MTA.NineAgain" }} </span>
+            </label>
+              <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.paradox_eightAgain" type="checkbox" {{checked object.paradox_eightAgain}}>
+              <span> {{ localize "MTA.EightAgain" }} </span>
+            </label>
+              <label class="checkBox checkButton">
+              <input data-dtype="Boolean" name="object.paradox_roteQuality" type="checkbox" {{checked object.paradox_roteQuality}}>
+              <span> {{ localize "MTA.RoteAction" }} </span>
+            </label>
+            </span>
+          </label>
+          <label class="wide small"> {{#if object.paradox.chance_die}} {{ localize "MTA.ChanceDie" }} {{/if}} </label>
+        </div>
+        <div>
+          <button class="button stoneButton imprSpell rollParadox">
+            {{ localize "MTA.RollParadox" }}
+          </button>
+
+          <button class="button stoneButton imprSpell castSpell">
+            {{ localize "MTA.CastSpell" }}
+          </button>
+        
+          <button class="button stoneButton imprSpell spellTemplate">
+            {{ localize "MTA.spell.SaveAsTemplate" }}
+          </button>
+        </div>
+        
+
+      </div>
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+</form>

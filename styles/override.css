@@ -1,0 +1,373 @@
+/** Add content here and the system will ensure that this file will always be loaded last. **/
+
+/* ================== CofD – Improvised Spell (dialogue-improvisedSpell) ================== */
+
+.mta-sheet.dialogue .item-stat-block .form-line {
+  /* grid base de cada linha (label | campo) */
+  display: grid;
+  grid-template-columns: 11rem 1fr; /* largura das colunas da esquerda*/
+  column-gap: 6px;
+  min-height: 44px;
+}
+
+/* ESQUERDA: 2ª célula CLAMPADA ao L_MAX (o teto vale MESMO) */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child .item-stat-block .form-line > :not(label){
+  width: 100% !important;
+  max-width: var(--L_MAX) !important;
+  min-width: 0 !important;
+  overflow: hidden !important;     /* nada vaza pra fora */
+  justify-self: start !important;
+  box-sizing: border-box;
+}
+
+/* DIREITA: 2ª célula com PISO (e teto opcional) */
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child .item-stat-block .form-line > :not(label){
+  width: auto !important;          /* deixa o conteúdo mandar */
+  min-width: var(--R_MIN) !important;
+  max-width: var(--R_MAX) !important; /* comente se não quiser teto na direita */
+  justify-self: start !important;
+  box-sizing: border-box;
+}
+
+/* —— ESQUERDA —— */
+/* .wide tentava spanar as 2 colunas: prende na 2ª e respeita o L_MAX */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child .item-stat-block .form-line > .wide{
+  grid-column: 2 / 3 !important;
+  width: 100% !important;
+  max-width: var(--L_MAX) !important;
+  box-sizing: border-box;
+}
+
+/* “Spells” e “Duração/Paradoxo left” usam grupos de botões:(force wrap + clamp) */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child .item-stat-block .form-line .dicePoolMods{
+  display: flex; flex-wrap: wrap; gap: 6px;
+  width: 100% !important; max-width: 100% !important; min-width: 0 !important;
+}
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child .item-stat-block .form-line .dicePoolMods .checkButton > span{
+  white-space: normal !important;   /* evita nowrap estourar largura */
+}
+
+/* Yantra: select + contador dentro do .wide seguem o teto */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child .item-stat-block .form-line > .wide select.addYantra,
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child .item-stat-block .form-line > .wide > *{
+  width: 100% !important; max-width: var(--L_MAX) !important; min-width: 0 !important;
+}
+
+/* Testemunhas adormecidas: segunda célula clampada + input com min/max */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child .item-stat-block .form-line > label + *{
+  width: 100% !important; max-width: var(--L_MAX) !important; min-width: 0 !important; overflow: hidden !important;
+}
+.mta-sheet.dialogue input[type="number"][name="object.paradox.sleeper_witnesses"]{
+  min-width: var(--L_MIN) !important; max-width: var(--L_MAX) !important;
+}
+
+/* —— DIREITA —— */
+/* Duração condicional: grupos de botões não estouram e quebram linha */
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child .item-stat-block .form-line .dicePoolMods{
+  display: flex; flex-wrap: wrap; gap: 6px;
+  width: 100% !important; max-width: 100% !important; min-width: 0 !important;
+}
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child .item-stat-block .form-line .dicePoolMods .checkButton > span{
+  white-space: normal !important;
+}
+
+/* SELECT + NUMBER acompanham o 100% (sem mexer na altura) */
+.mta-sheet.dialogue :where(.item-stat-block .form-line) :is(select, input[type="number"]){
+  width: 100% !important;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* se houver wrapper de número estilizado, garante expansão */
+.mta-sheet.dialogue .item-stat-block .form-line :is(.niceNumber, .theNumber) {
+  width: 100% !important;
+}
+.mta-sheet.dialogue .item-stat-block .form-line :is(.niceNumber, .theNumber) input[type="number"] {
+  width: 100% !important;
+}
+
+/* ================== KNOBS GERAIS ================== */
+.mta-sheet.dialogue{
+  /* esquerda: Arcano, Nível, Fator primário, bônus, Yantra, Withstand, Paradox... */
+  --L_MIN: 7rem;   /* largura mínima default dos CAMPOS da esquerda */
+  --L_MAX: 13rem;   /* largura máxima default dos CAMPOS da esquerda */
+
+  /* direita: Potência, Duração, Escala, Alcance, etc. (value) */
+  --R_MIN: 9rem;   /* largura mínima default dos CAMPOS da direita */
+  --R_MAX: 17rem;  /* se quiser também limitar o máximo na direita, abaixa isso */
+}
+
+/* ================== ESQUERDA: aplicar MIN e MAX ================== */
+/* selects principais da esquerda */
+.mta-sheet.dialogue select[name="object.arcanum"],
+.mta-sheet.dialogue select[name="object.primaryFactor"]{
+  /* defaults… mas permitem override por-campo via --min/--max locais */
+  min-width: var(--min, var(--L_MIN)) !important;
+  max-width: var(--max, var(--L_MAX)) !important;
+}
+
+/* números da esquerda */
+.mta-sheet.dialogue input[type="number"][name="object.level"],
+.mta-sheet.dialogue input[type="number"][name="object.yantraBonus"],
+.mta-sheet.dialogue input[type="number"][name="object.withstandRating"],
+.mta-sheet.dialogue input[type="number"][name="object.bonusDice"],
+.mta-sheet.dialogue input[type="number"][name="object.paradox.bonus"],
+.mta-sheet.dialogue input[type="number"][name="object.paradox.sleeper_witnesses"],
+.mta-sheet.dialogue input[type="number"][name="object.paradox.previous_rolls"],
+.mta-sheet.dialogue input[type="number"][name="object.paradox.mana_spent"]{
+  min-width: var(--min, var(--L_MIN)) !important;
+  max-width: var(--max, var(--L_MAX)) !important;
+}
+
+/* ================== DIREITA: aplicar MIN (e MAX opcional) ================== */
+.mta-sheet.dialogue select[name="object.potency.value"],
+.mta-sheet.dialogue select[name="object.duration.value"],
+.mta-sheet.dialogue select[name="object.scale.value"],
+.mta-sheet.dialogue select[name="object.range.value"]{
+  min-width: var(--min, var(--R_MIN)) !important;
+  max-width: var(--max, var(--R_MAX)) !important; /* se não quiser limite, deixa 999rem no knob */
+}
+
+/* (opcional) valores numéricos do lado direito, se existirem no seu tema */
+.mta-sheet.dialogue input[type="number"][name="object.manaMod"]{
+  min-width: var(--min, var(--R_MIN)) !important;
+  max-width: var(--max, var(--R_MAX)) !important;
+}
+
+/* =========================================================
+   ESQUERDA — impedir “Spells” e “Yantras” de ultrapassar o teto
+   (eles usam .wide, que por padrão SPANA as duas colunas)
+   ========================================================= */
+
+/* 0) Desabilita o span 2 colunas para .wide na ESQUERDA */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child
+  .item-stat-block .form-line > .wide{
+  grid-column: 2 / 3 !important;     /* só a 2ª coluna */
+  width: 100% !important;
+  max-width: var(--L_MAX) !important;
+  box-sizing: border-box;
+  justify-self: start !important;
+}
+
+/* 1) “Spells” (antes de Arcano): o container é .wide.yantra-box */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child
+  .item-stat-block .form-line > .wide.yantra-box{
+  /* já preso à col 2 pelo bloco acima */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* 2) “Yantras”: o add usa select.addYantra (fica dentro de .wide) */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child
+  .item-stat-block .form-line > .wide select.addYantra{
+  width: 100% !important;
+  max-width: var(--L_MAX) !important;
+  box-sizing: border-box;
+}
+
+/* 3) Testemunhas adormecidas: garante teto na célula (label + *) e no input */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child
+  .item-stat-block .form-line > label + *{
+  width: 100% !important;
+  max-width: var(--L_MAX) !important;
+  box-sizing: border-box;
+}
+.mta-sheet.dialogue input[type="number"][name="object.paradox.sleeper_witnesses"]{
+  min-width: var(--L_MIN) !important;
+  max-width: var(--L_MAX) !important;
+}
+
+/* (extra) qualquer grupo de botões da esquerda quebra linha e respeita o teto */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child
+  .item-stat-block .form-line .dicePoolMods{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100% !important;
+  max-width: var(--L_MAX) !important;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   DIREITA — mínimos e casos que “esticam”
+   ========================================================= */
+
+/* 4) Duração condicional (tem grupo de botões) */
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child
+  .item-stat-block .form-line .dicePoolMods{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: var(--R_MIN) !important;
+  max-width: var(--R_MAX) !important;   /* comente se não quiser teto na direita */
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* 5) Tempo de conjuração (select principal) */
+.mta-sheet.dialogue select[name="object.casting_time.value"]{
+  min-width: var(--R_MIN) !important;
+  max-width: var(--R_MAX) !important;   /* comente se não quiser teto na direita */
+}
+
+/* 6) Modificador de Elevação (reach extra) */
+.mta-sheet.dialogue input[type="number"][name="object.additionalReach"]{
+  min-width: var(--R_MIN) !important;
+  max-width: var(--R_MAX) !important;   /* comente se não quiser teto na direita */
+}
+
+/* 7) Piso geral na 2ª célula da DIREITA (sem forçar stretch infinito) */
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child
+  .item-stat-block .form-line > :not(label){
+  min-width: var(--R_MIN) !important;
+  width: auto !important;               /* deixa o conteúdo mandar, com piso */
+  max-width: var(--R_MAX) !important;   /* comente se não quiser teto global na direita */
+  justify-self: start !important;
+  box-sizing: border-box;
+}
+
+/* ====== CLAMP POR TRILHO – ESQUERDA ====== */
+/* Teto global do lado ESQUERDO (nível, fator, etc.) */
+.mta-sheet.dialogue{
+  --L_MAX: 13rem; /* ajuste aqui; para testar, tente 200px e veja “travar” */
+}
+
+/* 1) TODAS as linhas da ESQUERDA: 2º track com teto */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child
+  .item-stat-block .form-line{
+  grid-template-columns: 11rem minmax(0, var(--L_MAX)) !important;
+}
+
+/* 2) Linha especial com 3 colunas (Paradoxo armazenado etc.): 
+      mantém a col. do meio fixa e CLAMPA só a última */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child
+  .item-stat-block .form-line.stored-paradox{
+  grid-template-columns: 11rem 6rem minmax(0, var(--L_MAX)) !important;
+}
+
+/* 3) Rebeldes da esquerda (.wide): NÃO podem spanar 2 colunas */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child
+  .item-stat-block .form-line > .wide{
+  grid-column: 2 / 3 !important;              /* só na 2ª coluna */
+}
+
+/* 4) Grupos de botões (Spells/Yantra/Testemunhas): quebrar + obedecer track */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child
+  .item-stat-block .form-line .dicePoolMods{
+  display: flex; flex-wrap: wrap; gap: 6px;
+  white-space: normal !important;
+}
+
+/* 5) Segurança: segunda célula nunca tenta esticar além do track */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child
+  .item-stat-block .form-line > :not(label){
+  justify-self: start !important;
+  max-width: 100% !important;   /* 100% DO TRACK, que agora tem teto */
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+/* —————————————————— FIX 1: impedir .wide de spanar 2 colunas —————————————————— */
+/* Esquerda */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child .item-stat-block .form-line > .wide {
+  grid-column: 2 / 3 !important;   /* só a 2ª coluna */
+  grid-column-end: 3 !important;   /* neutraliza 'span 2' do tema */
+  max-width: var(--L_MAX) !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+/* Direita (p/ “Duração condicional” etc.) */
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child .item-stat-block .form-line > .wide {
+  grid-column: 2 / 3 !important;
+  grid-column-end: 3 !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* —————————————————— FIX 2: Spells & Yantras (wrappers específicos) —————————————————— */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child .item-stat-block .form-line > .wide.yantra-box {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  max-width: var(--L_MAX) !important;
+  width: 100% !important;
+}
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child .item-stat-block .form-line > .wide select.addCombinedSpell {
+  max-width: var(--L_MAX) !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+/* Qualquer filho direto da .wide (chips/contadores) respeita o teto */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child .item-stat-block .form-line > .wide > * {
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+/* —————————————————— FIX 3: Testemunhas adormecidas —————————————————— */
+/* É SELECT, não NUMBER */
+.mta-sheet.dialogue select[name="object.paradox.sleeper_witnesses"] {
+  min-width: var(--L_MIN) !important;
+  max-width: var(--L_MAX) !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+/* A 2ª célula da linha também fica clampada, pra não empurrar o grid */
+.mta-sheet.dialogue.flexrow.nowrap > div:first-child .item-stat-block .form-line > label + * {
+  max-width: var(--L_MAX) !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+/* —————————————————— FIX 4: Duração condicional (direita) —————————————————— */
+/* O select usado é object.condition (além dos de duration/scale/range/potency) */
+.mta-sheet.dialogue select[name="object.condition"] {
+  min-width: var(--R_MIN) !important;
+  max-width: var(--R_MAX) !important; /* comente se quiser só mínimo */
+  width: 100% !important;
+  box-sizing: border-box;
+}
+/* E o container .wide da linha não spana duas colunas (já coberto no FIX 1) */
+/* Se tiver botões nessa linha, força wrap para não estourar largura */
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child .item-stat-block .form-line .dicePoolMods {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  width: 100% !important; max-width: 100% !important; min-width: 0 !important;
+}
+
+/* ===== Footer da última coluna: botões mais estreitos, na mesma linha ===== */
+/* pega os três: cast (rolagem), paradox, template/modelo */
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child .imprSpell.stoneButton,
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child .castSpell.stoneButton,
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child .rollParadox.stoneButton,
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child .spellTemplate.stoneButton {
+  /* derruba o "display:block; width:100%" do tema */
+  display: inline-flex !important;
+  width: auto !important;
+  min-width: 0 !important;
+
+  /* só afina a LARGURA: menos padding horizontal; altura fica a do tema */
+  padding-left: .35rem !important;
+  padding-right: .35rem !important;
+
+  /* ficam lado a lado sem quebrar por espaço interno */
+  white-space: nowrap;
+  vertical-align: top;
+  margin-right: .4rem;    /* espaçamento entre eles */
+}
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child
+  .imprSpell.stoneButton:last-child,
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child
+  .castSpell.stoneButton:last-child,
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child
+  .rollParadox.stoneButton:last-child,
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child
+  .spellTemplate.stoneButton:last-child {
+  margin-right: 0 !important;
+}
+
+/* se o contêiner dessa linha for grid e estiver forçando quebra, força “fila” */
+.mta-sheet.dialogue.flexrow.nowrap > div:last-child .item-stat-block .form-line:last-child {
+  display: block !important;           /* sai do grid só nesse rodapé */
+  text-align: right;                   /* alinha os botões à direita (opcional) */
+}
+

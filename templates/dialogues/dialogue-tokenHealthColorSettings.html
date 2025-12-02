@@ -1,0 +1,25 @@
+<form class="{{cssClass}} flexrow nowrap" autocomplete="off">
+    <div class="settings-list">
+        <div>{{localize "MTA.ColorSettingsInstructions"}}</div>
+        <div class="form-group submenu">
+            <label>{{localize "MTA.ColorHealthy"}}</label>
+            <input type="color" value="{{color_healthy}}" name="color_healthy">
+            <div class="button reset-color" data-color="healthy">{{localize "MTA.Reset"}}</div>
+        </div>
+        <div class="form-group submenu">
+            <label>{{localize "MTA.ColorBashing"}}</label>
+            <input type="color" value="{{color_bashing}}" name="color_bashing">
+            <div class="button reset-color" data-color="bashing">{{localize "MTA.Reset"}}</div>
+        </div>
+        <div class="form-group submenu">
+            <label>{{localize "MTA.ColorLethal"}}</label>
+            <input type="color" value="{{color_lethal}}" name="color_lethal">
+            <div class="button reset-color" data-color="lethal">{{localize "MTA.Reset"}}</div>
+        </div>
+        <div class="form-group submenu">
+            <label>{{localize "MTA.ColorAggravated"}}</label>
+            <input type="color" value="{{color_aggravated}}" name="color_aggravated">
+            <div class="button reset-color" data-color="aggravated">{{localize "MTA.Reset"}}</div>
+        </div>
+    </div>
+</form>

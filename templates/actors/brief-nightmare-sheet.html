@@ -1,0 +1,371 @@
+<form class="{{cssClass}}" autocomplete="off">
+  <div class="characterSheet briefNightmare">
+    {{!-- Sheet Header --}}
+    <!-- Column #1 -->
+    <div class="sheet-header briefstats">
+      <!-- Column #1-->
+      <div class="portrait">
+        <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}">
+      </div>
+						
+      <!-- Column #2 -->
+      <div>
+        <!-- Row #1 -->
+        <h1 class="character-name"><input type="text" name="name" value="{{actor.name}}" placeholder="Name"></h1>
+																		
+        <!-- Row #2 -->
+        <div class="bottomCharaBlock">
+          <div class="kInput statBox big health">
+            <h4 class="{{#if system.isDreaming}}dreaming{{/if}}">
+              <div class="button charMacroButton calculate health tooltip">
+                <span class="tooltip-text">{{ localize "MTA.TooltipCalcMaxHealth" }}</span>
+                <img src="systems/mta/icons/gui/calculate.svg" alt="Calculate max. health.">
+              </div>
+              {{ localize "MTA.Health" }}
+            </h4>
+            <div class="gold-border"> </div>
+            <div class="kMageTracker" data-type="health" data-name="system.health" data-states="max/value/lethal/aggravated" data-marked="{{system.health.marked}}" data-max="{{system.health.max}}" data-aggravated="{{system.health.aggravated}}" data-lethal="{{system.health.lethal}}" data-value="{{system.health.value}}">
+            </div>
+          </div>
+
+          <div class="kInput statBox big">
+            <h4>
+              <input class="attribute-check" id="Willpower{{actor.id}}" data-attribute="willpower" data-trait="willpower" data-attributeValue={{system.willpower.max}} data-attributeLabel="Willpower" type="checkbox" data-dtype="Boolean">
+              <label class="button attribute-button" for="Willpower{{actor.id}}">{{ localize "MTA.Willpower" }}</label>
+            </h4>
+            <div class="gold-border"> </div>
+            <div class="split">
+              <div class="niceNumber buttonsLeft">
+                <input name="system.willpower.value" type="number" value="{{system.willpower.value}}" data-dtype="Number" onchange="this.value=Math.clamp(this.value,0,99);">
+                <div class="numBtns">
+                  <div class="plusBtn">+</div>
+                  <div class="minusBtn">-</div>
+                </div>
+              </div>
+              <span class="delimiter"> / </span>
+              <div class="niceNumber">
+                <input name="system.willpower.max" type="number" value="{{system.willpower.max}}" data-dtype="Number" readonly>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+				
+    {{!-- Sheet Side --}}
+    <div class="conditions">
+      <div class="character-type">
+        <span class="tooltip left">
+          <span class="tooltip-text">{{ localize "MTA.TooltipTypeVisible" }}</span>
+          <label class="checkBox">
+            <input data-dtype="Boolean" name="system.isTypeKnown" type="checkbox" {{checked system.isTypeKnown}}>
+            <span></span>
+          </label>
+        </span>
+        <select name="system.briefNightmareType" class="briefNightmareType">
+          {{#select system.briefNightmareType}}
+            {{#each config.briefNightmareTypes}}
+              <option value="{{this}}">{{this}}</option>
+            {{/each}}
+          {{/select}}
+        </select>								
+      </div>
+      <div class="horrorHeader">{{ localize "MTA.BriefNightmare" }}</div>
+      <!-- Block #1 -->
+      <div class="kInput statBox">
+        <h4> {{ localize "MTA.DerivedTraits" }}</h4>
+        <div class="gold-border"> </div>
+        <div class="armourGrid">
+          {{#each config.derivedTraits as |cvalue ckey|}}
+          {{#with (lookup ../system.derivedTraits [ckey])}}
+            <span>
+              <input class="attribute-check" id="{{cvalue}}{{../../actor.id}}" data-attribute="{{ckey}}" data-trait="derivedTraits.{{ckey}}" data-attributeValue={{chooseNum final value}} data-attributeLabel="{{cvalue}}" type="checkbox" data-dtype="Boolean">
+              <label class="button attribute-button" for="{{cvalue}}{{../../actor.id}}">{{cvalue}}</label>
+            </span>
+            <input class="{{#if isModified}}{{posneg final value}}{{/if}}" value={{chooseNum final value}} disabled>
+            <div class="niceNumber digits2" >
+              <input name="system.derivedTraits.{{ckey}}.mod" type="text" placeholder="0" data-dtype="Number" onchange="this.value=Math.clamp(this.value,-999,999);" value="{{numberFormat mod decimals=0 sign=true}}">
+              <div class="numBtns">
+                <div class="plusBtn">+</div>
+                <div class="minusBtn">−</div>
+              </div>
+            </div>
+          {{/with}}
+          {{/each}}
+        </div>
+      </div>
+
+      <div class="items-block">
+        <div class="items-table">
+          {{!-- Dread Powers --}}
+          <table class="item-table">
+            <thead>
+              <tr class="item-row header">
+                <th class="cell header first"> 
+                  <span class="collapsible button fas fa-minus-square"> </span>
+                  <span class="sortable button" data-sorttype="dreadPower" data-sortproperty="name" data-type="dreadPower">{{ localize "MTA.DreadPowers" }}<i class="fas fa-sort"></i> </span>
+                </th>
+                {{#each inventory.dreadPower.dataset}}
+                  <th class="cell header {{#if this.property}} sortable button{{/if}}" 
+                      data-sorttype="dreadPower" 
+                      data-sortproperty="{{this.property}}">
+                    {{localize this.label}}
+                  {{#if this.property}}<i class="fas fa-sort"></i>{{/if}}
+                  </th>
+                {{/each}}
+                <th class="cell header"> </th>
+                <th class="cell header button item-create" data-type="dreadPower">{{ localize "MTA.ButtonAdd" }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each inventory.dreadPower.items as |item iid|}}
+                <tr class="item-row item" data-item-id="{{item.id}}">
+                  <td class="cell item-name first {{#if @last}} lastRow {{/if}}" data-item-id="{{item.id}}">
+                    <div class="item-name-wrapper">
+                      <div class="item-image {{#if system.effectsActive}} effectActive {{/if}}" style="background-image: url({{item.img}})"></div>
+                      <span> {{item.name}} </span>
+                    </div>
+                  </td>
+                  <td class="cell {{#if @last}} lastRow {{/if}}"> {{system.rating}}</td>
+                  <td class="cell {{#if @last}} lastRow {{/if}}"> 
+                    {{#if system.effects }}<i class="activeIcon {{#if system.effectsActive}} fas {{else}} far {{/if}} fa-dot-circle" title="Effects active" data-item-id="{{item._id}}"></i>{{/if}}
+                    <i class="favicon {{#if system.isFavorite}} fas {{else}} far {{/if}} fa-star" title="Favorite" data-item-id="{{item.id}}"></i>
+                  </td>
+                  <td class="cell edit-delete {{#if @last}} lastRow {{/if}}">
+                    <span class="button stoneButton item-edit" data-item-id="{{item.id}}" title="{{ localize 'MTA.EditItem' }}"><i class="fas fa-edit"></i></span>
+                    <span class="button stoneButton item-delete" data-item-id="{{item.id}}" title="{{ localize 'MTA.DeleteItem' }}"><i class="fas fa-times-circle"></i></span>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="items-block">
+        <div class="items-table">
+          {{!-- Numina --}}
+          <table class="item-table">
+            <thead>
+              <tr class="item-row header">
+                <th class="cell header first"> 
+                  <span class="collapsible button fas fa-minus-square"> </span>
+                  <span class="sortable button" data-sorttype="numen" data-sortproperty="name" data-type="numen">{{localize "MTA.Numina"}}<i class="fas fa-sort"></i> </span>
+                </th>
+                {{#each inventory.numen.dataset}}
+                  <th class="cell header {{#if this.property}} sortable button{{/if}}" 
+                      data-sorttype="numen" 
+                      data-sortproperty="{{this.property}}">
+                    {{localize this.label}}
+                  {{#if this.property}}<i class="fas fa-sort"></i>{{/if}}
+                  </th>
+                {{/each}}
+                <th class="cell header"> </th>
+                <th class="cell header button item-create" data-type="numen">{{ localize "MTA.ButtonAdd" }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each inventory.numen.items as |item iid|}}
+                <tr class="item-row item" data-item-id="{{item.id}}">
+                  <td class="cell item-name first {{#if @last}} lastRow {{/if}}" data-item-id="{{item.id}}">
+                    <div class="item-name-wrapper">
+                      <div class="item-image" style="background-image: url({{item.img}})"></div>
+                      <span> {{item.name}} </span>
+                    </div>
+                  </td>
+                  <td class="cell {{#if @last}} lastRow {{/if}}">{{system.rating}}</td>
+                  <td class="cell {{#if @last}} lastRow {{/if}}">{{convertBool system.reaching}}</td>
+                  <td class="cell {{#if @last}} lastRow {{/if}}"> 
+                    {{#if system.effects }}<i class="activeIcon {{#if system.effectsActive}} fas {{else}} far {{/if}} fa-dot-circle" title="Effects active" data-item-id="{{item._id}}"></i>{{/if}}
+                    <i class="favicon {{#if system.isFavorite}} fas {{else}} far {{/if}} fa-star" title="Favorite" data-item-id="{{item.id}}"></i>
+                  </td>
+                  <td class="cell edit-delete {{#if @last}} lastRow {{/if}}">
+                    <span class="button stoneButton item-edit" data-item-id="{{item.id}}" title="{{ localize 'MTA.EditItem' }}"><i class="fas fa-edit"></i></span>
+                    <span class="button stoneButton item-delete" data-item-id="{{item.id}}" title="{{ localize 'MTA.DeleteItem' }}"><i class="fas fa-times-circle"></i></span>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="items-block">
+        <div class="items-table">
+          {{!-- Conditions --}}
+          <table class="item-table">
+            <thead>
+              <tr class="item-row header">
+                <th class="cell header first"> 
+                  <span class="collapsible button fas fa-minus-square"> </span>
+                  <span class="sortable button" data-sorttype="condition" data-sortproperty="name" data-type="condition">{{ localize "MTA.Conditions" }}<i class="fas fa-sort"></i> </span>
+                </th>
+                {{#each inventory.condition.dataset}}
+                  <th class="cell header {{#if this.property}} sortable button{{/if}}" 
+                      data-sorttype="condition" 
+                      data-sortproperty="{{this.property}}">
+                    {{localize this.label}}
+                  {{#if this.property}}<i class="fas fa-sort"></i>{{/if}}
+                  </th>
+                {{/each}}
+                <th class="cell header"> </th>
+                <th class="cell header button item-create" data-type="condition">{{ localize "MTA.ButtonAdd" }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each inventory.condition.items as |item iid|}}
+                <tr class="item-row item" data-item-id="{{item.id}}">
+                  <td class="cell item-name first {{#if @last}} lastRow {{/if}}" data-item-id="{{item.id}}">
+                    <div class="item-name-wrapper">
+                      <div class="item-image {{#if system.effectsActive}} effectActive {{/if}}" style="background-image: url({{item.img}})"></div>
+                      <span> {{item.name}} </span>
+                    </div>
+                  </td>
+                  <td class="cell {{#if @last}} lastRow {{/if}}">{{convertBool system.isPersistent}}</td>
+                  <td class="cell {{#if @last}} lastRow {{/if}}">
+                    {{#if system.effects }}<i class="activeIcon {{#if system.effectsActive}} fas {{else}} far {{/if}} fa-dot-circle" title="Effects active" data-item-id="{{item._id}}"></i>{{/if}}
+                  </td>
+                  <td class="cell edit-delete {{#if @last}} lastRow {{/if}}">
+                    <span class="button stoneButton item-edit" data-item-id="{{item.id}}" title="{{ localize 'MTA.EditItem' }}"><i class="fas fa-edit"></i></span>
+                    <span class="button stoneButton item-delete" data-item-id="{{item.id}}" title="{{ localize 'MTA.DeleteItem' }}"><i class="fas fa-times-circle"></i></span>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="items-block">
+        <div class="items-table">
+          {{!-- Tilts --}}
+          <table class="item-table">
+            <thead>
+              <tr class="item-row header">
+                <th class="cell header first"> 
+                  <span class="collapsible button fas fa-minus-square"> </span>
+                  <span class="sortable button" data-sorttype="tilt" data-sortproperty="name" data-type="tilt">{{ localize "MTA.Tilts" }}<i class="fas fa-sort"></i> </span>
+                </th>
+                {{#each inventory.tilt.dataset}}
+                  <th class="cell header {{#if this.property}} sortable button{{/if}}" 
+                      data-sorttype="tilt" 
+                      data-sortproperty="{{this.property}}">
+                    {{localize this.label}}
+                  {{#if this.property}}<i class="fas fa-sort"></i>{{/if}}
+                  </th>
+                {{/each}}
+                <th class="cell header"> </th>
+                <th class="cell header button item-create" data-type="tilt">{{ localize "MTA.ButtonAdd" }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each inventory.tilt.items as |item iid|}}
+                <tr class="item-row item" data-item-id="{{item.id}}">
+                  <td class="cell item-name first {{#if @last}} lastRow {{/if}}" data-item-id="{{item.id}}">
+                    <div class="item-name-wrapper">
+                      <div class="item-image {{#if system.effectsActive}} effectActive {{/if}}" style="background-image: url({{item.img}})"></div>
+                      <span> {{item.name}} </span>
+                    </div>
+                  </td>
+                  <td class="cell {{#if @last}} lastRow {{/if}}"> {{convertBool system.isEnvironmental}}</td>
+                  <td class="cell {{#if @last}} lastRow {{/if}}">
+                    {{#if system.effects }}<i class="activeIcon {{#if system.effectsActive}} fas {{else}} far {{/if}} fa-dot-circle" title="Effects active" data-item-id="{{item._id}}"></i>{{/if}}
+                  </td>
+                  <td class="cell edit-delete {{#if @last}} lastRow {{/if}}">
+                    <span class="button stoneButton item-edit" data-item-id="{{item.id}}" title="{{ localize 'MTA.EditItem' }}"><i class="fas fa-edit"></i></span>
+                    <span class="button stoneButton item-delete" data-item-id="{{item.id}}" title="{{ localize 'MTA.DeleteItem' }}"><i class="fas fa-times-circle"></i></span>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+				
+    {{!-- Sheet Tab Navigation --}}
+    <nav class="sheet-tabs tabs">
+      <a class="item" data-tab="attributes">{{ localize "MTA.TabAttributes" }}</a>
+      <a class="item" data-tab="description">{{ localize "MTA.TabTraits" }}</a>
+    </nav>			
+				
+    {{!-- Sheet Body --}}
+    <section class="sheet-body">
+
+      {{!-- Attributes Tab --}}
+      <div class="tab attributes" data-tab="attributes">
+        <div class="dicepool-flexrow">
+          <ol class="dicepool-list">
+            <li class="dicepool flexrow rollableInput">
+              <span class="dicepool-valueHeader">{{ localize "MTA.AllOtherDicePools" }}</span>
+              <span class="dicepool-value nightmare-other push">
+                <input class="dicepool-value nightmare-other" type="number" data-item-id="{{item.id}}" name="system.all_other_dicepools" value="{{actor.system.all_other_dicepools}}" data-dtype="Number" min=0 max=999>
+              </span>
+              <span class="button stoneButton dicepool-roll allOtherDicepoolButton" data-item-id="{{item.id}}" title="{{ localize 'MTA.RollDicepool' }}"><i class="fas fa-dice-d10"></i></span>
+            </li>
+          </ol>
+          <ol class="dicepool-list">
+            <li class="dicepool flexrow">
+              <span class="dicepool-valueHeader">{{ localize "MTA.DreadPowers" }}</span>
+              <span class="dicepool-valueHeader push">{{system.numDreadPowers}}&nbsp;/&nbsp;{{actor.system.dread_powers}}</span>
+              </span>
+            </li>
+          </ol>
+        </div>
+          
+        <div class="dicepool-flexrow">
+          <ol class="dicepool-list">
+            <li class="dicepool-header flexrow">
+              <span class="dicepool-key">{{ localize "MTA.BestDicePool" }}</span>
+              <span class="dicepool-value nightmare-best push">
+                <input class="dicepool-value nightmare-best" type="number" data-item-id="{{item.id}}" name="system.best_dice_pool.value" value="{{actor.system.best_dice_pool.value}}" data-dtype="Number" min=0 max=999>
+              </span>
+              <span class="dicepool-valueHeader button dicepool-create nightmare-best" data-type="best_dice_pool">{{ localize "MTA.ButtonAdd" }}</span>
+            </li>
+            {{#each actor.system.best_dice_pool.descriptions as |item iid|}}
+            <li class="dicepool flexrow rollableInput">
+              <span class="dicepool-name nightmare-best">
+                <input type="text" class="dicepool-name nightmare-best" data-item-id="{{iid}}" name="actor.system.best_dice_pool.description[{{iid}}]" value="{{item}}" placeholder="Name">
+              </span>
+              <span class="button stoneButton dicepool-roll bestDicepoolButton push" data-item-id="{{iid}}" title="{{ localize 'MTA.RollDicepool' }}"><i class="fas fa-dice-d10"></i></span>
+              <span class="button stoneButton dicepool-delete nightmare-best" data-item-id="{{iid}}" title="{{ localize 'MTA.DeleteItem' }}"><i class="fas fa-times-circle"></i></span>
+            </li>
+            {{/each}}
+          </ol>
+          
+          <ol class="dicepool-list">
+            <li class="dicepool-header flexrow">
+              <span class="dicepool-key">{{ localize "MTA.WorstDicePool" }}</span>
+              <span class="dicepool-value nightmare-worst push">
+                <input class="dicepool-value nightmare-worst" type="number" data-item-id="{{item.id}}" name="system.worst_dice_pool.value" value="{{actor.system.worst_dice_pool.value}}" data-dtype="Number" min=0 max=999>
+              </span>
+              <span class="dicepool-valueHeader button dicepool-create nightmare-worst" data-type="worst_dice_pool">{{ localize "MTA.ButtonAdd" }}</span>
+            </li>
+            {{#each actor.system.worst_dice_pool.descriptions as |item iid|}}
+            <li class="dicepool flexrow rollableInput">
+              <span class="dicepool-name nightmare-worst">
+                <input type="text" class="dicepool-name nightmare-worst" data-item-id="{{iid}}" name="actor.system.worst_dice_pool.description[{{iid}}]" value="{{item}}" placeholder="Name">
+              </span>
+              <span class="button stoneButton dicepool-roll worstDicepoolButton push" data-item-id="{{iid}}" title="{{ localize 'MTA.RollDicepool' }}"><i class="fas fa-dice-d10"></i></span>
+              <span class="button stoneButton dicepool-delete nightmare-worst" data-item-id="{{iid}}" title="{{ localize 'MTA.DeleteItem' }}"><i class="fas fa-times-circle"></i></span>
+            </li>
+            {{/each}}
+          </ol>
+        </div>
+      </div>				
+				
+      {{!-- Traits Tab --}}
+      <div class="tab description" data-tab="description">
+        <div class="item-stat-block">
+          <div class="form-line">
+            <label> {{localize "MTA.Notes"}} </label>
+            <textarea name="system.notes" placeholder="{{localize "MTA.Notes"}}">{{system.notes}}</textarea>
+          </div>
+          <div class="form-line">
+            <label class="wide"> {{localize "MTA.Description"}} </label>
+            <div class="wide editor-container">
+              {{editor enrichedDescription target="system.description" button=true owner=owner editable=editable}}
+            </div>
+          </div>
+        </div>
+      </div>				
+    </section>
+  </div>
+</form>
