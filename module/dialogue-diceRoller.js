@@ -70,12 +70,16 @@ export class DiceRollerDialogue extends Application {
     data.armor = this.armor;
     data.ballistic = this.ballistic;
     data.exceptionalTarget = this.exceptionalTarget;
-    data.specialties = this.specialties.length ? this.specialties : null;
+    // data.specialties = this.specialties.length ? this.specialties : null;
     
     if(game.settings.get("mta", "showRollDifficulty")) data.enableDifficulty = true;
 
     // CÓDIGO CGT
     const a = this.actor ?? this.actorOverride ?? null;
+
+    const isCharacter = a?.type === "character";
+    data.specialties = (isCharacter && this.specialties.length) ? this.specialties : null;
+    
     data.canSpendWillpower = Number(a?.system?.willpower?.value ?? 0) > 0;
     data.spendWillpower = false;
 
@@ -160,14 +164,23 @@ export class DiceRollerDialogue extends Application {
     const modifiers = this._fetchInputs(html);
 
     // CÓDIGO GPT
-    const specBonus = modifiers.specialties.length;
+    const a = this.actor ?? this.actorOverride ?? null;
+    const isCharacter = a?.type === "character";
+
+    //const specBonus = modifiers.specialties.length;
+
     const userModNoSpecs = modifiers.dicePool_userMod; // não mutar o original
+
+    const specBonus = isCharacter ? modifiers.specialties.length : 0;
+
     let dicePool = this.dicePool + specBonus + userModNoSpecs;
 
     const roteAction = modifiers.rote_action;
     let flavor = (this.flavor || "Teste de habilidade") + (modifiers.dicePool_userMod>0 ? " + " + modifiers.dicePool_userMod : modifiers.dicePool_userMod<0 ? " - " + -modifiers.dicePool_userMod : "");
+    if (isCharacter) {
     for(const specialty of modifiers.specialties) {
       flavor += ` (+${specialty})`;
+    }
     }
         
     // CÓDIGO GPT

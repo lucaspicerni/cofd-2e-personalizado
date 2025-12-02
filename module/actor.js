@@ -503,7 +503,6 @@ export class ActorMtA extends Actor {
    */
   assembleDicePool({traits=[], diceBonus=0, ignoreUnskilled=false}) {
     const systemData = this.system;
-    const allowSpecialties = this.type === "character"; // ✅ só ficha padrão
     
     //Get dice pool
     let dicePool = 0;
@@ -525,14 +524,14 @@ export class ActorMtA extends Actor {
         }, systemData);
 
         // Append specialties
-        if(ret.specialties && Array.isArray(ret.specialties)) {
+        if(this.type === "character" && ret?.specialties && Array.isArray(ret.specialties)) {
           specialties.push(...ret.specialties);
         }
 
         if(!Number.isInteger(ret)) {
-          if(typeof ret.max == 'number') ret = ret.max; // E.g. Willpower, ..
-          else if(typeof ret.final == 'number') ret = ret.final;
-          else if(typeof ret.value == 'number') ret = ret.value;
+          if(ret && typeof ret.max == 'number') ret = ret.max; // E.g. Willpower, ..
+          else if(ret && typeof ret.final == 'number') ret = ret.final;
+          else if(ret && typeof ret.value == 'number') ret = ret.value;
           else {
             ret = 0;
             console.warn("CofD: A roll attribute could not be resolved. " + cur);
