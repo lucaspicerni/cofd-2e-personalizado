@@ -178,7 +178,7 @@ MTA.special_effects_descriptions = {
 
 MTA.all_traits = {
   general: {
-    name: "MTA.General",
+    name: "MTA.generalModifiers",
     list: [
       "generalModifiers"
     ]
