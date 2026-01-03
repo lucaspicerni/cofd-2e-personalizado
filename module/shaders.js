@@ -21,13 +21,13 @@ export class TokenTwillightFilter extends AbstractBaseFilter {
       vec3 haloColor = vec3(lum) * color;
   
       // Construct final image
-      gl_FragColor = vec4(haloColor, 0.5) * baseColor.a;
+      gl_FragColor = vec4(haloColor, 0.7) * baseColor.a;
     }
     `;
 
   /** @override */
   static defaultUniforms = {
     uSampler: null,
-    color: [0.4, 0.05, 0.6]
+    color: [0.55, 0.58, 0.60]
   };
 }
