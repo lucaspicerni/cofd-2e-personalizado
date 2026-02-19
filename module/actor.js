@@ -2005,7 +2005,7 @@ openClashOfWillsDialogue() {
     const content = `
     <form class="cod-progress-dialog">
       <div class="form-group">
-        <label>Personagens:</label>
+        <label><strong>👤 Personagens:</strong></label>
         <div class="form-fields">
           <div class="cod-actor-list" style="display:flex; flex-direction:column; gap:4px;">
             ${actorCheckboxes}
@@ -2016,7 +2016,7 @@ openClashOfWillsDialogue() {
       <hr style="margin: 4px 0 8px 0; opacity: 0.5;">
 
       <div class="form-group">
-        <label>Motivo:</label>
+        <label><strong>🗂️ Motivo:</strong></label>
         <div class="form-fields">
           <select name="input.reason" class="cod-reason-select">
             <optgroup label="Beat">
@@ -2027,6 +2027,7 @@ openClashOfWillsDialogue() {
               <option value="beat:Dano extenso">🤕 Dano extenso</option>
               <option value="beat:Desafio de Habilidade">🏁 Desafio de Habilidade</option>
               <option value="beat:Falha Dramática">❌ Falha Dramática</option>
+              <option value="beat:Perseguição">👣 Perseguição</option>
               <option value="beat:Ponto de Ruptura">🧠 Ponto de Ruptura</option>
               <option value="beat:Protagonismo">🤴 Protagonismo</option>
               <option value="beat:Recompensa">🪙 Recompensa</option>
@@ -2050,7 +2051,7 @@ openClashOfWillsDialogue() {
       </div>
 
       <div class="form-group cod-custom-group" style="display:none;">
-        <label>Descrição:</label>
+        <label><strong>📋 Descrição:</strong></label>
         <div class="form-fields">
           <input type="text"
                 name="input.customReason"
@@ -2061,7 +2062,7 @@ openClashOfWillsDialogue() {
       </div>
 
       <div class="form-group cod-amount-group">
-        <label>Quantidade:</label>
+        <label><strong>#️⃣ Quantidade:</strong></label>
         <div class="form-fields">
 
           <div class="cod-amount-number">
@@ -2090,7 +2091,8 @@ openClashOfWillsDialogue() {
     </form>
   `;
 
-    const d = new Dialog({
+    let d;
+    d = new Dialog({
       title: "Adicionar Experiência",
       content,
       render: html => {
@@ -2139,10 +2141,26 @@ openClashOfWillsDialogue() {
         reasonSelect.on("change", () => {
           toggleCustom();
           toggleAmountUI();
+          resizeToFit();
         });
+
+        function resizeToFit() {
+          requestAnimationFrame(() => {
+            if (!d?.element?.length) return;
+
+            const appEl = d.element;
+            const headerH = appEl.find(".window-header").outerHeight(true) || 0;
+
+            const contentEl = appEl.find(".window-content")[0];
+            const contentH = contentEl ? contentEl.scrollHeight : 0;
+
+            d.setPosition({ height: headerH + contentH + 8 });
+          });
+        }
 
         toggleCustom();
         toggleAmountUI();
+        resizeToFit();
       },
       buttons: {
         ok: {
@@ -2243,7 +2261,7 @@ openClashOfWillsDialogue() {
     const content = `
     <form class="cod-progress-dialog">
       <div class="form-group">
-        <label>Personagens:</label>
+        <label><strong>👤 Personagens:</strong></label>
         <div class="form-fields">
           <div class="cod-actor-list" style="
             display: flex;
@@ -2259,7 +2277,7 @@ openClashOfWillsDialogue() {
       <hr style="margin: 4px 0 8px 0; opacity: 0.5;">
 
       <div class="form-group">
-        <label>Compra mista?</label>
+        <label><strong>🔀 Compra mista?</strong></label>
         <div class="form-fields" style="
           display:flex;
           justify-content:flex-start;
@@ -2273,7 +2291,7 @@ openClashOfWillsDialogue() {
       </div>
 
       <div class="form-group cod-type-fields">
-        <label>Tipo de Beat:</label>
+        <label><strong>🎖️ Tipo de Beats:</strong></label>
         <div class="form-fields" style="
           display:flex;
           justify-content:flex-start;
@@ -2282,17 +2300,17 @@ openClashOfWillsDialogue() {
         ">
           <label style="display:flex; align-items:center; gap:4px;">
             <input type="radio" name="input.type" value="beat" checked>
-            Comum
+            Comuns
           </label>
           <label style="display:flex; align-items:center; gap:4px;">
             <input type="radio" name="input.type" value="arcane">
-            Arcano
+            Arcanos
           </label>
         </div>
       </div>
 
       <div class="form-group cod-xp-fields">
-        <label>Pontos de XP:</label>
+        <label><strong>🆙 Pontos de XP:</strong></label>
         <div class="form-fields">
           <input type="number"
                  class="attribute-value"
@@ -2304,7 +2322,7 @@ openClashOfWillsDialogue() {
       </div>
 
       <div class="form-group cod-mixed-fields" style="display:none;">
-        <label>Beats gastos</label>
+        <label><strong>💸 Beats gastos:</strong></label>
         <div class="form-fields">
           <div style="display:flex; flex-direction:column; gap:4px; width:100%;">
             <div style="display:flex; justify-content:space-between; gap:8px; align-items:center;">
@@ -2335,7 +2353,7 @@ openClashOfWillsDialogue() {
       <hr style="margin: 4px 0 8px 0; opacity: 0.5;">
 
       <div class="form-group">
-        <label>Compra:</label>
+        <label><strong>🛍️ Compra:</strong></label>
         <div class="form-fields">
           <input type="text"
                  name="input.customReason"
@@ -2346,7 +2364,8 @@ openClashOfWillsDialogue() {
     </form>
   `;
 
-    const d = new Dialog({
+    let d;
+    d = new Dialog({
       title: "Gastar Experiência",
       content,
       render: html => {
@@ -2388,9 +2407,27 @@ openClashOfWillsDialogue() {
           mixedSummary.text(`Total: ${totalBeats} Beats = ${xpStr} XP`);
         }
 
+        function resizeToFit() {
+          requestAnimationFrame(() => {
+            if (!d?.element?.length) return;
+
+            const appEl = d.element;
+
+            const headerH = appEl.find(".window-header").outerHeight(true) || 0;
+
+            const contentEl = appEl.find(".window-content")[0];
+            const contentH = contentEl ? contentEl.scrollHeight : 0;
+
+            const targetH = headerH + contentH + 8;
+
+            d.setPosition({ height: targetH });
+          });
+        }
+
         mixedCheckbox.on("change", () => {
           updateMode();
           updateMixedSummary();
+          resizeToFit();
         });
 
         beatsCommonInput.on("input", updateMixedSummary);
@@ -2399,6 +2436,7 @@ openClashOfWillsDialogue() {
         // Estado inicial
         updateMode();
         updateMixedSummary();
+        resizeToFit();
       },
       buttons: {
         ok: {
