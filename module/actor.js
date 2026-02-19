@@ -503,7 +503,6 @@ export class ActorMtA extends Actor {
    */
   assembleDicePool({traits=[], diceBonus=0, ignoreUnskilled=false}) {
     const systemData = this.system;
-    const allowSpecialties = this.type === "character"; // ✅ só ficha padrão
     
     //Get dice pool
     let dicePool = 0;
@@ -525,14 +524,14 @@ export class ActorMtA extends Actor {
         }, systemData);
 
         // Append specialties
-        if(ret.specialties && Array.isArray(ret.specialties)) {
+        if(this.type === "character" && ret?.specialties && Array.isArray(ret.specialties)) {
           specialties.push(...ret.specialties);
         }
 
         if(!Number.isInteger(ret)) {
-          if(typeof ret.max == 'number') ret = ret.max; // E.g. Willpower, ..
-          else if(typeof ret.final == 'number') ret = ret.final;
-          else if(typeof ret.value == 'number') ret = ret.value;
+          if(ret && typeof ret.max == 'number') ret = ret.max; // E.g. Willpower, ..
+          else if(ret && typeof ret.final == 'number') ret = ret.final;
+          else if(ret && typeof ret.value == 'number') ret = ret.value;
           else {
             ret = 0;
             console.warn("CofD: A roll attribute could not be resolved. " + cur);
@@ -2014,56 +2013,78 @@ openClashOfWillsDialogue() {
         </div>
       </div>
 
+      <hr style="margin: 4px 0 8px 0; opacity: 0.5;">
+
       <div class="form-group">
         <label>Motivo:</label>
         <div class="form-fields">
           <select name="input.reason" class="cod-reason-select">
             <optgroup label="Beat">
-              <option value="beat:Aspiração">Aspiração</option>
-              <option value="beat:Cena">Cena</option>
-              <option value="beat:Condição">Condição</option>
-              <option value="beat:Falha Dramática">Falha Dramática</option>
-              <option value="beat:Ponto de Ruptura">Ponto de Ruptura</option>
-              <option value="beat:Presença">Presença</option>
-              <option value="beat:Protagonismo">Protagonismo</option>
-              <option value="beat:custom">Personalizado</option>
+              <option value="beat:Presença">📆 Presença</option>
+              <option value="beat:Aspiração">⌛ Aspiração</option>
+              <option value="beat:Cena">🎬 Cena</option>
+              <option value="beat:Condição">🗃️ Condição</option>
+              <option value="beat:Dano extenso">🤕 Dano extenso</option>
+              <option value="beat:Desafio de Habilidade">🏁 Desafio de Habilidade</option>
+              <option value="beat:Falha Dramática">❌ Falha Dramática</option>
+              <option value="beat:Ponto de Ruptura">🧠 Ponto de Ruptura</option>
+              <option value="beat:Protagonismo">🤴 Protagonismo</option>
+              <option value="beat:Recompensa">🪙 Recompensa</option>
+              <option value="beat:custom">⚙️ Personalizado</option>
             </optgroup>
 
             <optgroup label="Beat Arcano">
-              <option value="arcane:Aspiração">Aspiração</option>
-              <option value="arcane:Cena">Cena</option>
-              <option value="arcane:Condição">Condição</option>
-              <option value="arcane:Falha Dramática">Falha Dramática</option>
-              <option value="arcane:Legado">Legado</option>
-              <option value="arcane:Obsessão">Obsessão</option>
-              <option value="arcane:Presença">Presença</option>
-              <option value="arcane:Protagonismo">Protagonismo</option>
-              <option value="arcane:custom">Personalizado</option>
+              <option value="arcane:Aspiração">⌛ Aspiração</option>
+              <option value="arcane:Cena">🎬 Cena</option>
+              <option value="arcane:Condição">🗃️ Condição</option>
+              <option value="arcane:Desafio de Habilidade">🏁 Desafio de Habilidade</option>
+              <option value="arcane:Falha Dramática">❌ Falha Dramática</option>
+              <option value="arcane:Legado">🩸 Legado</option>
+              <option value="arcane:Obsessão">⏱️ Obsessão</option>
+              <option value="arcane:Protagonismo">🤴 Protagonismo</option>
+              <option value="arcane:Recompensa">🪙 Recompensa</option>
+              <option value="arcane:custom">⚙️ Personalizado</option>
             </optgroup>
           </select>
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Personalizado:</label>
+      <div class="form-group cod-custom-group" style="display:none;">
+        <label>Descrição:</label>
         <div class="form-fields">
           <input type="text"
-                 name="input.customReason"
-                 class="cod-custom-reason"
-                 disabled
-                 placeholder="Descreva o motivo"/>
+                name="input.customReason"
+                class="cod-custom-reason"
+                disabled
+                placeholder="Descreva o motivo"/>
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group cod-amount-group">
         <label>Quantidade:</label>
         <div class="form-fields">
-          <input type="number"
-                 class="attribute-value"
-                 name="input.amount"
-                 data-dtype="Number"
-                 min="0"
-                 value="1"/>
+
+          <div class="cod-amount-number">
+            <input type="number"
+                   class="attribute-value"
+                   name="input.amount"
+                   data-dtype="Number"
+                   min="0"
+                   value="1"/>
+          </div>
+
+          <div class="cod-amount-aspiration" style="display:none; gap:10px; align-items:center;">
+            <label style="display:flex; gap:6px; align-items:center; margin:0;">
+              <input type="radio" name="input.aspirationMode" value="double" checked>
+              Dupla
+            </label>
+
+            <label style="display:flex; gap:6px; align-items:center; margin:0;">
+              <input type="radio" name="input.aspirationMode" value="single">
+              Única
+            </label>
+          </div>
+
         </div>
       </div>
     </form>
@@ -2075,15 +2096,53 @@ openClashOfWillsDialogue() {
       render: html => {
         const reasonSelect = html.find(".cod-reason-select");
         const customInput = html.find(".cod-custom-reason");
+        const customGroup = html.find(".cod-custom-group");
+
+        const amountNumberWrap = html.find(".cod-amount-number");
+        const amountAspWrap = html.find(".cod-amount-aspiration");
+        const amountNumber = html.find("input[name='input.amount']");
+        const aspirationRadios = html.find("input[name='input.aspirationMode']");
 
         function toggleCustom() {
           const value = reasonSelect.val() || "";
           const isCustom = value.endsWith(":custom");
-          customInput.prop("disabled", !isCustom);
+
+          if (isCustom) {
+            customGroup.show();
+            customInput.prop("disabled", false);
+          } else {
+            customGroup.hide();
+            customInput.prop("disabled", true).val("");
+          }
         }
 
-        reasonSelect.on("change", toggleCustom);
+        function toggleAmountUI() {
+          const value = reasonSelect.val() || "";
+          const parts = value.split(":");
+          const key = parts[1] || "";
+
+          const isAspiration = (key === "Aspiração");
+
+          if (isAspiration) {
+            amountNumberWrap.hide();
+            amountAspWrap.css("display", "flex");
+
+            if (!aspirationRadios.filter(":checked").length) {
+              aspirationRadios.filter("[value='double']").prop("checked", true);
+            }
+          } else {
+            amountAspWrap.hide();
+            amountNumberWrap.show();
+          }
+        }
+
+        reasonSelect.on("change", () => {
+          toggleCustom();
+          toggleAmountUI();
+        });
+
         toggleCustom();
+        toggleAmountUI();
       },
       buttons: {
         ok: {
@@ -2099,12 +2158,6 @@ openClashOfWillsDialogue() {
               return;
             }
 
-            const amount = Number(html.find("input[name='input.amount']").val()) || 0;
-            if (amount < 0) {
-              ui.notifications.warn("Informe uma quantidade de Beats válida.");
-              return;
-            }
-
             const reasonValue = html.find("select[name='input.reason']").val();
             if (!reasonValue) {
               ui.notifications.warn("Selecione um motivo.");
@@ -2117,6 +2170,19 @@ openClashOfWillsDialogue() {
             const isArcane = (kind === "arcane");
             const isCustom = (key === "custom");
 
+            let amount = 0;
+
+            if (key === "Aspiração") {
+              const mode = html.find("input[name='input.aspirationMode']:checked").val() || "double";
+              amount = (mode === "double") ? 2 : 1;
+            } else {
+              amount = Number(html.find("input[name='input.amount']").val()) || 0;
+              if (amount < 0) {
+                ui.notifications.warn("Informe uma quantidade de Beats válida.");
+                return;
+              }
+            }
+            
             let customReason = html.find("input[name='input.customReason']").val();
             if (customReason) customReason = customReason.trim();
 
@@ -2207,7 +2273,7 @@ openClashOfWillsDialogue() {
       </div>
 
       <div class="form-group cod-type-fields">
-        <label>Tipo:</label>
+        <label>Tipo de Beat:</label>
         <div class="form-fields" style="
           display:flex;
           justify-content:flex-start;
@@ -2216,7 +2282,7 @@ openClashOfWillsDialogue() {
         ">
           <label style="display:flex; align-items:center; gap:4px;">
             <input type="radio" name="input.type" value="beat" checked>
-            Beat
+            Comum
           </label>
           <label style="display:flex; align-items:center; gap:4px;">
             <input type="radio" name="input.type" value="arcane">
@@ -2226,7 +2292,7 @@ openClashOfWillsDialogue() {
       </div>
 
       <div class="form-group cod-xp-fields">
-        <label>XP:</label>
+        <label>Pontos de XP:</label>
         <div class="form-fields">
           <input type="number"
                  class="attribute-value"
