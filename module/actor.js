@@ -1666,7 +1666,7 @@ openClashOfWillsDialogue() {
   rollBreakingPoint(quickRoll, hidden) {
     const systemData = this.system;
     let dicepool = systemData.attributes_social.composure.final + systemData.attributes_mental.resolve.final;
-    let penalty = systemData.integrity >= 8 ? 2 : systemData.integrity >= 6 ? 1 : systemData.integrity <= 1 ? -2 : systemData.integrity <= 3 ? -1 : 0;
+    let penalty = systemData.integrity > 8 ? 2 : systemData.integrity > 6 ? 1 : systemData.integrity <= 2 ? -2 : systemData.integrity <= 4 ? -1 : 0;
     if(this.system.characterType === "Hunter") penalty = 0;
     dicepool += penalty;
     let flavor = "Ponto de Ruptura: Perseverança + Compostura + " + penalty;
