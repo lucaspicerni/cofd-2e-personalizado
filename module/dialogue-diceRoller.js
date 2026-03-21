@@ -174,6 +174,7 @@ export class DiceRollerDialogue extends Application {
     const specBonus = isCharacter ? modifiers.specialties.length : 0;
 
     let dicePool = this.dicePool + specBonus + userModNoSpecs;
+    const extendedRollsMax = this.dicePool + specBonus;
 
     const roteAction = modifiers.rote_action;
     let flavor = (this.flavor || "Teste de habilidade") + (modifiers.dicePool_userMod>0 ? " + " + modifiers.dicePool_userMod : modifiers.dicePool_userMod<0 ? " - " + -modifiers.dicePool_userMod : "");
@@ -203,7 +204,7 @@ export class DiceRollerDialogue extends Application {
     const uiExplode = modifiers.explode_threshold;              // 8, 9, 10, 11(=None)
     const explodeThreshold = isChanceDie ? 11 : uiExplode;
 
-/*     if (dicePool < 1) flavor += " (Teste de sorte)";
+    /*     if (dicePool < 1) flavor += " (Teste de sorte)";
     if (explodeThreshold === 8) flavor += " (Explosão de 8+)";
     else if (explodeThreshold === 9) flavor += " (Explosão de 9+)";
     else if (explodeThreshold === 10) flavor += " (Explosão de 10)"; */
@@ -221,7 +222,7 @@ export class DiceRollerDialogue extends Application {
     const targetNumber = Math.clamp(modifiers.dicePool_difficulty, 1, 10);
     const rollReturn = {};
     if (this.damageRoll) await DiceRollerDialogue.rollWithDamage({ dicePool: dicePool, targetNumber: targetNumber, rollReturn: rollReturn, tenAgain: explodeThreshold === 10, nineAgain: explodeThreshold === 9, eightAgain: explodeThreshold === 8, roteAction: roteAction, flavor: flavor, blindGMRoll: this.blindGMRoll, actorOverride: this.actorOverride, weaponDamage: this.weaponDamage, armorPiercing: this.armorPiercing, itemImg: this.itemImg, itemName: this.itemName, itemRef: this.itemRef, itemDescr: this.itemDescr, spendAmmo: this.spendAmmo, ammoPerShot: modifiers.ammoPerShot, advancedAction: modifiers.advancedAction, comment: this.comment, target: this.target, ignoreArmor: modifiers.ignoreArmor, ignoreBallistic: modifiers.ignoreBallistic, noSuccessesToDamage: modifiers.noSuccessesToDamage, applyDefense: modifiers.applyDefense, defense: this.defense, ballistic: this.ballistic, armor: this.armor, exceptionalTarget: this.exceptionalTarget });
-    else await DiceRollerDialogue.rollToChat({  dicePool: dicePool, targetNumber: targetNumber, extended: modifiers.extended, extended_accumulatedSuccesses: this.accumulatedSuccesses, extended_rolls: this.extendedRolls, extended_rollsMax: this.dicePool, rollReturn: rollReturn, tenAgain: explodeThreshold === 10, nineAgain: explodeThreshold === 9, eightAgain: explodeThreshold === 8, roteAction: roteAction, flavor: flavor, blindGMRoll: this.blindGMRoll, actorOverride: this.actorOverride, advancedAction: modifiers.advancedAction, comment: this.comment, exceptionalTarget: this.exceptionalTarget });
+    else await DiceRollerDialogue.rollToChat({  dicePool: dicePool, targetNumber: targetNumber, extended: modifiers.extended, extended_accumulatedSuccesses: this.accumulatedSuccesses, extended_rolls: this.extendedRolls, extended_rollsMax: extendedRollsMax, rollReturn: rollReturn, tenAgain: explodeThreshold === 10, nineAgain: explodeThreshold === 9, eightAgain: explodeThreshold === 8, roteAction: roteAction, flavor: flavor, blindGMRoll: this.blindGMRoll, actorOverride: this.actorOverride, advancedAction: modifiers.advancedAction, comment: this.comment, exceptionalTarget: this.exceptionalTarget });
   
     if(modifiers.extended) {
       let successes = rollReturn.roll.total;
@@ -315,8 +316,8 @@ export class DiceRollerDialogue extends Application {
     }
 
     if(extended) html += `<div class="roll-extended">
-      <div class="roll-extended-header">Rolagem estendida</div>
-      <div>${extended_accumulatedSuccesses} sucessos</div>
+      <div class="roll-extended-header">Ação estendida</div>
+      <div>${extended_accumulatedSuccesses} sucessos acumulados</div>
       <div>${extended_rolls} / ${extended_rollsMax} rolagens</div>
     </div>`;
 
