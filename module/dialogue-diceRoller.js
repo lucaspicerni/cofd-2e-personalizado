@@ -317,7 +317,7 @@ export class DiceRollerDialogue extends Application {
 
     if(extended) html += `<div class="roll-extended">
       <div class="roll-extended-header">Ação estendida</div>
-      <div>${extended_accumulatedSuccesses} sucessos acumulados</div>
+      <div>${extended_accumulatedSuccesses} sucessos totais</div>
       <div>${extended_rolls} / ${extended_rollsMax} rolagens</div>
     </div>`;
 
