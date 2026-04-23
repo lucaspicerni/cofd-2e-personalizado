@@ -728,11 +728,12 @@ export class ActorMtA extends Actor {
     const hasBrawlMerit = this.hasSpecialEffect("defenseBrawl");
     let hasWeaponryMerit = this.hasSpecialEffect("defenseWeaponry");
     if (hasWeaponryMerit) {
-      hasWeaponryMerit = this.items.find(ele => {
-        return ele.system.equipped && ele.type === "melee";
+      hasWeaponryMerit = this.items.some(ele => {
+        return ele.system?.equipped
+          && ele.type === "melee"
+          && ele.system?.weaponType !== "Unarmed";
       });
     }
-
     const defenseAthletics = this.hasSpecialEffect("defenseAthletics");
 
     // lowerDefense desligado = mantém exatamente o comportamento atual
@@ -744,21 +745,21 @@ export class ActorMtA extends Actor {
 
     // lowerDefense ligado = aplica a regra nova
     athleticsSkill = defenseAthletics
-      ? Math.ceil(systemData.skills_physical.athletics.final / 2)
+      ? Math.ceil(systemData.skills_physical.athletics.value / 2)
       : 0;
 
     const hasNonUnarmedWieldedWeapon = this.items.some(item => {
       if (!item.system?.equipped) return false;
       if (!item.isWeapon()) return false;
-      return !(item.type === "melee" && item.system.weaponType === "Unarmed");
+      return !(item.type === "melee" && item.system?.weaponType === "Unarmed");
     });
 
     const brawlSkill = (hasBrawlMerit && !hasNonUnarmedWieldedWeapon)
-      ? Math.ceil(systemData.skills_physical.brawl.final / 2)
+      ? Math.ceil(systemData.skills_physical.brawl.value / 2)
       : 0;
 
     const weaponrySkill = hasWeaponryMerit
-      ? Math.ceil(systemData.skills_physical.weaponry.final / 2)
+      ? Math.ceil(systemData.skills_physical.weaponry.value / 2)
       : 0;
 
     return Math.max(brawlSkill, weaponrySkill, athleticsSkill);
