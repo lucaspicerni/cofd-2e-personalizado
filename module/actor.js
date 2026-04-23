@@ -2086,8 +2086,8 @@ openClashOfWillsDialogue() {
 
     <div class="form-group cod-presence-all-group" style="display:none;">
       <label></label>
-      <div class="form-fields">
-        <label style="display:flex; gap:6px; align-items:center; margin:0;">
+      <div class="form-fields" style="justify-content:flex-start;">
+        <label style="display:flex; gap:6px; align-items:center; margin:0; white-space:nowrap;">
           <input type="checkbox" class="cod-presence-all-checkbox" checked>
           Todos presentes?
         </label>
