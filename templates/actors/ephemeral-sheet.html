@@ -112,7 +112,7 @@
           <div class="kInput statBox big">
             <h4>
               <input class="attribute-check" id="Willpower{{actor.id}}" data-trait="willpower" type="checkbox" data-dtype="Boolean">
-              <label class="button attribute-button" for="Willpower{{actor.id}}">Willpower</label>
+              <label class="button attribute-button" for="Willpower{{actor.id}}">{{ localize "MTA.Willpower" }}</label>
             </h4>
             <div class="gold-border"> </div>
             <div class="split">
@@ -244,7 +244,7 @@
                   <th class="cell header {{#if this.property}} sortable button{{/if}}" 
                       data-sorttype="numen" 
                       data-sortproperty="{{this.property}}">
-                    {{localize this.label}}
+                    {{localize "MTA.ReachingNumen"}}
                   {{#if this.property}}<i class="fas fa-sort"></i>{{/if}}
                   </th>
                 {{/each}}

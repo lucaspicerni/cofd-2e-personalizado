@@ -199,7 +199,7 @@ export class MtAItemSheet extends ItemSheet {
     html.find('.specialEffectAdd').click(async event => {
       const systemData = this.item.system;
       const effectList = systemData.specialEffects ? foundry.utils.duplicate(systemData.specialEffects) : [];						
-       effectList.push("defensiveCombatBrawl");
+       effectList.push("defenseBrawl");
     
       await this.item.update({
         ["system.specialEffects"]: effectList
