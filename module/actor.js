@@ -2060,7 +2060,7 @@ openClashOfWillsDialogue() {
             <option value="beat:Cena (Desafio de Habilidade)">&nbsp;&nbsp;&nbsp;&nbsp;🏁 Desafio de Habilidade</option>
             <option value="beat:Cena (Perseguição)">&nbsp;&nbsp;&nbsp;&nbsp;👣 Perseguição</option>
             <option value="beat:Cena (Protagonismo)">&nbsp;&nbsp;&nbsp;&nbsp;🤴 Protagonismo</option>
-            <option value="beat:Cena (Rendição)">&nbsp;&nbsp;&nbsp;&nbsp;🏳️ Rendição / derrota</option>
+            <option value="beat:Cena (Rendição)">&nbsp;&nbsp;&nbsp;&nbsp;🏳️ Rendição ou derrota</option>
             <option value="beat:Condição">🗃️ Condição</option>
             <option value="beat:Falha Dramática">❌ Falha Dramática</option>
             <option value="beat:Impressão piorada">📉 Impressão piorada</option>
@@ -2075,6 +2075,7 @@ openClashOfWillsDialogue() {
             <option value="arcane:Cena (Combate)">&nbsp;&nbsp;&nbsp;&nbsp;⚔️ Combate</option>
             <option value="arcane:Cena (Desafio de Habilidade)">&nbsp;&nbsp;&nbsp;&nbsp;🏁 Desafio de Habilidade</option>
             <option value="arcane:Cena (Protagonismo)">&nbsp;&nbsp;&nbsp;&nbsp;🤴 Protagonismo</option>
+            <option value="arcane:Cena (Rendição)">&nbsp;&nbsp;&nbsp;&nbsp;🏳️ Rendição ou derrota</option>
             <option value="arcane:Condição">🗃️ Condição</option>
             <option value="arcane:Erupção abissal">💥 Erupção abissal</option>
             <option value="arcane:Falha Dramática">❌ Falha Dramática</option>
