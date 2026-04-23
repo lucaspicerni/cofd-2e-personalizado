@@ -2060,8 +2060,10 @@ openClashOfWillsDialogue() {
             <option value="beat:Cena (Desafio de Habilidade)">&nbsp;&nbsp;&nbsp;&nbsp;🏁 Desafio de Habilidade</option>
             <option value="beat:Cena (Perseguição)">&nbsp;&nbsp;&nbsp;&nbsp;👣 Perseguição</option>
             <option value="beat:Cena (Protagonismo)">&nbsp;&nbsp;&nbsp;&nbsp;🤴 Protagonismo</option>
+            <option value="beat:Cena (Rendição)">&nbsp;&nbsp;&nbsp;&nbsp;🏳️ Rendição</option>
             <option value="beat:Condição">🗃️ Condição</option>
             <option value="beat:Falha Dramática">❌ Falha Dramática</option>
+            <option value="beat:Impressão piorada">📉 Impressão piorada</option>
             <option value="beat:Ponto de Ruptura">🧠 Ponto de Ruptura</option>
             <option value="beat:Recompensa">🪙 Recompensa (missão)</option>
             <option value="beat:custom">⚙️ Personalizado</option>
@@ -2075,8 +2077,10 @@ openClashOfWillsDialogue() {
             <option value="arcane:Cena (Protagonismo)">&nbsp;&nbsp;&nbsp;&nbsp;🤴 Protagonismo</option>
             <option value="arcane:Condição">🗃️ Condição</option>
             <option value="arcane:Falha Dramática">❌ Falha Dramática</option>
+            <option value="arcane:Teste de Húbris">🥸 Teste de Húbris</option>
             <option value="arcane:Legado">🩸 Legado</option>
             <option value="arcane:Obsessão">⏱️ Obsessão</option>
+            <option value="arcane:Paradoxo purgado"🫨 Paradoxo purgado</option>
             <option value="arcane:Recompensa">🪙 Recompensa (missão)</option>
             <option value="arcane:custom">⚙️ Personalizado</option>
           </optgroup>
