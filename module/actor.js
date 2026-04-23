@@ -790,54 +790,60 @@ export class ActorMtA extends Actor {
     return Math.max(5,powerStats[data.characterType]);
   }
 
-openMageSightDialogue() {
-  // Labels PT só para EXIBIÇÃO (chaves em lowercase)
-  const ARCANUM_LABELS_PT = {
-    death:  "Morte",
-    fate:   "Destino",
-    forces: "Força",
-    life:   "Vida",
-    matter: "Matéria",
-    mind:   "Mente",
-    prime:  "Primórdio",
-    space:  "Espaço",
-    spirit: "Espírito",
-    time:   "Tempo"
-  };
-  const tArc = (a) => ARCANUM_LABELS_PT[String(a).toLowerCase()] ?? a;
+  openMageSightDialogue() {
+    // Labels PT só para EXIBIÇÃO (chaves em lowercase)
+    const ARCANUM_LABELS_PT = {
+      death: "Morte",
+      fate: "Destino",
+      forces: "Força",
+      life: "Vida",
+      matter: "Matéria",
+      mind: "Mente",
+      prime: "Primórdio",
+      space: "Espaço",
+      spirit: "Espírito",
+      time: "Tempo"
+    };
+    const tArc = (a) => ARCANUM_LABELS_PT[String(a).toLowerCase()] ?? a;
 
-  // Lista (EN nos values, PT no display)
-  const arcanaKeys = Object.keys(CONFIG.MTA.arcana); // p.ex. ["death","fate",...]
-  const listItems = arcanaKeys.map(a => {
-    const id = `ms-arc-${a}`;
-    return `
+    const isRulingArcanum = (name) => {
+      const isGross = CONFIG.MTA.arcana_gross?.[name];
+      const arcanum = isGross ? this.system.arcana_gross[name] : this.system.arcana_subtle[name];
+      return !!arcanum?.isRuling;
+    };
+
+    const tArcDisplay = (a) => `${tArc(a)}${isRulingArcanum(a) ? " 🆓" : ""}`;
+
+    // Lista (EN nos values, PT no display)
+    const arcanaKeys = Object.keys(CONFIG.MTA.arcana); // p.ex. ["death","fate",...]
+    const listItems = arcanaKeys.map(a => {
+      const id = `ms-arc-${a}`;
+      return `
       <li class="ms-item">
-        <span class="ms-name" data-en="${a}">${tArc(a)}</span>
+        <span class="ms-name" data-en="${a}">${tArcDisplay(a)}</span>
         <label class="equipped checkBox" for="${id}">
           <input id="${id}" data-arcanum="${a}" type="checkbox">
           <span></span>
         </label>
       </li>`;
-  }).join("");
+    }).join("");
 
-  // Helpers
-  const getArcana = (html) => {
-    return [...html[0].querySelectorAll('.mage-sight-list input[type="checkbox"]:checked')]
-      .map(i => i.dataset.arcanum); // EN
-  };
+    // Helpers
+    const getArcana = (html) => {
+      return [...html[0].querySelectorAll('.mage-sight-list input[type="checkbox"]:checked')]
+        .map(i => i.dataset.arcanum); // EN
+    };
 
-  const getManaCost = (arcanaList) => {
-    let manaCost = 0;
-    for (const name of arcanaList) {
-      const isGross = CONFIG.MTA.arcana_gross?.[name];
-      const arcanum = isGross ? this.system.arcana_gross[name] : this.system.arcana_subtle[name];
-      if (!arcanum?.isRuling) manaCost++;
-    }
-    return manaCost;
-  };
+    const getManaCost = (arcanaList) => {
+      let manaCost = 0;
+      for (const name of arcanaList) {
+        if (!isRulingArcanum(name)) manaCost++;
+      }
+      return manaCost;
+    };
 
-  // Dialog em 2 colunas (grid). O <style> dá o layout; fallback inline no <ul> se algum tema bloquear <style>.
-  const content = `
+    // Dialog em 2 colunas (grid). O <style> dá o layout; fallback inline no <ul> se algum tema bloquear <style>.
+    const content = `
   <style>
     .ms-wrap { padding: 12px 14px 16px; }
 
@@ -898,7 +904,7 @@ openMageSightDialogue() {
 
     <div class="ms-mana"
         style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:0;width:100%;text-align:center;">
-      <span><strong>Custo de Mana:</strong></span>
+      <span><strong>Custo de Mana pela cena:</strong></span>
       <input type="number" name="manacost" value="0" readonly/>
     </div>
 
@@ -906,47 +912,49 @@ openMageSightDialogue() {
   </div>
   `;
 
-  let d = new Dialog({
-    title: "Sentidos de mago",
-    content,
-    render: html => {
-      html.find('input[type="checkbox"]').on("change", () => {
-        const arcanaList = getArcana(html);
-        const manaCost = getManaCost(arcanaList);
-        html.find('input[name="manacost"]').val(manaCost);
-      });
-    },
-    buttons: {
-      ok: {
-        icon: '<i class="fas fa-check"></i>',
-        label: "Confirmar",
-        callback: html => {
-          const arcanaList = getArcana(html);   // EN
-          const manaCost   = getManaCost(arcanaList);
-
-          const newMana = this.system.mana.value - manaCost;
-          if (newMana < 0) return ui.notifications.warn('Mana insuficiente!');
-
-          const listDisplay = arcanaList.map(a => `<li>${tArc(a)}</li>`).join('');
-          const messageContent = `<div>Sentidos de mago:</div><ul>${listDisplay}</ul><div>Custo de Mana: ${manaCost}</div>`;
-
-          ChatMessage.create({
-            speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-            content: messageContent
-          });
-          this.update({'system.mana.value': newMana});
-          ui.notifications.warn(`Você gastou Mana! O valor será reduzido automaticamente.`);
-        },
+    let d = new Dialog({
+      title: "Sentidos de mago",
+      content,
+      render: html => {
+        html.find('input[type="checkbox"]').on("change", () => {
+          const arcanaList = getArcana(html);
+          const manaCost = getManaCost(arcanaList);
+          html.find('input[name="manacost"]').val(manaCost);
+        });
       },
-      cancel: {
-        icon: '<i class="fas fa-times"></i>',
-        label: "Cancelar"
-      }
-    },
-    default: "cancel"
-  });
-  d.render(true);
-}
+      buttons: {
+        ok: {
+          icon: '<i class="fas fa-check"></i>',
+          label: "Confirmar",
+          callback: html => {
+            const arcanaList = getArcana(html);   // EN
+            const manaCost = getManaCost(arcanaList);
+
+            const newMana = this.system.mana.value - manaCost;
+            if (newMana < 0) return ui.notifications.warn('Mana insuficiente!');
+
+            const actionType = arcanaList.every(a => isRulingArcanum(a)) ? "Ação Reflexiva" : "Ação Instantânea";
+
+            const listDisplay = arcanaList.map(a => `<li>${tArc(a)}</li>`).join('');
+            const messageContent = `<div>Sentidos de mago (${actionType}):</div><ul>${listDisplay}</ul><div>Custo de Mana pela cena: ${manaCost}</div>`;
+
+            ChatMessage.create({
+              speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+              content: messageContent
+            });
+            this.update({ 'system.mana.value': newMana });
+            if (manaCost > 0) ui.notifications.warn(`Você gastou Mana! O valor será reduzido automaticamente.`);
+          },
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "Cancelar"
+        }
+      },
+      default: "cancel"
+    });
+    d.render(true);
+  }
 
 // CÓDIGO GPT
 
@@ -2019,101 +2027,113 @@ openClashOfWillsDialogue() {
 
     const actorCheckboxes = ownedActors.length
       ? ownedActors.map(a => `
-      <label class="cod-actor">
-        <input type="checkbox" class="cod-actor-checkbox" value="${a.id}">
-        ${a.name}
-      </label>
-    `).join("")
+    <label class="cod-actor">
+      <input type="checkbox" class="cod-actor-checkbox" value="${a.id}">
+      ${a.name}
+    </label>
+  `).join("")
       : "<p>Nenhum personagem principal de jogador encontrado.</p>";
 
     const content = `
-    <form class="cod-progress-dialog">
-      <div class="form-group">
-        <label><strong>👤 Personagens:</strong></label>
-        <div class="form-fields">
-          <div class="cod-actor-list" style="display:flex; flex-direction:column; gap:4px;">
-            ${actorCheckboxes}
-          </div>
+  <form class="cod-progress-dialog">
+    <div class="form-group">
+      <label><strong>👤 Personagens:</strong></label>
+      <div class="form-fields">
+        <div class="cod-actor-list" style="display:flex; flex-direction:column; gap:4px;">
+          ${actorCheckboxes}
         </div>
       </div>
+    </div>
 
-      <hr style="margin: 4px 0 8px 0; opacity: 0.5;">
+    <hr style="margin: 4px 0 8px 0; opacity: 0.5;">
 
-      <div class="form-group">
-        <label><strong>🗂️ Motivo:</strong></label>
-        <div class="form-fields">
-          <select name="input.reason" class="cod-reason-select">
-            <optgroup label="Beat">
-              <option value="beat:Presença">📆 Presença</option>
-              <option value="beat:Aspiração">⌛ Aspiração</option>
-              <option value="beat:Cena">🎬 Cena</option>
-              <option value="beat:Condição">🗃️ Condição</option>
-              <option value="beat:Dano extenso">🤕 Dano extenso</option>
-              <option value="beat:Desafio de Habilidade">🏁 Desafio de Habilidade</option>
-              <option value="beat:Falha Dramática">❌ Falha Dramática</option>
-              <option value="beat:Perseguição">👣 Perseguição</option>
-              <option value="beat:Ponto de Ruptura">🧠 Ponto de Ruptura</option>
-              <option value="beat:Protagonismo">🤴 Protagonismo</option>
-              <option value="beat:Recompensa">🪙 Recompensa</option>
-              <option value="beat:custom">⚙️ Personalizado</option>
-            </optgroup>
+    <div class="form-group">
+      <label><strong>🗂️ Motivo:</strong></label>
+      <div class="form-fields">
+        <select name="input.reason" class="cod-reason-select">
+          <optgroup label="Beat">
+            <option value="beat:Presença">📆 Presença</option>
+            <option value="beat:Aspiração">⌛ Aspiração</option>
+            <option value="beat:Cena">🎬 Cena</option>
+            <option value="beat:Cena (Combate)">&nbsp;&nbsp;&nbsp;&nbsp;⚔️ Combate</option>
+            <option value="beat:Cena (Dano extenso)">&nbsp;&nbsp;&nbsp;&nbsp;🤕 Dano extenso</option>
+            <option value="beat:Cena (Desafio de Habilidade)">&nbsp;&nbsp;&nbsp;&nbsp;🏁 Desafio de Habilidade</option>
+            <option value="beat:Cena (Perseguição)">&nbsp;&nbsp;&nbsp;&nbsp;👣 Perseguição</option>
+            <option value="beat:Cena (Protagonismo)">&nbsp;&nbsp;&nbsp;&nbsp;🤴 Protagonismo</option>
+            <option value="beat:Condição">🗃️ Condição</option>
+            <option value="beat:Falha Dramática">❌ Falha Dramática</option>
+            <option value="beat:Ponto de Ruptura">🧠 Ponto de Ruptura</option>
+            <option value="beat:Recompensa">🪙 Recompensa (missão)</option>
+            <option value="beat:custom">⚙️ Personalizado</option>
+          </optgroup>
 
-            <optgroup label="Beat Arcano">
-              <option value="arcane:Aspiração">⌛ Aspiração</option>
-              <option value="arcane:Cena">🎬 Cena</option>
-              <option value="arcane:Condição">🗃️ Condição</option>
-              <option value="arcane:Desafio de Habilidade">🏁 Desafio de Habilidade</option>
-              <option value="arcane:Falha Dramática">❌ Falha Dramática</option>
-              <option value="arcane:Legado">🩸 Legado</option>
-              <option value="arcane:Obsessão">⏱️ Obsessão</option>
-              <option value="arcane:Protagonismo">🤴 Protagonismo</option>
-              <option value="arcane:Recompensa">🪙 Recompensa</option>
-              <option value="arcane:custom">⚙️ Personalizado</option>
-            </optgroup>
-          </select>
-        </div>
+          <optgroup label="Beat Arcano">
+            <option value="arcane:Aspiração">⌛ Aspiração</option>
+            <option value="arcane:Cena">🎬 Cena</option>
+            <option value="arcane:Cena (Combate)">&nbsp;&nbsp;&nbsp;&nbsp;⚔️ Combate</option>
+            <option value="arcane:Cena (Desafio de Habilidade)">&nbsp;&nbsp;&nbsp;&nbsp;🏁 Desafio de Habilidade</option>
+            <option value="arcane:Cena (Protagonismo)">&nbsp;&nbsp;&nbsp;&nbsp;🤴 Protagonismo</option>
+            <option value="arcane:Condição">🗃️ Condição</option>
+            <option value="arcane:Falha Dramática">❌ Falha Dramática</option>
+            <option value="arcane:Legado">🩸 Legado</option>
+            <option value="arcane:Obsessão">⏱️ Obsessão</option>
+            <option value="arcane:Recompensa">🪙 Recompensa (missão)</option>
+            <option value="arcane:custom">⚙️ Personalizado</option>
+          </optgroup>
+        </select>
       </div>
+    </div>
 
-      <div class="form-group cod-custom-group" style="display:none;">
-        <label><strong>📋 Descrição:</strong></label>
-        <div class="form-fields">
-          <input type="text"
-                name="input.customReason"
-                class="cod-custom-reason"
-                disabled
-                placeholder="Descreva o motivo"/>
-        </div>
+    <div class="form-group cod-presence-all-group" style="display:none;">
+      <label></label>
+      <div class="form-fields">
+        <label style="display:flex; gap:6px; align-items:center; margin:0;">
+          <input type="checkbox" class="cod-presence-all-checkbox" checked>
+          Todos presentes?
+        </label>
       </div>
+    </div>
 
-      <div class="form-group cod-amount-group">
-        <label><strong>#️⃣ Quantidade:</strong></label>
-        <div class="form-fields">
-
-          <div class="cod-amount-number">
-            <input type="number"
-                   class="attribute-value"
-                   name="input.amount"
-                   data-dtype="Number"
-                   min="0"
-                   value="1"/>
-          </div>
-
-          <div class="cod-amount-aspiration" style="display:none; gap:10px; align-items:center;">
-            <label style="display:flex; gap:6px; align-items:center; margin:0;">
-              <input type="radio" name="input.aspirationMode" value="double" checked>
-              Dupla
-            </label>
-
-            <label style="display:flex; gap:6px; align-items:center; margin:0;">
-              <input type="radio" name="input.aspirationMode" value="single">
-              Única
-            </label>
-          </div>
-
-        </div>
+    <div class="form-group cod-custom-group" style="display:none;">
+      <label><strong>📋 Descrição:</strong></label>
+      <div class="form-fields">
+        <input type="text"
+              name="input.customReason"
+              class="cod-custom-reason"
+              disabled
+              placeholder="Descreva o motivo"/>
       </div>
-    </form>
-  `;
+    </div>
+
+    <div class="form-group cod-amount-group">
+      <label><strong>#️⃣ Quantidade:</strong></label>
+      <div class="form-fields">
+
+        <div class="cod-amount-number">
+          <input type="number"
+                 class="attribute-value"
+                 name="input.amount"
+                 data-dtype="Number"
+                 min="0"
+                 value="1"/>
+        </div>
+
+        <div class="cod-amount-aspiration" style="display:none; gap:10px; align-items:center;">
+          <label style="display:flex; gap:6px; align-items:center; margin:0;">
+            <input type="radio" name="input.aspirationMode" value="double" checked>
+            Dupla
+          </label>
+
+          <label style="display:flex; gap:6px; align-items:center; margin:0;">
+            <input type="radio" name="input.aspirationMode" value="single">
+            Única
+          </label>
+        </div>
+
+      </div>
+    </div>
+  </form>
+`;
 
     let d;
     d = new Dialog({
@@ -2123,6 +2143,10 @@ openClashOfWillsDialogue() {
         const reasonSelect = html.find(".cod-reason-select");
         const customInput = html.find(".cod-custom-reason");
         const customGroup = html.find(".cod-custom-group");
+
+        const presenceAllGroup = html.find(".cod-presence-all-group");
+        const presenceAllCheckbox = html.find(".cod-presence-all-checkbox");
+        const actorCheckboxes = html.find(".cod-actor-checkbox");
 
         const amountNumberWrap = html.find(".cod-amount-number");
         const amountAspWrap = html.find(".cod-amount-aspiration");
@@ -2140,6 +2164,37 @@ openClashOfWillsDialogue() {
             customGroup.hide();
             customInput.prop("disabled", true).val("");
           }
+        }
+
+        function applyPresenceAll() {
+          const value = reasonSelect.val() || "";
+          const isPresence = (value === "beat:Presença");
+          const allPresent = presenceAllCheckbox.prop("checked");
+
+          if (isPresence && allPresent) {
+            actorCheckboxes.prop("checked", true).prop("disabled", true);
+          } else {
+            actorCheckboxes.prop("disabled", false);
+          }
+        }
+
+        function togglePresenceUI() {
+          const value = reasonSelect.val() || "";
+          const isPresence = (value === "beat:Presença");
+          const wasVisible = presenceAllGroup.is(":visible");
+
+          if (isPresence) {
+            presenceAllGroup.show();
+
+            if (!wasVisible) {
+              presenceAllCheckbox.prop("checked", true);
+            }
+          } else {
+            presenceAllGroup.hide();
+            presenceAllCheckbox.prop("checked", false);
+          }
+
+          applyPresenceAll();
         }
 
         function toggleAmountUI() {
@@ -2164,7 +2219,13 @@ openClashOfWillsDialogue() {
 
         reasonSelect.on("change", () => {
           toggleCustom();
+          togglePresenceUI();
           toggleAmountUI();
+          resizeToFit();
+        });
+
+        presenceAllCheckbox.on("change", () => {
+          applyPresenceAll();
           resizeToFit();
         });
 
@@ -2183,6 +2244,7 @@ openClashOfWillsDialogue() {
         }
 
         toggleCustom();
+        togglePresenceUI();
         toggleAmountUI();
         resizeToFit();
       },
@@ -2224,7 +2286,7 @@ openClashOfWillsDialogue() {
                 return;
               }
             }
-            
+
             let customReason = html.find("input[name='input.customReason']").val();
             if (customReason) customReason = customReason.trim();
 
