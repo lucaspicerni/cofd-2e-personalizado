@@ -2137,9 +2137,15 @@ export class ActorMtA extends Actor {
     };
 
     const getItemsByType = (type) => {
-      return actor.items.filter(item => String(item.type).toLowerCase() === type);
+      return actor.items
+        .filter(item => String(item.type).toLowerCase() === type)
+        .sort((a, b) => {
+          return String(a.name ?? "").localeCompare(String(b.name ?? ""), "pt-BR", {
+            sensitivity: "base",
+            numeric: true
+          });
+        });
     };
-
     const buildItemOptions = (items) => {
       if (!items.length) {
         return `<option value="">Nenhum item encontrado</option>`;
