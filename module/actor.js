@@ -904,7 +904,7 @@ export class ActorMtA extends Actor {
 
     <div class="ms-mana"
         style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:0;width:100%;text-align:center;">
-      <span><strong>Custo de Mana pela cena:</strong></span>
+      <span><strong>💰 Custo de Mana pela cena:</strong></span>
       <input type="number" name="manacost" value="0" readonly/>
     </div>
 
@@ -913,7 +913,7 @@ export class ActorMtA extends Actor {
   `;
 
     let d = new Dialog({
-      title: "Sentidos de mago",
+      title: "👓 Sentidos Ativos de mago",
       content,
       render: html => {
         html.find('input[type="checkbox"]').on("change", () => {
@@ -958,57 +958,57 @@ export class ActorMtA extends Actor {
 
 // CÓDIGO GPT
 
-openClashOfWillsDialogue() {
-  const s = this.system || {};
-  const gnosis = Number(s?.mage_traits?.gnosis?.final ?? s?.mage_traits?.gnosis?.value ?? 0);
+  openClashOfWillsDialogue() {
+    const s = this.system || {};
+    const gnosis = Number(s?.mage_traits?.gnosis?.final ?? s?.mage_traits?.gnosis?.value ?? 0);
 
-  // FV atual: controla visibilidade da checkbox e o desconto
-  const wpCur = Number(s?.willpower?.value ?? 0);
-  const canSpendWill = wpCur > 0;
+    // FV atual: controla visibilidade da checkbox e o desconto
+    const wpCur = Number(s?.willpower?.value ?? 0);
+    const canSpendWill = wpCur > 0;
 
-  // Monta lista de Arcanos (subtle + gross) — apenas com valor > 0
-  const arcanaEntries = [];
-  const pushArcana = (groupObj, groupKey) => {
-    if (!groupObj) return;
-    for (const [k, v] of Object.entries(groupObj)) {
-      const val = Number(v?.final ?? v?.value ?? 0);
-      if (val <= 0) continue;
-      const label = (CONFIG?.MTA?.arcana?.[k])
-        ? game.i18n.localize(CONFIG.MTA.arcana[k])
-        : (k.charAt(0).toUpperCase() + k.slice(1));
-      arcanaEntries.push({ path: `${groupKey}.${k}`, key: k, label, value: val });
-    }
-  };
-  pushArcana(s.arcana_subtle, "arcana_subtle");
-  pushArcana(s.arcana_gross,  "arcana_gross");
+    // Monta lista de Arcanos (subtle + gross) — apenas com valor > 0
+    const arcanaEntries = [];
+    const pushArcana = (groupObj, groupKey) => {
+      if (!groupObj) return;
+      for (const [k, v] of Object.entries(groupObj)) {
+        const val = Number(v?.final ?? v?.value ?? 0);
+        if (val <= 0) continue;
+        const label = (CONFIG?.MTA?.arcana?.[k])
+          ? game.i18n.localize(CONFIG.MTA.arcana[k])
+          : (k.charAt(0).toUpperCase() + k.slice(1));
+        arcanaEntries.push({ path: `${groupKey}.${k}`, key: k, label, value: val });
+      }
+    };
+    pushArcana(s.arcana_subtle, "arcana_subtle");
+    pushArcana(s.arcana_gross, "arcana_gross");
 
-  // Ordena alfabeticamente pelo rótulo PT-BR
-  const locale = game.i18n?.lang || "pt-BR";
-  const collator = new Intl.Collator(locale, { sensitivity: "base" });
-  arcanaEntries.sort((a, b) => collator.compare(a.label, b.label));
+    // Ordena alfabeticamente pelo rótulo PT-BR
+    const locale = game.i18n?.lang || "pt-BR";
+    const collator = new Intl.Collator(locale, { sensitivity: "base" });
+    arcanaEntries.sort((a, b) => collator.compare(a.label, b.label));
 
-  const hasArcana = arcanaEntries.length > 0;
+    const hasArcana = arcanaEntries.length > 0;
 
-  // Opções do select: arcanos primeiro, "Arcano indisponível (0)" no FIM
-  const arcOptsHTML = arcanaEntries
-    .map((a, i) => `<option value="${a.path}" ${hasArcana && i===0 ? "selected" : ""}>${a.label} (${a.value})</option>`)
-    .join("");
-  const noneOptionHTML = `<option value="__none__" ${hasArcana ? "" : "selected"}>Nenhum</option>`;
-  const optionsHTML = arcOptsHTML + noneOptionHTML;
+    // Opções do select: arcanos primeiro, "Arcano indisponível (0)" no FIM
+    const arcOptsHTML = arcanaEntries
+      .map((a, i) => `<option value="${a.path}" ${hasArcana && i === 0 ? "selected" : ""}>${a.label} (${a.value})</option>`)
+      .join("");
+    const noneOptionHTML = `<option value="__none__" ${hasArcana ? "" : "selected"}>Nenhum</option>`;
+    const optionsHTML = arcOptsHTML + noneOptionHTML;
 
-  const content = `
+    const content = `
 <form class="mta-dialogue">
   <div class="ms-wrap" style="padding:12px 14px 16px;"> <!-- padding garantido -->
     <!-- TÍTULO 1 -->
     <legend class="ms-title" style="display:block;width:100%;text-align:center;margin:0 0 8px;">
-      <strong>Parada de dados</strong>
+      <strong>🎲 Parada de dados</strong>
     </legend>
 
-    <p style="margin:4px 0;">Índice de Gnose: <strong>${gnosis}</strong></p>
+    <p style="margin:4px 0;">📶 Índice de Gnose: <strong>${gnosis}</strong></p>
 
     <!-- Linha Arcano: grid local (não depende do outro diálogo) -->
     <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;margin-top:6px;">
-      <label for="arcano" style="margin:0;">Arcano:</label>
+      <label for="arcano" style="margin:0;">🔠 Arcano:</label>
       <select name="arcano" id="arcano" style="margin:0; width:auto; min-width:160px;">
         ${optionsHTML}
       </select>
@@ -1019,7 +1019,7 @@ openClashOfWillsDialogue() {
 
     <!-- TÍTULO 2 -->
     <legend class="ms-title" style="display:block;width:100%;text-align:center;margin:0 0 8px;">
-      <strong>Modificadores</strong>
+      <strong>⚙️ Modificadores</strong>
     </legend>
 
     <!-- Modificadores: 1 coluna com respiro entre itens -->
@@ -1062,13 +1062,13 @@ openClashOfWillsDialogue() {
 
       ${canSpendWill ? `
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;">Força de vontade</p>
+        <p style="margin:0;">⚡ Força de vontade</p>
         <label class="equipped checkBox" for="ms-mod-willpower">
           <input id="ms-mod-willpower" type="checkbox" name="willpower"><span></span>
         </label>
       </li>` : ``}
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;">Modificadores genéricos</p>
+        <p style="margin:0;">⚙️ Modificadores genéricos</p>
         <input
           id="ms-mod-generic"
           type="number"
@@ -1084,80 +1084,80 @@ openClashOfWillsDialogue() {
 </form>
   `;
 
-  new Dialog({
-    title: "Choque de vontades",
-    content,
-    buttons: {
-      confirm: {
-        icon: '<i class="fas fa-check"></i>',
-        label: "Confirmar",
-        callback: async (html) => {
-          const form    = html[0].querySelector("form");
-          const arcPath = form.arcano?.value;
+    new Dialog({
+      title: "🆚 Choque de vontades",
+      content,
+      buttons: {
+        confirm: {
+          icon: '<i class="fas fa-check"></i>',
+          label: "Confirmar",
+          callback: async (html) => {
+            const form = html[0].querySelector("form");
+            const arcPath = form.arcano?.value;
 
-          // Modificadores
-          const durDice =
-            (form.dur1d?.checked ? 1 : 0) +
-            (form.dur1w?.checked ? 2 : 0) +
-            (form.dur1m?.checked ? 3 : 0) +
-            (form.dur1y?.checked ? 4 : 0);
-          const advPot   = form.advPot?.checked ? 1 : 0;
-          const willSpent = !!form.willpower?.checked;
-          const willAdd   = willSpent ? 3 : 0;
-          let genericMod = Number(form.genMod?.value ?? 0);
-          if (!Number.isFinite(genericMod)) genericMod = 0;
-          genericMod = Math.trunc(genericMod);
+            // Modificadores
+            const durDice =
+              (form.dur1d?.checked ? 1 : 0) +
+              (form.dur1w?.checked ? 2 : 0) +
+              (form.dur1m?.checked ? 3 : 0) +
+              (form.dur1y?.checked ? 4 : 0);
+            const advPot = form.advPot?.checked ? 1 : 0;
+            const willSpent = !!form.willpower?.checked;
+            const willAdd = willSpent ? 3 : 0;
+            let genericMod = Number(form.genMod?.value ?? 0);
+            if (!Number.isFinite(genericMod)) genericMod = 0;
+            genericMod = Math.trunc(genericMod);
 
-          // Arcano selecionado (ou "Nenhum")
-          let arcVal = 0;
-          let arcLabel = "";
-          if (arcPath !== "__none__") {
-            const arcNode  = arcPath?.split(".").reduce((o, k) => o?.[k], s) || {};
-            arcVal         = Number(arcNode?.final ?? arcNode?.value ?? 0);
-            const selected = arcanaEntries.find(a => a.path === arcPath);
-            arcLabel       = selected?.label || "Arcano";
+            // Arcano selecionado (ou "Nenhum")
+            let arcVal = 0;
+            let arcLabel = "";
+            if (arcPath !== "__none__") {
+              const arcNode = arcPath?.split(".").reduce((o, k) => o?.[k], s) || {};
+              arcVal = Number(arcNode?.final ?? arcNode?.value ?? 0);
+              const selected = arcanaEntries.find(a => a.path === arcPath);
+              arcLabel = selected?.label || "Arcano";
+            }
+
+            // Pool e flavor (com arcano traduzido e tag de FV se usada)
+            const dicePool = Math.max(0, gnosis + arcVal + durDice + advPot + willAdd + genericMod);
+            const modsSum = durDice + advPot + willAdd;
+            const flavorBase = `Choque de vontades: Gnose ${gnosis} + ${arcLabel} ${arcVal}`;
+            const flavorMods = modsSum ? ` (fatores avançados: +${modsSum})` : "";
+            const flavorGen = genericMod !== 0 ? ` (modificadores: ${genericMod})` : "";
+            const flavorWP = willSpent ? ` (Força de vontade)` : "";
+            const flavor = `${flavorBase}${flavorMods}${flavorGen}${flavorWP}`;
+
+            // Rolagem
+            if (typeof DiceRollerDialogue?.rollToChat === "function") {
+              await DiceRollerDialogue.rollToChat({
+                dicePool,
+                targetNumber: 8,
+                extended: false,
+                flavor,
+                showFlavor: true,
+                blindGMRoll: false,
+                exceptionalTarget: 5
+              });
+            } else {
+              const roll = await (new Roll(`${dicePool}d10cs>=8`)).evaluate({ async: true });
+              roll.toMessage({ flavor });
+            }
+
+            // Gasta 1 FV (direto)
+            if (willSpent) {
+              await this.update({ "system.willpower.value": Math.max(0, wpCur - 1) });
+              ui.notifications.warn(`Você gastou Força de Vontade! O valor será atualizado automaticamente.`);
+            }
           }
-
-          // Pool e flavor (com arcano traduzido e tag de FV se usada)
-          const dicePool = Math.max(0, gnosis + arcVal + durDice + advPot + willAdd + genericMod);
-          const modsSum  = durDice + advPot + willAdd;
-          const flavorBase = `Choque de vontades: Gnose ${gnosis} + ${arcLabel} ${arcVal}`;
-          const flavorMods = modsSum ? ` (fatores avançados: +${modsSum})` : "";
-          const flavorGen  = genericMod !== 0 ? ` (modificadores: ${genericMod})` : "";
-          const flavorWP   = willSpent ? ` (Força de vontade)` : "";
-          const flavor     = `${flavorBase}${flavorMods}${flavorGen}${flavorWP}`;
-
-          // Rolagem
-          if (typeof DiceRollerDialogue?.rollToChat === "function") {
-            await DiceRollerDialogue.rollToChat({
-              dicePool,
-              targetNumber: 8,
-              extended: false,
-              flavor,
-              showFlavor: true,
-              blindGMRoll: false,
-              exceptionalTarget: 5
-            });
-          } else {
-            const roll = await (new Roll(`${dicePool}d10cs>=8`)).evaluate({async:true});
-            roll.toMessage({ flavor });
-          }
-
-          // Gasta 1 FV (direto)
-          if (willSpent) {
-            await this.update({ "system.willpower.value": Math.max(0, wpCur - 1) });
-            ui.notifications.warn(`Você gastou Força de Vontade! O valor será atualizado automaticamente.`);
-          }
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "Cancelar", callback: () => { }
         }
       },
-      cancel: {
-        icon: '<i class="fas fa-times"></i>',
-        label: "Cancelar", callback: () => {}
-      }
-    },
-    default: "confirm"
-  }, { jQuery: true }).render(true);
-}
+      default: "confirm"
+    }, { jQuery: true }).render(true);
+  }
 
 
   /**
@@ -1839,154 +1839,558 @@ openClashOfWillsDialogue() {
   }
 
   scourPattern() {
-    const reduceAttribute = (attribute) => {
+    const reduceAttribute = async (attribute) => {
       const itemData = {
         type: "condition",
         name: game.i18n.localize("MTA.DialoguePatternScouring.ConditionName"),
         img: "systems/mta/icons/gui/macro-scoured-pattern.svg",
-        'system.effectsActive': true,
-        'system.effects': [
+        "system.effectsActive": true,
+        "system.effects": [
           {
             name: attribute,
             value: -1
           }
         ]
-      }
+      };
+
       return this.createEmbeddedDocuments("Item", [itemData]);
-    }
-    const gnosis = Math.clamp(this.system.mage_traits.gnosis.final-1, 0, 9);
+    };
+
+    const grantMana = async () => {
+      const manaValue = Number(this.system?.mana?.value ?? 0);
+      const manaMax = Number(this.system?.mana?.max ?? 0);
+
+      await this.update({
+        "system.mana.value": Math.clamp(manaValue + 3, 0, manaMax)
+      });
+
+      ui.notifications.warn(`Você recebeu Mana! O valor será atualizado automaticamente.`);
+    };
+
+    const warnScouredPattern = () => {
+      ui.notifications.warn(`A Condição 'Padrão danificado' foi adicionada à sua ficha, ela atualiza seu atributo automaticamente.`);
+    };
+
+    const gnosis = Math.clamp(
+      Number(this.system?.mage_traits?.gnosis?.final ?? 0) - 1,
+      0,
+      9
+    );
+
     const scouringFrequency = CONFIG.MTA.gnosis_levels[gnosis].scouringFrequency;
 
-    let d = new Dialog({
-      title: game.i18n.localize("MTA.DialoguePatternScouring.Title"),
-      content: `<p>${game.i18n.format("MTA.DialoguePatternScouring.ScouringFrequency", {var: scouringFrequency})}</p>`,
-      buttons: {
-       one: {
+    const optionData = [
+      {
+        id: "mta-scour-lethal",
+        value: "lethal",
         label: game.i18n.localize("MTA.DialoguePatternScouring.ButtonOne"),
-        callback: () => {
-          this.damage(1, "lethal", true);
-          this.update({"system.mana.value": Math.clamp(this.system.mana.value+3, 0, this.system.mana.max)});
-          ui.notifications.warn(`Você recebeu Mana! O valor será atualizado automaticamente.`);
-
-        }
-       },
-       two: {
-        label: game.i18n.localize("MTA.DialoguePatternScouring.ButtonTwo"),
-        callback: () => {
-          reduceAttribute("attributes_physical.strength");
-          this.update({"system.mana.value": Math.clamp(this.system.mana.value+3, 0, this.system.mana.max)});
-          ui.notifications.warn(`Você recebeu Mana! O valor será atualizado automaticamente.`);
-          ui.notifications.warn(`A Condição 'Padrão danificado' foi adicionada à sua ficha, ela atualiza seu atributo automaticamente.`);
-        }
-       },
-       three: {
-        label: game.i18n.localize("MTA.DialoguePatternScouring.ButtonThree"),
-        callback: () => {
-          reduceAttribute("attributes_physical.dexterity");
-          this.update({"system.mana.value": Math.clamp(this.system.mana.value+3, 0, this.system.mana.max)});
-          ui.notifications.warn(`Você recebeu Mana! O valor será atualizado automaticamente.`);
-          ui.notifications.warn(`A Condição 'Padrão danificado' foi adicionada à sua ficha, ela atualiza seu atributo automaticamente.`);
-        }
-       },
-       four: {
-        label: game.i18n.localize("MTA.DialoguePatternScouring.ButtonFour"),
-        callback: () => {
-          reduceAttribute("attributes_physical.stamina");
-          this.update({"system.mana.value": Math.clamp(this.system.mana.value+3, 0, this.system.mana.max)});
-          ui.notifications.warn(`Você recebeu Mana! O valor será atualizado automaticamente.`);
-          ui.notifications.warn(`A Condição 'Padrão danificado' foi adicionada à sua ficha, ela atualiza seu atributo automaticamente.`);
-        }
-       }
+        checked: true
       },
-      default: "one",
-     });
-     d.render(true);
+      {
+        id: "mta-scour-strength",
+        value: "strength",
+        label: game.i18n.localize("MTA.DialoguePatternScouring.ButtonTwo"),
+        checked: false
+      },
+      {
+        id: "mta-scour-dexterity",
+        value: "dexterity",
+        label: game.i18n.localize("MTA.DialoguePatternScouring.ButtonThree"),
+        checked: false
+      },
+      {
+        id: "mta-scour-stamina",
+        value: "stamina",
+        label: game.i18n.localize("MTA.DialoguePatternScouring.ButtonFour"),
+        checked: false
+      }
+    ];
+
+    const optionsHTML = optionData.map(option => `
+    <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:3px 0;">
+      <label for="${option.id}" style="margin:0;line-height:1.25;">
+        ${option.label}
+      </label>
+
+      <label class="equipped checkBox" for="${option.id}">
+        <input
+          id="${option.id}"
+          type="checkbox"
+          class="mta-scour-option"
+          name="input.scouringOption"
+          value="${option.value}"
+          ${option.checked ? "checked" : ""}
+        >
+        <span></span>
+      </label>
+    </li>
+  `).join("");
+
+    const content = `
+<form class="mta-dialogue mta-scour-pattern-dialog">
+  <div class="ms-wrap" style="padding:12px 14px 16px;">
+
+<p style="margin:4px 0 10px;line-height:1.35;text-align:justify;text-align-last:left;">
+  ${game.i18n.format("MTA.DialoguePatternScouring.ScouringFrequency", { var: scouringFrequency })}
+</p>
+
+    <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
+
+    <ul style="
+      display:grid;
+      grid-template-columns:1fr;
+      row-gap:6px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    ">
+      ${optionsHTML}
+    </ul>
+
+  </div>
+</form>
+`;
+
+    let d;
+
+    d = new Dialog({
+      title: game.i18n.localize("MTA.DialoguePatternScouring.Title"),
+      content,
+      render: html => {
+        const options = html.find(".mta-scour-option");
+
+        options.on("change", event => {
+          const changed = event.currentTarget;
+
+          if (changed.checked) {
+            options.not(changed).prop("checked", false);
+          }
+        });
+
+        requestAnimationFrame(() => {
+          if (!d?.element?.length) return;
+
+          const appEl = d.element;
+          const headerH = appEl.find(".window-header").outerHeight(true) || 0;
+
+          const contentEl = appEl.find(".window-content")[0];
+          const contentH = contentEl ? contentEl.scrollHeight : 0;
+
+          d.setPosition({ height: headerH + contentH + 8 });
+        });
+      },
+      buttons: {
+        confirm: {
+          icon: '<i class="fas fa-check"></i>',
+          label: "Confirmar",
+          callback: async html => {
+            const selected = html.find(".mta-scour-option:checked").val();
+
+            if (!selected) {
+              ui.notifications.warn("Selecione uma opção de Purga do Padrão.");
+              return false;
+            }
+
+            if (selected === "lethal") {
+              await this.damage(1, "lethal", true);
+              await grantMana();
+              return;
+            }
+
+            if (selected === "strength") {
+              await reduceAttribute("attributes_physical.strength");
+              await grantMana();
+              warnScouredPattern();
+              return;
+            }
+
+            if (selected === "dexterity") {
+              await reduceAttribute("attributes_physical.dexterity");
+              await grantMana();
+              warnScouredPattern();
+              return;
+            }
+
+            if (selected === "stamina") {
+              await reduceAttribute("attributes_physical.stamina");
+              await grantMana();
+              warnScouredPattern();
+              return;
+            }
+          }
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "Cancelar"
+        }
+      },
+      default: "confirm"
+    });
+
+    d.render(true);
   }
 
   restorePattern() {
-    let d = new Dialog({
-      title: "Restaurando o Padrão",
-      content: `<p>Você pode usar 3 pontos de Mana para:</p>`,
-      buttons: {
-       one: {
-        label: "Curar 1 de dano letal",
-        callback: () => {
-          this.damage(-1, "lethal", true);
-          this.update({"system.mana.value": Math.clamp(this.system.mana.value-3, 0, this.system.mana.max)});
-          ui.notifications.warn(`Você gastou Mana! O valor será atualizado automaticamente.`);
+    return this._openPatternRestoreDialogue({
+      title: "❤️‍🩹 Restaurando o Padrão",
+      description: `Através de uma <strong>Ação Instantânea</strong> que custa <strong>3 pontos de Mana</strong>, você pode recer 1 dos benefícios:`,
+      options: [
+        {
+          id: "restore-lethal",
+          value: "lethal",
+          label: "Curar 1 <strong>ferimento letal</strong>",
+          manaCost: 3,
+          damage: { amount: -1, type: "lethal" },
+          checked: true
+        },
+        {
+          id: "restore-bashing",
+          value: "bashing",
+          label: "Curar 1 <strong>ferimento contundente</strong>",
+          manaCost: 3,
+          damage: { amount: -1, type: "bashing" }
+        },
+        {
+          id: "restore-condition",
+          value: "condition",
+          label: "Eliminar 1 <strong>Condição mental</strong>",
+          manaCost: 3,
+          deleteType: "condition",
+          selectLabel: "Condição:"
+        },
+        {
+          id: "restore-tilt",
+          value: "tilt",
+          label: "Eliminar 1 <strong>Incidente físico</strong>",
+          manaCost: 3,
+          deleteType: "tilt",
+          selectLabel: "Incidente:"
         }
-       },
-       two: {
-        label: "Curar 1 de dano contundente",
-        callback: () => {
-          this.damage(-1, "bashing", true);
-          this.update({"system.mana.value": Math.clamp(this.system.mana.value-3, 0, this.system.mana.max)});
-          ui.notifications.warn(`Você gastou Mana! O valor será atualizado automaticamente.`);
-        }
-       },
-       three: {
-        label: "Eliminar 1 Condição mental",
-        callback: () => {
-          this.update({"system.mana.value": Math.clamp(this.system.mana.value-3, 0, this.system.mana.max)});
-          ui.notifications.warn(`Você gastou Mana! O valor será atualizado automaticamente.`);
-          ui.notifications.warn(`Informe ao narrador qual Condição você quer eliminar!`);
-        }
-       },
-       four: {
-        label: "Eliminar 1 Incidente mental",
-        callback: () => {
-          this.update({"system.mana.value": Math.clamp(this.system.mana.value-3, 0, this.system.mana.max)});
-          ui.notifications.warn(`Você gastou Mana! O valor será atualizado automaticamente.`);
-          ui.notifications.warn(`Informe ao narrador qual Incidente você quer eliminar!`);
-        }
-       }
-      },
-      default: "one",
-     });
-     d.render(true);
+      ]
+    });
   }
 
-    improvedRestorePattern() {
-    let d = new Dialog({
-      title: "Restaurando o Padrão aprimoradamente",
-      content: `<p>Você pode usar uma quantidade menor de Mana para:</p>`,
-      buttons: {
-       one: {
-        label: "Curar 1 de dano letal (-2 Mana)",
-        callback: () => {
-          this.damage(-1, "lethal", true);
-          this.update({"system.mana.value": Math.clamp(this.system.mana.value-2, 0, this.system.mana.max)});
-          ui.notifications.warn(`Você gastou Mana! O valor será atualizado automaticamente.`);
+  improvedRestorePattern() {
+    return this._openPatternRestoreDialogue({
+      title: "❤️‍🩹 Restaurando o Padrão aprimoradamente",
+      description: `Através de um Dote de Vida ••, você pode realizar uma <strong>Ação Instantânea</strong> que custa <strong>menos de Mana</strong> (conforme a opção escolhida), para receber 1 dos benefícios:`,
+      options: [
+        {
+          id: "improved-restore-lethal",
+          value: "lethal",
+          label: "Curar 1 <strong>ferimento letal</strong> (<strong>-2 de Mana</strong>)",
+          manaCost: 2,
+          damage: { amount: -1, type: "lethal" },
+          checked: true
+        },
+        {
+          id: "improved-restore-bashing",
+          value: "bashing",
+          label: "Curar 1 <strong>ferimento contundente</strong> (<strong>-1 de Mana</strong>)",
+          manaCost: 1,
+          damage: { amount: -1, type: "bashing" }
+        },
+        {
+          id: "improved-restore-condition",
+          value: "condition",
+          label: "Eliminar 1 <strong>Condição mental</strong> (<strong>-3 de Mana</strong>)",
+          manaCost: 3,
+          deleteType: "condition",
+          selectLabel: "Condição:"
+        },
+        {
+          id: "improved-restore-tilt",
+          value: "tilt",
+          label: "Eliminar 1 <strong>Incidente físico</strong> (<strong>-3 de Mana</strong>)",
+          manaCost: 3,
+          deleteType: "tilt",
+          selectLabel: "Incidente:"
         }
-       },
-       two: {
-        label: "Curar 1 de dano contundente (-1 Mana)",
-        callback: () => {
-          this.damage(-1, "bashing", true);
-          this.update({"system.mana.value": Math.clamp(this.system.mana.value-1, 0, this.system.mana.max)});
-          ui.notifications.warn(`Você gastou Mana! O valor será atualizado automaticamente.`);
+      ]
+    });
+  }
+
+  _openPatternRestoreDialogue({ title, description, options }) {
+    const actor = this || game.user?.character;
+
+    if (!actor) {
+      ui.notifications.warn("Não foi possível identificar o personagem.");
+      return;
+    }
+
+    const escapeHTML = (value) => {
+      const div = document.createElement("div");
+      div.innerText = String(value ?? "");
+      return div.innerHTML;
+    };
+
+    const spendMana = async (cost) => {
+      const manaValue = Number(actor.system?.mana?.value ?? 0);
+      const manaMax = Number(actor.system?.mana?.max ?? 0);
+
+      await actor.update({
+        "system.mana.value": Math.clamp(manaValue - cost, 0, manaMax)
+      });
+
+      ui.notifications.warn(`Você gastou Mana! O valor será atualizado automaticamente.`);
+    };
+
+    const getItemsByType = (type) => {
+      return actor.items.filter(item => String(item.type).toLowerCase() === type);
+    };
+
+    const buildItemOptions = (items) => {
+      if (!items.length) {
+        return `<option value="">Nenhum item encontrado</option>`;
+      }
+
+      return items.map(item => `
+      <option value="${item.id}">${escapeHTML(item.name)}</option>
+    `).join("");
+    };
+
+    const buildItemSelectGroup = (option) => {
+      if (!option.deleteType) return "";
+
+      const items = getItemsByType(option.deleteType);
+      const selectId = `${option.id}-select`;
+
+      return `
+      <div
+        class="mta-restore-item-select"
+        data-option="${option.value}"
+        style="display:none;margin-top:10px;"
+      >
+        <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
+
+        <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;">
+          <label for="${selectId}" style="margin:0;">${option.selectLabel}</label>
+
+          <select
+            id="${selectId}"
+            name="input.${option.value}Item"
+            class="mta-restore-item-choice"
+            data-option="${option.value}"
+            style="margin:0;width:auto;min-width:220px;"
+            ${items.length ? "" : "disabled"}
+          >
+            ${buildItemOptions(items)}
+          </select>
+        </div>
+      </div>
+    `;
+    };
+
+    const confirmItemDeletion = (item, option) => {
+      return new Promise(resolve => {
+        let resolved = false;
+
+        const finish = (value) => {
+          if (resolved) return;
+          resolved = true;
+          resolve(value);
+        };
+
+        const content = `
+<form class="mta-dialogue mta-restore-confirm-dialog">
+  <div class="ms-wrap" style="padding:12px 14px 16px;">
+    <p style="margin:4px 0 8px;line-height:1.35;text-align:justify;text-align-last:left;">
+      <strong>ATENÇÃO!</strong> Você escolheu eliminar <strong>${escapeHTML(item.name)}</strong> da ficha de
+      <strong>${escapeHTML(actor.name)}</strong>. Deseja prosseguir com a exclusão?
+    </p>
+
+    <p style="margin:4px 0 0;font-size:0.92em;opacity:0.78;line-height:1.35;text-align:justify;text-align-last:left;">
+      Esta ação também gastará <strong>${option.manaCost} ponto${option.manaCost === 1 ? "" : "s"} de Mana</strong>.
+    </p>
+  </div>
+</form>
+`;
+
+        new Dialog({
+          title: "⚠️ Confirmar exclusão?",
+          content,
+          buttons: {
+            confirm: {
+              icon: '<i class="fas fa-trash"></i>',
+              label: "Excluir",
+              callback: () => finish(true)
+            },
+            cancel: {
+              icon: '<i class="fas fa-times"></i>',
+              label: "Cancelar",
+              callback: () => finish(false)
+            }
+          },
+          default: "cancel",
+          close: () => finish(false)
+        }).render(true);
+      });
+    };
+
+    const optionHTML = options.map(option => `
+    <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:3px 0;">
+      <label for="${option.id}" style="margin:0;line-height:1.25;">
+        ${option.label}
+      </label>
+
+      <label class="equipped checkBox" for="${option.id}">
+        <input
+          id="${option.id}"
+          type="checkbox"
+          class="mta-restore-option"
+          name="input.restoreOption"
+          value="${option.value}"
+          ${option.checked ? "checked" : ""}
+        >
+        <span></span>
+      </label>
+    </li>
+  `).join("");
+
+    const selectGroupsHTML = options.map(buildItemSelectGroup).join("");
+
+    const content = `
+<form class="mta-dialogue mta-restore-pattern-dialog">
+  <div class="ms-wrap" style="padding:12px 14px 16px;">
+
+    <p style="margin:4px 0 8px;line-height:1.35;text-align:justify;text-align-last:left;">
+      ${description}
+    </p>
+
+    <p style="margin:4px 0 10px;font-size:0.92em;opacity:0.78;line-height:1.35;text-align:justify;text-align-last:left;">
+      <strong>Obs.</strong>: <strong>Condições</strong> eliminadas desta forma <strong>não</strong> concedem um Beat como recompensa!
+    </p>
+
+    <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
+
+    <ul style="
+      display:grid;
+      grid-template-columns:1fr;
+      row-gap:6px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    ">
+      ${optionHTML}
+    </ul>
+
+    ${selectGroupsHTML}
+
+  </div>
+</form>
+`;
+
+    let d;
+
+    d = new Dialog({
+      title,
+      content,
+      render: html => {
+        const optionInputs = html.find(".mta-restore-option");
+        const selectGroups = html.find(".mta-restore-item-select");
+
+        function resizeToFit() {
+          requestAnimationFrame(() => {
+            if (!d?.element?.length) return;
+
+            const appEl = d.element;
+            const headerH = appEl.find(".window-header").outerHeight(true) || 0;
+
+            const contentEl = appEl.find(".window-content")[0];
+            const contentH = contentEl ? contentEl.scrollHeight : 0;
+
+            d.setPosition({ height: headerH + contentH + 8 });
+          });
         }
-       },
-       three: {
-        label: "Eliminar 1 Condição mental (-3 Mana)",
-        callback: () => {
-          this.update({"system.mana.value": Math.clamp(this.system.mana.value-3, 0, this.system.mana.max)});
-          ui.notifications.warn(`Você gastou Mana! O valor será atualizado automaticamente.`);
-          ui.notifications.warn(`Informe ao narrador qual Condição você quer eliminar!`);
+
+        function updateItemSelectVisibility() {
+          const selected = optionInputs.filter(":checked").val();
+
+          selectGroups.hide();
+
+          if (selected) {
+            html.find(`.mta-restore-item-select[data-option="${selected}"]`).show();
+          }
+
+          resizeToFit();
         }
-       },
-       four: {
-        label: "Eliminar 1 Incidente mental (-3 Mana)",
-        callback: () => {
-          this.update({"system.mana.value": Math.clamp(this.system.mana.value-3, 0, this.system.mana.max)});
-          ui.notifications.warn(`Você gastou Mana! O valor será atualizado automaticamente.`);
-          ui.notifications.warn(`Informe ao narrador qual Incidente você quer eliminar!`);
-        }
-       }
+
+        optionInputs.on("change", event => {
+          const changed = event.currentTarget;
+
+          if (changed.checked) {
+            optionInputs.not(changed).prop("checked", false);
+          } else {
+            changed.checked = true;
+          }
+
+          updateItemSelectVisibility();
+        });
+
+        updateItemSelectVisibility();
+        resizeToFit();
       },
-      default: "one",
-     });
-     d.render(true);
+      buttons: {
+        confirm: {
+          icon: '<i class="fas fa-check"></i>',
+          label: "Confirmar",
+          callback: async html => {
+            const selected = html.find(".mta-restore-option:checked").val();
+
+            if (!selected) {
+              ui.notifications.warn("Selecione uma opção de Restauração de Padrão.");
+              return false;
+            }
+
+            const option = options.find(o => o.value === selected);
+
+            if (!option) {
+              ui.notifications.warn("A opção selecionada não foi reconhecida.");
+              return false;
+            }
+
+            if (option.damage) {
+              await actor.damage(option.damage.amount, option.damage.type, true);
+              await spendMana(option.manaCost);
+              return;
+            }
+
+            if (option.deleteType) {
+              const itemId = html.find(`.mta-restore-item-choice[data-option="${option.value}"]`).val();
+
+              if (!itemId) {
+                ui.notifications.warn("Selecione um item para eliminar.");
+                return false;
+              }
+
+              const item = actor.items.get(itemId);
+
+              if (!item) {
+                ui.notifications.warn("O item selecionado não foi encontrado na ficha do personagem.");
+                return false;
+              }
+
+              const confirmed = await confirmItemDeletion(item, option);
+
+              if (!confirmed) return false;
+
+              await actor.deleteEmbeddedDocuments("Item", [item.id]);
+              await spendMana(option.manaCost);
+
+              ui.notifications.warn(`O item '${item.name}' foi removido da ficha do personagem.`);
+              return;
+            }
+          }
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "Cancelar"
+        }
+      },
+      default: "confirm"
+    });
+
+    d.render(true);
   }
 
   /**
@@ -2018,132 +2422,169 @@ openClashOfWillsDialogue() {
   }
 
   addProgressDialogue() {
+    const escapeHTML = (value) => {
+      const div = document.createElement("div");
+      div.innerText = String(value ?? "");
+      return div.innerHTML;
+    };
+
     // Personagem principal de cada jogador (exclui GM)
     const ownedActors = [...new Set(
-      game.users.players               // todos os usuários não-GM
-        .map(u => u.character)         // personagem principal
-        .filter(a => !!a)              // remove null/undefined
+      game.users.players
+        .map(u => u.character)
+        .filter(a => !!a)
     )];
 
     const actorCheckboxes = ownedActors.length
-      ? ownedActors.map(a => `
-    <label class="cod-actor">
-      <input type="checkbox" class="cod-actor-checkbox" value="${a.id}">
-      ${a.name}
-    </label>
-  `).join("")
-      : "<p>Nenhum personagem principal de jogador encontrado.</p>";
+      ? ownedActors.map(a => {
+        const inputId = `cod-progress-actor-${a.id}`;
+
+        return `
+        <li class="cod-check-row" style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
+          <label for="${inputId}" style="margin:0;">${escapeHTML(a.name)}</label>
+          <label class="equipped checkBox" for="${inputId}">
+            <input id="${inputId}" type="checkbox" class="cod-actor-checkbox" value="${a.id}">
+            <span></span>
+          </label>
+        </li>
+      `;
+      }).join("")
+      : `
+      <li style="padding:2px 0;">
+        <p style="margin:0;">Nenhum personagem principal de jogador encontrado.</p>
+      </li>
+    `;
 
     const content = `
-  <form class="cod-progress-dialog">
-    <div class="form-group">
-      <label><strong>👤 Personagens:</strong></label>
-      <div class="form-fields">
-        <div class="cod-actor-list" style="display:flex; flex-direction:column; gap:4px;">
-          ${actorCheckboxes}
-        </div>
+<form class="mta-dialogue cod-progress-dialog">
+  <div class="ms-wrap" style="padding:12px 14px 16px;">
+
+    <legend class="ms-title" style="display:block;width:100%;text-align:center;margin:0 0 8px;">
+      <strong>👤 Personagens</strong>
+    </legend>
+
+    <ul class="cod-actor-list" style="
+      display:grid;
+      grid-template-columns:1fr;
+      row-gap:6px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    ">
+      ${actorCheckboxes}
+    </ul>
+
+    <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
+
+    <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;margin-top:6px;">
+      <label for="cod-progress-reason" style="margin:0;"><strong>🗂️ Motivo</strong>:</label>
+
+      <select id="cod-progress-reason" name="input.reason" class="cod-reason-select" style="margin:0;width:auto;min-width:220px;">
+        <optgroup label="Beat">
+          <option value="beat:Presença">📆 Presença</option>
+          <option value="beat:Aspiração">⌛ Aspiração</option>
+          <option value="beat:Cena">🎬 Cena</option>
+          <option value="beat:Cena (Combate)">&nbsp;&nbsp;&nbsp;&nbsp;⚔️ Combate</option>
+          <option value="beat:Cena (Dano extenso)">&nbsp;&nbsp;&nbsp;&nbsp;🤕 Dano extenso</option>
+          <option value="beat:Cena (Desafio de Habilidade)">&nbsp;&nbsp;&nbsp;&nbsp;🏁 Desafio de Habilidade</option>
+          <option value="beat:Cena (Perseguição)">&nbsp;&nbsp;&nbsp;&nbsp;👣 Perseguição</option>
+          <option value="beat:Cena (Protagonismo)">&nbsp;&nbsp;&nbsp;&nbsp;🤴 Protagonismo</option>
+          <option value="beat:Cena (Rendição)">&nbsp;&nbsp;&nbsp;&nbsp;🏳️ Rendição ou derrota</option>
+          <option value="beat:Condição">🗃️ Condição</option>
+          <option value="beat:Falha Dramática">❌ Falha Dramática</option>
+          <option value="beat:Impressão piorada">📉 Impressão piorada</option>
+          <option value="beat:Ponto de Ruptura">🧠 Ponto de Ruptura</option>
+          <option value="beat:Recompensa">🪙 Recompensa (missão)</option>
+          <option value="beat:custom">⚙️ Personalizado</option>
+        </optgroup>
+
+        <optgroup label="Beat Arcano">
+          <option value="arcane:Aspiração">⌛ Aspiração</option>
+          <option value="arcane:Cena">🎬 Cena</option>
+          <option value="arcane:Cena (Combate)">&nbsp;&nbsp;&nbsp;&nbsp;⚔️ Combate</option>
+          <option value="arcane:Cena (Desafio de Habilidade)">&nbsp;&nbsp;&nbsp;&nbsp;🏁 Desafio de Habilidade</option>
+          <option value="arcane:Cena (Protagonismo)">&nbsp;&nbsp;&nbsp;&nbsp;🤴 Protagonismo</option>
+          <option value="arcane:Cena (Rendição)">&nbsp;&nbsp;&nbsp;&nbsp;🏳️ Rendição ou derrota</option>
+          <option value="arcane:Condição">🗃️ Condição</option>
+          <option value="arcane:Erupção abissal">💥 Erupção abissal</option>
+          <option value="arcane:Falha Dramática">❌ Falha Dramática</option>
+          <option value="arcane:Teste de Húbris">🥸 Teste de Húbris</option>
+          <option value="arcane:Legado">🩸 Legado</option>
+          <option value="arcane:Obsessão">⏱️ Obsessão</option>
+          <option value="arcane:Paradoxo purgado">🫨 Paradoxo purgado</option>
+          <option value="arcane:Recompensa">🪙 Recompensa (missão)</option>
+          <option value="arcane:custom">⚙️ Personalizado</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="cod-presence-all-group" style="display:none;margin-top:10px;">
+      <ul style="display:grid;grid-template-columns:1fr;row-gap:6px;margin:0;padding:0;list-style:none;">
+        <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
+          <label for="cod-presence-all" style="margin:0;">Todos presentes?</label>
+          <label class="equipped checkBox" for="cod-presence-all">
+            <input id="cod-presence-all" type="checkbox" class="cod-presence-all-checkbox" checked>
+            <span></span>
+          </label>
+        </li>
+      </ul>
+    </div>
+
+    <div class="cod-custom-group" style="display:none;margin-top:10px;">
+      <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;">
+        <label for="cod-custom-reason" style="margin:0;">📋 Descrição:</label>
+        <input
+          id="cod-custom-reason"
+          type="text"
+          name="input.customReason"
+          class="cod-custom-reason"
+          disabled
+          placeholder="Descreva o motivo"
+          style="margin:0;min-width:220px;"
+        />
       </div>
     </div>
 
-    <hr style="margin: 4px 0 8px 0; opacity: 0.5;">
+    <div class="cod-amount-group">
+      <div class="cod-amount-number" style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;">
+        <label for="cod-progress-amount" style="margin:0;"><strong>#️⃣ Quantidade de Beats</strong>:</label>
 
-    <div class="form-group">
-      <label><strong>🗂️ Motivo:</strong></label>
-      <div class="form-fields">
-        <select name="input.reason" class="cod-reason-select">
-          <optgroup label="Beat">
-            <option value="beat:Presença">📆 Presença</option>
-            <option value="beat:Aspiração">⌛ Aspiração</option>
-            <option value="beat:Cena">🎬 Cena</option>
-            <option value="beat:Cena (Combate)">&nbsp;&nbsp;&nbsp;&nbsp;⚔️ Combate</option>
-            <option value="beat:Cena (Dano extenso)">&nbsp;&nbsp;&nbsp;&nbsp;🤕 Dano extenso</option>
-            <option value="beat:Cena (Desafio de Habilidade)">&nbsp;&nbsp;&nbsp;&nbsp;🏁 Desafio de Habilidade</option>
-            <option value="beat:Cena (Perseguição)">&nbsp;&nbsp;&nbsp;&nbsp;👣 Perseguição</option>
-            <option value="beat:Cena (Protagonismo)">&nbsp;&nbsp;&nbsp;&nbsp;🤴 Protagonismo</option>
-            <option value="beat:Cena (Rendição)">&nbsp;&nbsp;&nbsp;&nbsp;🏳️ Rendição ou derrota</option>
-            <option value="beat:Condição">🗃️ Condição</option>
-            <option value="beat:Falha Dramática">❌ Falha Dramática</option>
-            <option value="beat:Impressão piorada">📉 Impressão piorada</option>
-            <option value="beat:Ponto de Ruptura">🧠 Ponto de Ruptura</option>
-            <option value="beat:Recompensa">🪙 Recompensa (missão)</option>
-            <option value="beat:custom">⚙️ Personalizado</option>
-          </optgroup>
-
-          <optgroup label="Beat Arcano">
-            <option value="arcane:Aspiração">⌛ Aspiração</option>
-            <option value="arcane:Cena">🎬 Cena</option>
-            <option value="arcane:Cena (Combate)">&nbsp;&nbsp;&nbsp;&nbsp;⚔️ Combate</option>
-            <option value="arcane:Cena (Desafio de Habilidade)">&nbsp;&nbsp;&nbsp;&nbsp;🏁 Desafio de Habilidade</option>
-            <option value="arcane:Cena (Protagonismo)">&nbsp;&nbsp;&nbsp;&nbsp;🤴 Protagonismo</option>
-            <option value="arcane:Cena (Rendição)">&nbsp;&nbsp;&nbsp;&nbsp;🏳️ Rendição ou derrota</option>
-            <option value="arcane:Condição">🗃️ Condição</option>
-            <option value="arcane:Erupção abissal">💥 Erupção abissal</option>
-            <option value="arcane:Falha Dramática">❌ Falha Dramática</option>
-            <option value="arcane:Teste de Húbris">🥸 Teste de Húbris</option>
-            <option value="arcane:Legado">🩸 Legado</option>
-            <option value="arcane:Obsessão">⏱️ Obsessão</option>
-            <option value="arcane:Paradoxo purgado">🫨 Paradoxo purgado</option>
-            <option value="arcane:Recompensa">🪙 Recompensa (missão)</option>
-            <option value="arcane:custom">⚙️ Personalizado</option>
-          </optgroup>
-        </select>
+        <input
+          id="cod-progress-amount"
+          type="number"
+          class="attribute-value"
+          name="input.amount"
+          data-dtype="Number"
+          min="0"
+          value="1"
+          style="margin:0;width:84px;padding:2px 6px;text-align:right;"
+        />
       </div>
-    </div>
 
-    <div class="form-group cod-presence-all-group" style="display:none;">
-      <label></label>
-      <div class="form-fields" style="justify-content:flex-start;">
-        <label style="display:flex; gap:6px; align-items:center; margin:0; white-space:nowrap;">
-          <input type="checkbox" class="cod-presence-all-checkbox" checked>
-          Todos presentes?
-        </label>
-      </div>
-    </div>
+      <div class="cod-amount-aspiration" style="display:none;grid-template-columns:1fr auto;align-items:center;column-gap:12px;">
+        <p style="margin:0;">Aspiração:</p>
 
-    <div class="form-group cod-custom-group" style="display:none;">
-      <label><strong>📋 Descrição:</strong></label>
-      <div class="form-fields">
-        <input type="text"
-              name="input.customReason"
-              class="cod-custom-reason"
-              disabled
-              placeholder="Descreva o motivo"/>
-      </div>
-    </div>
-
-    <div class="form-group cod-amount-group">
-      <label><strong>#️⃣ Quantidade:</strong></label>
-      <div class="form-fields">
-
-        <div class="cod-amount-number">
-          <input type="number"
-                 class="attribute-value"
-                 name="input.amount"
-                 data-dtype="Number"
-                 min="0"
-                 value="1"/>
-        </div>
-
-        <div class="cod-amount-aspiration" style="display:none; gap:10px; align-items:center;">
-          <label style="display:flex; gap:6px; align-items:center; margin:0;">
+        <div style="display:flex;gap:12px;align-items:center;justify-content:flex-end;">
+          <label style="display:flex;gap:6px;align-items:center;margin:0;white-space:nowrap;">
             <input type="radio" name="input.aspirationMode" value="double" checked>
             Dupla
           </label>
 
-          <label style="display:flex; gap:6px; align-items:center; margin:0;">
+          <label style="display:flex;gap:6px;align-items:center;margin:0;white-space:nowrap;">
             <input type="radio" name="input.aspirationMode" value="single">
             Única
           </label>
         </div>
-
       </div>
     </div>
-  </form>
+
+  </div>
+</form>
 `;
 
     let d;
     d = new Dialog({
-      title: "Adicionar Experiência",
+      title: "➕ Adicionar Experiência",
       content,
       render: html => {
         const reasonSelect = html.find(".cod-reason-select");
@@ -2179,8 +2620,10 @@ openClashOfWillsDialogue() {
 
           if (isPresence && allPresent) {
             actorCheckboxes.prop("checked", true).prop("disabled", true);
+            actorCheckboxes.closest(".cod-check-row").css("opacity", "0.65");
           } else {
             actorCheckboxes.prop("disabled", false);
+            actorCheckboxes.closest(".cod-check-row").css("opacity", "1");
           }
         }
 
@@ -2212,7 +2655,7 @@ openClashOfWillsDialogue() {
 
           if (isAspiration) {
             amountNumberWrap.hide();
-            amountAspWrap.css("display", "flex");
+            amountAspWrap.css("display", "grid");
 
             if (!aspirationRadios.filter(":checked").length) {
               aspirationRadios.filter("[value='double']").prop("checked", true);
@@ -2265,16 +2708,17 @@ openClashOfWillsDialogue() {
 
             if (!actorIds.length) {
               ui.notifications.warn("Selecione pelo menos um personagem.");
-              return;
+              return false;
             }
 
             const reasonValue = html.find("select[name='input.reason']").val();
+
             if (!reasonValue) {
               ui.notifications.warn("Selecione um motivo.");
-              return;
+              return false;
             }
 
-            const parts = reasonValue.split(":"); // ["beat"|"arcane", "label"|"custom"]
+            const parts = reasonValue.split(":");
             const kind = parts[0];
             const key = parts[1];
             const isArcane = (kind === "arcane");
@@ -2287,9 +2731,10 @@ openClashOfWillsDialogue() {
               amount = (mode === "double") ? 2 : 1;
             } else {
               amount = Number(html.find("input[name='input.amount']").val()) || 0;
+
               if (amount < 0) {
                 ui.notifications.warn("Informe uma quantidade de Beats válida.");
-                return;
+                return false;
               }
             }
 
@@ -2298,7 +2743,7 @@ openClashOfWillsDialogue() {
 
             if (isCustom && !customReason) {
               ui.notifications.warn("Preencha o motivo personalizado.");
-              return;
+              return false;
             }
 
             const today = new Date();
@@ -2310,8 +2755,7 @@ openClashOfWillsDialogue() {
             const reasonLabel = isCustom ? customReason : key;
             const name = `${dateStr} - ${reasonLabel}`;
 
-            for (let i = 0; i < actorIds.length; i++) {
-              const id = actorIds[i];
+            for (const id of actorIds) {
               const actor = game.actors.get(id);
               if (!actor || typeof actor.addProgress !== "function") continue;
 
@@ -2334,6 +2778,12 @@ openClashOfWillsDialogue() {
   }
 
   spendProgressDialogue() {
+    const escapeHTML = (value) => {
+      const div = document.createElement("div");
+      div.innerText = String(value ?? "");
+      return div.innerHTML;
+    };
+
     // Personagem principal de cada jogador (exclui GM)
     const ownedActors = [...new Set(
       game.users.players
@@ -2342,123 +2792,171 @@ openClashOfWillsDialogue() {
     )];
 
     const actorCheckboxes = ownedActors.length
-      ? ownedActors.map(a => `
-      <label class="cod-actor" style="display:block;">
-        <input type="checkbox" class="cod-actor-checkbox" value="${a.id}">
-        ${a.name}
-      </label>
-    `).join("")
-      : "<p>Nenhum personagem principal de jogador encontrado.</p>";
+      ? ownedActors.map(a => {
+        const inputId = `cod-spend-actor-${a.id}`;
+
+        return `
+        <li class="cod-check-row" style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
+          <label for="${inputId}" style="margin:0;">${escapeHTML(a.name)}</label>
+          <label class="equipped checkBox" for="${inputId}">
+            <input id="${inputId}" type="checkbox" class="cod-actor-checkbox" value="${a.id}">
+            <span></span>
+          </label>
+        </li>
+      `;
+      }).join("")
+      : `
+      <li style="padding:2px 0;">
+        <p style="margin:0;">Nenhum personagem principal de jogador encontrado.</p>
+      </li>
+    `;
 
     const content = `
-    <form class="cod-progress-dialog">
-      <div class="form-group">
-        <label><strong>👤 Personagens:</strong></label>
-        <div class="form-fields">
-          <div class="cod-actor-list" style="
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
-          ">
-            ${actorCheckboxes}
-          </div>
-        </div>
-      </div>
+<form class="mta-dialogue cod-progress-dialog">
+  <div class="ms-wrap" style="padding:12px 14px 16px;">
 
-      <hr style="margin: 4px 0 8px 0; opacity: 0.5;">
+    <legend class="ms-title" style="display:block;width:100%;text-align:center;margin:0 0 8px;">
+      <strong>👤 Personagens</strong>
+    </legend>
 
-      <div class="form-group">
-        <label><strong>🔀 Compra mista?</strong></label>
-        <div class="form-fields" style="
-          display:flex;
-          justify-content:flex-start;
-          align-items:center;
-        ">
-          <label style="display:flex; align-items:center; gap:4px;">
-            <input type="checkbox" name="input.mixed">
-            Sim
-          </label>
-        </div>
-      </div>
+    <ul class="cod-actor-list" style="
+      display:grid;
+      grid-template-columns:1fr;
+      row-gap:6px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    ">
+      ${actorCheckboxes}
+    </ul>
 
-      <div class="form-group cod-type-fields">
-        <label><strong>🎖️ Tipo de Beats:</strong></label>
-        <div class="form-fields" style="
-          display:flex;
-          justify-content:flex-start;
-          align-items:center;
-          gap:12px;
-        ">
-          <label style="display:flex; align-items:center; gap:4px;">
+    <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
+
+    <legend class="ms-title" style="display:block;width:100%;text-align:center;margin:0 0 8px;">
+      <strong>🔀 Modo de compra</strong>
+    </legend>
+
+    <ul style="
+      display:grid;
+      grid-template-columns:1fr;
+      row-gap:6px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    ">
+      <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
+        <label for="cod-spend-mixed" style="margin:0;">💱 Compra mista?</label>
+        <label class="equipped checkBox" for="cod-spend-mixed">
+          <input id="cod-spend-mixed" type="checkbox" name="input.mixed">
+          <span></span>
+        </label>
+      </li>
+    </ul>
+
+    <div class="cod-type-fields" style="margin-top:10px;">
+      <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px;">
+        <p style="margin:0;">🎖️ Tipo de Beats:</p>
+
+        <div style="display:flex;gap:12px;align-items:center;justify-content:flex-end;">
+          <label style="display:flex;gap:6px;align-items:center;margin:0;white-space:nowrap;">
             <input type="radio" name="input.type" value="beat" checked>
             Comuns
           </label>
-          <label style="display:flex; align-items:center; gap:4px;">
+
+          <label style="display:flex;gap:6px;align-items:center;margin:0;white-space:nowrap;">
             <input type="radio" name="input.type" value="arcane">
             Arcanos
           </label>
         </div>
       </div>
+    </div>
 
-      <div class="form-group cod-xp-fields">
-        <label><strong>🆙 Pontos de XP:</strong></label>
-        <div class="form-fields">
-          <input type="number"
-                 class="attribute-value"
-                 name="input.amount"
-                 data-dtype="Number"
-                 min="0"
-                 value="1"/>
-        </div>
+    <div class="cod-xp-fields" style="margin-top:10px;">
+      <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;">
+        <label for="cod-spend-xp" style="margin:0;">🆙 Pontos de XP:</label>
+
+        <input
+          id="cod-spend-xp"
+          type="number"
+          class="attribute-value"
+          name="input.amount"
+          data-dtype="Number"
+          min="0"
+          value="1"
+          style="margin:0;width:84px;padding:2px 6px;text-align:right;"
+        />
       </div>
+    </div>
 
-      <div class="form-group cod-mixed-fields" style="display:none;">
-        <label><strong>💸 Beats gastos:</strong></label>
-        <div class="form-fields">
-          <div style="display:flex; flex-direction:column; gap:4px; width:100%;">
-            <div style="display:flex; justify-content:space-between; gap:8px; align-items:center;">
-              <span>Comuns:</span>
-              <input type="number"
-                     name="input.beatsCommon"
-                     data-dtype="Number"
-                     min="0"
-                     value="0"
-                     style="width:80px; text-align:right;" />
-            </div>
-            <div style="display:flex; justify-content:space-between; gap:8px; align-items:center;">
-              <span>Arcanos:</span>
-              <input type="number"
-                     name="input.beatsArcane"
-                     data-dtype="Number"
-                     min="0"
-                     value="0"
-                     style="width:80px; text-align:right;" />
-            </div>
-            <div class="cod-mixed-summary" style="font-size:0.9em; opacity:0.8; margin-top:4px;">
-              Total: 0 Beats = 0 XP
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="cod-mixed-fields" style="display:none;margin-top:10px;">
+      <legend class="ms-title" style="display:block;width:100%;text-align:center;margin:0 0 8px;">
+        <strong>💸 Beats gastos</strong>
+      </legend>
 
-      <hr style="margin: 4px 0 8px 0; opacity: 0.5;">
+      <ul style="
+        display:grid;
+        grid-template-columns:1fr;
+        row-gap:6px;
+        margin:0;
+        padding:0;
+        list-style:none;
+      ">
+        <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
+          <label for="cod-spend-beats-common" style="margin:0;">Comuns:</label>
+          <input
+            id="cod-spend-beats-common"
+            type="number"
+            class="attribute-value"
+            name="input.beatsCommon"
+            data-dtype="Number"
+            min="0"
+            value="0"
+            style="margin:0;width:84px;padding:2px 6px;text-align:right;"
+          />
+        </li>
 
-      <div class="form-group">
-        <label><strong>🛍️ Compra:</strong></label>
-        <div class="form-fields">
-          <input type="text"
-                 name="input.customReason"
-                 class="cod-custom-reason"
-                 placeholder="Descreva o gasto"/>
-        </div>
-      </div>
-    </form>
-  `;
+        <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
+          <label for="cod-spend-beats-arcane" style="margin:0;">Arcanos:</label>
+          <input
+            id="cod-spend-beats-arcane"
+            type="number"
+            class="attribute-value"
+            name="input.beatsArcane"
+            data-dtype="Number"
+            min="0"
+            value="0"
+            style="margin:0;width:84px;padding:2px 6px;text-align:right;"
+          />
+        </li>
+      </ul>
+
+      <p class="cod-mixed-summary" style="font-size:0.9em;opacity:0.8;margin:8px 0 0;text-align:center;">
+        Total: 0 Beats = 0 XP
+      </p>
+    </div>
+
+    <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
+
+    <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;">
+      <label for="cod-spend-custom-reason" style="margin:0;"><strong>🛍️ Compra</strong>:</label>
+
+      <input
+        id="cod-spend-custom-reason"
+        type="text"
+        name="input.customReason"
+        class="cod-custom-reason"
+        placeholder="Descreva o gasto"
+        style="margin:0;min-width:220px;"
+      />
+    </div>
+
+  </div>
+</form>
+`;
 
     let d;
     d = new Dialog({
-      title: "Gastar Experiência",
+      title: "➖ Gastar Experiência",
       content,
       render: html => {
         const mixedCheckbox = html.find("input[name='input.mixed']");
@@ -2472,6 +2970,7 @@ openClashOfWillsDialogue() {
 
         function updateMode() {
           const mixed = mixedCheckbox[0]?.checked;
+
           if (mixed) {
             xpFields.hide();
             xpTypeGroup.hide();
@@ -2504,15 +3003,12 @@ openClashOfWillsDialogue() {
             if (!d?.element?.length) return;
 
             const appEl = d.element;
-
             const headerH = appEl.find(".window-header").outerHeight(true) || 0;
 
             const contentEl = appEl.find(".window-content")[0];
             const contentH = contentEl ? contentEl.scrollHeight : 0;
 
-            const targetH = headerH + contentH + 8;
-
-            d.setPosition({ height: targetH });
+            d.setPosition({ height: headerH + contentH + 8 });
           });
         }
 
@@ -2525,7 +3021,6 @@ openClashOfWillsDialogue() {
         beatsCommonInput.on("input", updateMixedSummary);
         beatsArcaneInput.on("input", updateMixedSummary);
 
-        // Estado inicial
         updateMode();
         updateMixedSummary();
         resizeToFit();
@@ -2541,7 +3036,7 @@ openClashOfWillsDialogue() {
 
             if (!actorIds.length) {
               ui.notifications.warn("Selecione pelo menos um personagem.");
-              return;
+              return false;
             }
 
             const mixed = html.find("input[name='input.mixed']")[0]?.checked;
@@ -2550,30 +3045,29 @@ openClashOfWillsDialogue() {
             let arcaneBeats = 0;
 
             if (mixed) {
-              // MODO COMPRA MISTA: usar Beats diretamente
               const common = Number(html.find("input[name='input.beatsCommon']").val()) || 0;
               const arcane = Number(html.find("input[name='input.beatsArcane']").val()) || 0;
 
               if (common <= 0 && arcane <= 0) {
                 ui.notifications.warn("Informe pelo menos alguns Beats comuns ou arcanos para a compra mista.");
-                return;
+                return false;
               }
 
               beats = common > 0 ? -common : 0;
               arcaneBeats = arcane > 0 ? -arcane : 0;
-
             } else {
-              // MODO XP: converter XP em Beats (5:1)
               const xp = Number(html.find("input[name='input.amount']").val()) || 0;
+
               if (xp <= 0) {
                 ui.notifications.warn("Informe uma quantidade de XP válida.");
-                return;
+                return false;
               }
 
               const type = html.find("input[name='input.type']:checked").val();
+
               if (!type) {
                 ui.notifications.warn("Selecione Beat ou Beat Arcano.");
-                return;
+                return false;
               }
 
               const beatsSpent = -5 * xp;
@@ -2590,10 +3084,9 @@ openClashOfWillsDialogue() {
 
             if (!customReason) {
               ui.notifications.warn("Preencha o motivo personalizado do gasto.");
-              return;
+              return false;
             }
 
-            // Data no formato DD/MM/AA
             const today = new Date();
             const day = String(today.getDate()).padStart(2, "0");
             const month = String(today.getMonth() + 1).padStart(2, "0");
@@ -2602,8 +3095,7 @@ openClashOfWillsDialogue() {
 
             const name = `${dateStr} - ${customReason}`;
 
-            for (let i = 0; i < actorIds.length; i++) {
-              const id = actorIds[i];
+            for (const id of actorIds) {
               const actor = game.actors.get(id);
               if (!actor || typeof actor.addProgress !== "function") continue;
 

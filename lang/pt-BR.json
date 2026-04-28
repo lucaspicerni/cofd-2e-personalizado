@@ -333,13 +333,13 @@
   "MTA.RestorePattern": "Restauração do Padrão",
   "MTA.ScourPattern": "Purga do Padrão",
   "MTA.DialoguePatternScouring": {
-    "Title": "Purgando o Padrão",
-    "ButtonOne": "Receber 1 dano letal resistente",
-    "ButtonTwo": "Reduzir 1 ponto de Força",
-    "ButtonThree": "Reduzir 1 ponto de Destreza",
-    "ButtonFour": "Reduzir 1 ponto de Vigor",
+    "Title": "🔄 Purgando o Padrão",
+    "ButtonOne": "Receber 1 ponto de <strong>ferimento letal resistente</strong>",
+    "ButtonTwo": "Reduzir seu atributo '<strong>Força</strong>' em 1 ponto",
+    "ButtonThree": "Reduzir seu atributo '<strong>Destreza</strong>' em 1 ponto",
+    "ButtonFour": "Reduzir seu atributo '<strong>Vigor</strong>' em 1 ponto",
     "ConditionName": "Padrão danificado!",
-    "ScouringFrequency": "Até {var}x por dia, você pode receber 3 de Mana por:"
+    "ScouringFrequency": "Até um limite de <strong>{var}x por dia</strong>, você pode receber <strong>3 pontos de Mana</strong>, em troca de aceitar um <strong>prejuízo temporário (24h)</strong>, dentre as opções:"
   },
   "MTA.TabAttributes": "Atributos",
   "MTA.TabItems": "Itens",
