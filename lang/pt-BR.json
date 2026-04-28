@@ -339,7 +339,7 @@
     "ButtonThree": "Reduzir seu atributo '<strong>Destreza</strong>' em 1 ponto",
     "ButtonFour": "Reduzir seu atributo '<strong>Vigor</strong>' em 1 ponto",
     "ConditionName": "Padrão danificado!",
-    "ScouringFrequency": "Até um limite de <strong>{var}x por dia</strong>, você pode receber <strong>3 pontos de Mana</strong>, em troca de aceitar um <strong>prejuízo temporário (24h)</strong>, dentre as opções:"
+    "ScouringFrequency": "Até <strong>{var}x por dia</strong>, você pode receber <strong>3 pontos de Mana</strong>, em troca de aceitar um <strong>prejuízo temporário (24h)</strong>, dentre as opções:"
   },
   "MTA.TabAttributes": "Atributos",
   "MTA.TabItems": "Itens",

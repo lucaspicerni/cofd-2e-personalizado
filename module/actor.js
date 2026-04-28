@@ -19,18 +19,18 @@ export class ActorMtA extends Actor {
   prepareData() {
     super.prepareData();
 
-    if(!CONFIG.MTA.supportedActorTypes.includes(this.type))
+    if (!CONFIG.MTA.supportedActorTypes.includes(this.type))
       return;
-    
+
     // Get the Actor's data object
     const systemData = this.system;
 
 
     // Get special effects
     systemData.specialEffects = [];
-    for(let item of this.items) {
+    for (let item of this.items) {
       if (item.system.specialEffects && item.system.effectsActive) {
-        for(let effect of item.system.specialEffects) {
+        for (let effect of item.system.specialEffects) {
           systemData.specialEffects.push({
             name: effect,
             rating: item.system.rating
@@ -39,16 +39,16 @@ export class ActorMtA extends Actor {
       }
     }
 
-    if(!systemData.derivedTraits) systemData.derivedTraits = {
-      size: {value: 0, mod: 0},
-      speed: {value: 0, mod: 0},
-      defense: {value: 0, mod: 0},
-      armor: {value: 0, mod: 0},
-      ballistic: {value: 0, mod: 0},
-      initiativeMod: {value: 0, mod: 0},
-      perception: {value: 0, mod: 0},
-      health: {value: 0, mod: 0},
-      willpower: {value: 0, mod: 0},
+    if (!systemData.derivedTraits) systemData.derivedTraits = {
+      size: { value: 0, mod: 0 },
+      speed: { value: 0, mod: 0 },
+      defense: { value: 0, mod: 0 },
+      armor: { value: 0, mod: 0 },
+      ballistic: { value: 0, mod: 0 },
+      initiativeMod: { value: 0, mod: 0 },
+      perception: { value: 0, mod: 0 },
+      health: { value: 0, mod: 0 },
+      willpower: { value: 0, mod: 0 },
     };
 
     //Get modifiers from items
@@ -72,15 +72,15 @@ export class ActorMtA extends Actor {
     let attributes = [];
     if (this.type === "character") {
       attributes = [
-        systemData.attributes_physical, 
-        systemData.attributes_mental, 
+        systemData.attributes_physical,
+        systemData.attributes_mental,
         systemData.attributes_social,
-        systemData.skills_physical, 
-        systemData.skills_social, 
-        systemData.skills_mental, 
+        systemData.skills_physical,
+        systemData.skills_social,
+        systemData.skills_mental,
         systemData.derivedTraits,
-        systemData.attributes_physical_dream, 
-        systemData.attributes_mental_dream, 
+        systemData.attributes_physical_dream,
+        systemData.attributes_mental_dream,
         systemData.attributes_social_dream,
         systemData.mage_traits,
         systemData.vampire_traits,
@@ -93,32 +93,32 @@ export class ActorMtA extends Actor {
         systemData.generalModifiers
       ];
     }
-    else if (this.type === "ephemeral"){
+    else if (this.type === "ephemeral") {
       attributes = [
-        systemData.eph_general, 
-        systemData.eph_physical, 
-        systemData.eph_mental, 
-        systemData.eph_social, 
-        systemData.derivedTraits, 
-        systemData.generalModifiers, 
+        systemData.eph_general,
+        systemData.eph_physical,
+        systemData.eph_mental,
+        systemData.eph_social,
+        systemData.derivedTraits,
+        systemData.generalModifiers,
         systemData.arcana_subtle,
         systemData.arcana_gross,
       ];
     }
-    else if (this.type === "simple_antagonist"){
+    else if (this.type === "simple_antagonist") {
       attributes = [
-        systemData.attributes_physical, 
-        systemData.attributes_mental, 
-        systemData.attributes_social, 
+        systemData.attributes_physical,
+        systemData.attributes_mental,
+        systemData.attributes_social,
         systemData.derivedTraits,
         systemData.generalModifiers
       ];
     }
-    
+
     attributes.forEach(attribute => Object.values(attribute).forEach(trait => {
       //if(trait == undefined) console.warn("Null attribute found", attribute, this.name)
-      if(trait == undefined) trait = {};
-      if(typeof trait == 'number') trait = {}; // Quick fix for a mistake I made for dream stats
+      if (trait == undefined) trait = {};
+      if (typeof trait == 'number') trait = {}; // Quick fix for a mistake I made for dream stats
       trait.final = trait.value;
       trait.raw = undefined;
       trait.isModified = false;
@@ -133,39 +133,39 @@ export class ActorMtA extends Actor {
     //Get effects from items (modifiers to any attribute/skill/etc.)
     for (let i of this.items) {
       if (i.system?.effects && (i.system?.effectsActive || i.system?.equipped)) { // only look at active effects
-        if(i.type === "form" && this.system.characterType !== "Werewolf") continue; // Forms only work for werewolves
+        if (i.type === "form" && this.system.characterType !== "Werewolf") continue; // Forms only work for werewolves
         itemBuffs = itemBuffs.concat(i.system.effects);
       }
     }
 
-    itemBuffs.filter( e => e.name.split('.')[0] !== "derivedTraits" && e.name.split('.')[0] !== "generalModifiers" ).sort( (a,b) => (b.value<0)-(a.value<0) || (!!a.overFive)-(!!b.overFive) ).forEach( e => {
-      const trait = e.name.split('.').reduce((o,i) => {
-        if(o != undefined && o[i] != undefined) return o[i];
+    itemBuffs.filter(e => e.name.split('.')[0] !== "derivedTraits" && e.name.split('.')[0] !== "generalModifiers").sort((a, b) => (b.value < 0) - (a.value < 0) || (!!a.overFive) - (!!b.overFive)).forEach(e => {
+      const trait = e.name.split('.').reduce((o, i) => {
+        if (o != undefined && o[i] != undefined) return o[i];
         else return undefined;
       }, systemData);
-      if(trait != undefined) {
-        if(typeof trait == 'number') {
-          if(ui?.notifications) ui.notifications.info(`CofD: Este item não suporta o sistema de efeitos no momento: ${e.name}`);
+      if (trait != undefined) {
+        if (typeof trait == 'number') {
+          if (ui?.notifications) ui.notifications.info(`CofD: Este item não suporta o sistema de efeitos no momento: ${e.name}`);
           console.warn("CofD: Este item não suporta o sistema de efeitos no momento. " + e.name);
           return;
         }
-        const newVal = (Number.isInteger(trait.raw) ? trait.raw : trait.value ) + e.value;
-        trait.raw = e.overFive  ?  newVal  :  Math.min( newVal, Math.max(trait.value, this.getTraitMaximum()) );
-        trait.final = Math.clamp(trait.raw, 0, Math.max(trait.value,CONFIG.MTA.traitMaximum));
+        const newVal = (Number.isInteger(trait.raw) ? trait.raw : trait.value) + e.value;
+        trait.raw = e.overFive ? newVal : Math.min(newVal, Math.max(trait.value, this.getTraitMaximum()));
+        trait.final = Math.clamp(trait.raw, 0, Math.max(trait.value, CONFIG.MTA.traitMaximum));
         trait.isModified = true;
       }
       else {
-        if(ui?.notifications) ui.notifications.info(`CofD: Este item não suporta o sistema de efeitos no momento: ${e.name}`);
+        if (ui?.notifications) ui.notifications.info(`CofD: Este item não suporta o sistema de efeitos no momento: ${e.name}`);
         console.warn("CofD: Este item não suporta o sistema de efeitos no momento. " + e.name, this.name);
         return;
       }
-    });  
-    derivedTraitBuffs.push(...itemBuffs.filter( e => e.name.split('.')[0] === "derivedTraits"));
-    generalTraitBuffs.push(...itemBuffs.filter( e => e.name.split('.')[0] == "generalModifiers"));
+    });
+    derivedTraitBuffs.push(...itemBuffs.filter(e => e.name.split('.')[0] === "derivedTraits"));
+    generalTraitBuffs.push(...itemBuffs.filter(e => e.name.split('.')[0] == "generalModifiers"));
 
     generalTraitBuffs.forEach(e => {
-      const trait = e.name.split('.').reduce((o,i)=> o[i], systemData);
-      trait.raw = Number.isInteger(trait.raw) ?  trait.raw + e.value : trait.value + e.value;
+      const trait = e.name.split('.').reduce((o, i) => o[i], systemData);
+      trait.raw = Number.isInteger(trait.raw) ? trait.raw + e.value : trait.value + e.value;
       trait.final = trait.raw;
       trait.isModified = true;
     });
@@ -182,35 +182,35 @@ export class ActorMtA extends Actor {
       const stamina = systemData.attributes_physical.stamina.final;
       const resolve = systemData.attributes_mental.resolve.final;
 
-      if(systemData.isDreaming) {
+      if (systemData.isDreaming) {
         der.speed.value = 5 + systemData.attributes_physical_dream.power.final + systemData.attributes_social_dream.finesse.final;
         der.defense.value = Math.min(systemData.attributes_physical_dream.power.final, systemData.attributes_social_dream.finesse.final);
         der.initiativeMod.value = systemData.attributes_social_dream.finesse.final + systemData.attributes_mental_dream.resistance.final /* + der.initiativeMod.mod + item_mods.initiativeMod */;
 
         let newMax = 0;
-        if(systemData.characterType === "Changeling") newMax = systemData.clarity.value;
+        if (systemData.characterType === "Changeling") newMax = systemData.clarity.value;
         else newMax = systemData.attributes_mental_dream.resistance.final;
-        
+
         //  Add Gnosis/Wyrd derived maximum
-        if(systemData.characterType === "Mage" || systemData.characterType === "Scelesti") newMax += Math.max(5, systemData.mage_traits.gnosis.final);
+        if (systemData.characterType === "Mage" || systemData.characterType === "Scelesti") newMax += Math.max(5, systemData.mage_traits.gnosis.final);
         else if (systemData.characterType === "Changeling") newMax += Math.max(5, systemData.changeling_traits.wyrd.final);
         else newMax += 5;
         der.health.value = newMax;
       }
       else {
-        let higherOfWitsDexDefense = this.hasSpecialEffect("defenseHigherOfWitsAndDex") 
+        let higherOfWitsDexDefense = this.hasSpecialEffect("defenseHigherOfWitsAndDex")
           || (this.hasSpecialEffect("defenseHigherOfWitsAndDexWerewolf") && this.areAnyItemsActive("Urhan", "Urshul"));
         der.speed.value = 5 + strength + dexterity;
         der.defense.value = (higherOfWitsDexDefense ? Math.max(wits, dexterity) : Math.min(wits, dexterity)) + this._getDefenseSkill();
         der.initiativeMod.value = composure + dexterity;
-        der.health.value = stamina;  
+        der.health.value = stamina;
       }
       der.perception.value = composure + wits + this.getClarityBonus();
       der.willpower.value = resolve + composure;
     }
-    else if (this.type === "ephemeral"){
+    else if (this.type === "ephemeral") {
       der.speed.value = 5 + systemData.eph_physical.power.final + systemData.eph_social.finesse.final;
-      if(this.hasSpecialEffect("defenseUseResistance")) 
+      if (this.hasSpecialEffect("defenseUseResistance"))
         der.defense.value = systemData.eph_mental.resistance.final;
       else
         der.defense.value = (systemData.eph_general.rank.final > 1 ? Math.min(systemData.eph_physical.power.final, systemData.eph_social.finesse.final) : Math.max(systemData.eph_physical.power.final, systemData.eph_social.finesse.final))
@@ -219,7 +219,7 @@ export class ActorMtA extends Actor {
       der.health.value = systemData.eph_mental.resistance.final;
       der.willpower.value = systemData.eph_general.rank.final <= 5 ? Math.min(systemData.eph_social.finesse.final + systemData.eph_mental.resistance.final, 10) : systemData.eph_social.finesse.final + systemData.eph_mental.resistance.final;
     }
-    else if (this.type === "simple_antagonist"){
+    else if (this.type === "simple_antagonist") {
       const str = systemData.attributes_physical.strength.final;
       const dex = systemData.attributes_physical.dexterity.final;
       const wit = systemData.attributes_mental.wits.final;
@@ -232,7 +232,7 @@ export class ActorMtA extends Actor {
       der.perception.value = comp + wit;
       der.willpower.value = resolve + comp;
     }
-    else if (this.type === "brief_nightmare"){
+    else if (this.type === "brief_nightmare") {
       const all_other_dicepools = systemData.all_other_dicepools;
       const best_dice_pool = systemData.best_dice_pool.value;
       //const worst_dice_pool = systemData.worst_dice_pool.value;
@@ -259,10 +259,10 @@ export class ActorMtA extends Actor {
     der.health.value += der.health.mod;
     der.willpower.value += der.willpower.mod;
 
-/*     console.log("WHAT Speed", der.speed.value, der.speed.mod, item_mods.speed)
-    console.log("WHAT defense", der.defense.value, der.defense.mod, item_mods.defense)
-    console.log("WHAT initiativeMod", der.initiativeMod.value, der.initiativeMod.mod, item_mods.initiativeMod) */
-    
+    /*     console.log("WHAT Speed", der.speed.value, der.speed.mod, item_mods.speed)
+        console.log("WHAT defense", der.defense.value, der.defense.mod, item_mods.defense)
+        console.log("WHAT initiativeMod", der.initiativeMod.value, der.initiativeMod.mod, item_mods.initiativeMod) */
+
     [systemData.derivedTraits].forEach(attribute => Object.values(attribute).forEach(trait => {
       trait.final = trait.value;
       trait.raw = undefined;
@@ -271,35 +271,35 @@ export class ActorMtA extends Actor {
 
     // Apply derived Traits buffs
     derivedTraitBuffs.forEach(e => {
-      const trait = e.name.split('.').reduce((o,i)=> o[i], systemData);
-      trait.raw = Number.isInteger(trait.raw) ?  trait.raw + e.value : trait.value + e.value;
+      const trait = e.name.split('.').reduce((o, i) => o[i], systemData);
+      trait.raw = Number.isInteger(trait.raw) ? trait.raw + e.value : trait.value + e.value;
       trait.final = Math.max(trait.raw, 0);
       trait.isModified = true;
     });
 
-    if(!systemData.isDreaming && this.type !== "brief_nightmare") der.health.final += der.size.final;
+    if (!systemData.isDreaming && this.type !== "brief_nightmare") der.health.final += der.size.final;
 
     // No negative values
     [systemData.derivedTraits].forEach(attribute => Object.values(attribute).forEach(trait => {
-      trait.final = Math.max(trait.final,0);
+      trait.final = Math.max(trait.final, 0);
     }));
 
     // Set willpower (no need to do a calculate button)
     systemData.willpower.max = der.willpower.final;
 
-/*     der.size.final = Math.max(0, der.size.final);
-    der.speed.final = Math.max(0, der.speed.final);
-    der.defense.final = Math.max(0, der.defense.final);
-    der.armor.final = Math.max(0, der.armor.final);
-    der.ballistic.final = Math.max(0, der.ballistic.final);
-    der.initiativeMod.final = Math.max(0, der.initiativeMod.final);
-    der.perception.final = Math.max(0, der.perception.final);
- */
+    /*     der.size.final = Math.max(0, der.size.final);
+        der.speed.final = Math.max(0, der.speed.final);
+        der.defense.final = Math.max(0, der.defense.final);
+        der.armor.final = Math.max(0, der.armor.final);
+        der.ballistic.final = Math.max(0, der.ballistic.final);
+        der.initiativeMod.final = Math.max(0, der.initiativeMod.final);
+        der.perception.final = Math.max(0, der.perception.final);
+     */
     // Get current demon cover
-    if(systemData.characterType === "Demon"){
+    if (systemData.characterType === "Demon") {
       systemData.currentCover = 0;
-      for(let actorItem of this.items) {
-        if(actorItem.type == "cover" && actorItem.system.isActive) {
+      for (let actorItem of this.items) {
+        if (actorItem.type == "cover" && actorItem.system.isActive) {
           systemData.currentCover = actorItem.system.rating;
           systemData.currentCoverName = actorItem.name;
           break;
@@ -312,7 +312,7 @@ export class ActorMtA extends Actor {
 
     if (systemData.characterType === "Sin-Eater") {
       const synergyLvl = CONFIG.MTA.synergy_levels[Math.min(9, Math.max(0, systemData.sineater_traits.synergy.final - 1))];
-      if(synergyLvl) {
+      if (synergyLvl) {
         systemData.synergyRelationship = synergyLvl.relationship;
         systemData.synergyLiminalAura = synergyLvl.liminalAura;
         systemData.synergyTouchstones = synergyLvl.touchstones;
@@ -320,21 +320,20 @@ export class ActorMtA extends Actor {
     }
 
     // Get Sin-eater's Geist
-    if (systemData.characterType === "Sin-Eater" && systemData.geistId) { 
+    if (systemData.characterType === "Sin-Eater" && systemData.geistId) {
       systemData.geistActor = game.actors.get(systemData.geistId);
-      if(systemData.geistActor) {
+      if (systemData.geistActor) {
         systemData.effectiveRank = Math.min(systemData.sineater_traits.synergy.final, systemData.geistActor.system.eph_general.rank.final);
       }
     }
 
-    if(systemData.mage_traits) {
+    if (systemData.mage_traits) {
       // Calculate active spell limits
-      if( systemData.characterType === "Mage"
-        || systemData.characterType === "Scelesti" )
-      {
+      if (systemData.characterType === "Mage"
+        || systemData.characterType === "Scelesti") {
         systemData.mage_traits.activeSpellMaximum.final += systemData.mage_traits.gnosis.final;
       }
-      else if(this.type === "ephemeral") {
+      else if (this.type === "ephemeral") {
         systemData.mage_traits.activeSpellMaximum.final = 99;
       }
       else {
@@ -369,22 +368,22 @@ export class ActorMtA extends Actor {
     if (this.system.sineaterActor) { // Changes to the Geist cause an update to the Sin-eater
       // Geist update -> Sin-eater update -> Geist prepareData
 
-      if(changed?.system?.willpower && changed?.system?.essence) { 
+      if (changed?.system?.willpower && changed?.system?.essence) {
         const updateData = {};
 
         if (changed.system.willpower.value !== this.system.sineaterActor.system.willpower.value)
           updateData['system.willpower.value'] = changed.system.willpower.value;
-  
+
         if (changed.system.willpower.max !== this.system.sineaterActor.system.willpower.max)
           updateData['system.willpower.max'] = changed.system.willpower.max;
-  
+
         // plasm on the Geist is called essence
         if (changed.system.essence.value !== this.system.sineaterActor.system.plasm.value)
           updateData['system.plasm.value'] = changed.system.essence.value;
-  
+
         if (changed.system.essence.max !== this.system.sineaterActor.system.plasm.max)
           updateData['system.plasm.max'] = changed.system.essence.max;
-  
+
         // await the update, so that the values on the sheet don't flicker back and forth
         await this.system.sineaterActor.update(updateData);
       }
@@ -422,8 +421,8 @@ export class ActorMtA extends Actor {
   /** @override */
   static async create(data, options = {}) {
     const actor = await super.create(data, options);
-    if(actor.type === "character") await actor.createWerewolfForms();
-    
+    if (actor.type === "character") await actor.createWerewolfForms();
+
     return actor;
   }
 
@@ -438,15 +437,15 @@ export class ActorMtA extends Actor {
    *
    * @returns {number} The result of the roll.
    */
-  roll({traits=[], diceBonus=0, rollName="Teste de habilidade", rollType="dialogue", damageRoll=false}) {
+  roll({ traits = [], diceBonus = 0, rollName = "Teste de habilidade", rollType = "dialogue", damageRoll = false }) {
 
-    const {dicePool, flavor, specialties} = this.assembleDicePool({traits, diceBonus});
+    const { dicePool, flavor, specialties } = this.assembleDicePool({ traits, diceBonus });
 
-    switch(rollType) {
+    switch (rollType) {
       case 'dialogue':
         let title = "";
         title = rollName + ": " + flavor;
-        let diceRoller = new DiceRollerDialogue({dicePool, flavor: title, title, actorOverride: this, specialties});
+        let diceRoller = new DiceRollerDialogue({ dicePool, flavor: title, title, actorOverride: this, specialties });
         diceRoller.render(true);
         break;
       case 'quick':
@@ -457,27 +456,27 @@ export class ActorMtA extends Actor {
         });
         break;
       default:
-        return {flavor, dicePool};
+        return { flavor, dicePool };
     }
     // TODO: Return result of the roll
-    
+
   }
 
-/**
- * Gets the value for a specific trait name.
- * Usage: getTraitValue("attributes_physical.strength")
- */
-  getTraitValue(trait){
+  /**
+   * Gets the value for a specific trait name.
+   * Usage: getTraitValue("attributes_physical.strength")
+   */
+  getTraitValue(trait) {
     let ret = 0;
-    ret = trait.split('.').reduce((o,i) => {
-      if(o != undefined && o[i] != undefined) return o[i];
+    ret = trait.split('.').reduce((o, i) => {
+      if (o != undefined && o[i] != undefined) return o[i];
       else return undefined;
     }, this.system);
 
-    if(!Number.isInteger(ret)) {
-      if(typeof ret.max == 'number') ret = ret.max; // E.g. Willpower, ..
-      else if(typeof ret.final == 'number') ret = ret.final;
-      else if(typeof ret.value == 'number') ret = ret.value;
+    if (!Number.isInteger(ret)) {
+      if (typeof ret.max == 'number') ret = ret.max; // E.g. Willpower, ..
+      else if (typeof ret.final == 'number') ret = ret.final;
+      else if (typeof ret.value == 'number') ret = ret.value;
       else {
         ret = 0;
         console.warn("CofD: A roll attribute could not be resolved. " + cur);
@@ -487,7 +486,7 @@ export class ActorMtA extends Actor {
     return ret;
   }
 
-  
+
   /**
    * Assembles a dice pool from an array of traits into a concrete number,
    * alongside the flavor text describing the assembled dice pool.
@@ -501,9 +500,9 @@ export class ActorMtA extends Actor {
    * @property {number} dicePool - The assembled dice pool as a number.
    * @property {string} flavor - A string representing the contents of the dice pool.
    */
-  assembleDicePool({traits=[], diceBonus=0, ignoreUnskilled=false}) {
+  assembleDicePool({ traits = [], diceBonus = 0, ignoreUnskilled = false }) {
     const systemData = this.system;
-    
+
     //Get dice pool
     let dicePool = 0;
     let flavor = "";
@@ -511,57 +510,57 @@ export class ActorMtA extends Actor {
     let isSocialRoll = false;
     let isMentalRoll = false;
     let specialties = [];
-    
-    if(traits.length > 0){
+
+    if (traits.length > 0) {
       // Get dice pool according to the item's dice pool attributes from the actor
       let diceFromTraits = traits ? traits.reduce((acc, cur) => {
-        
+
         let ret = 0;
         let flv = "";
-        ret = cur.split('.').reduce((o,i) => {
-          if(o != undefined && o[i] != undefined) return o[i];
+        ret = cur.split('.').reduce((o, i) => {
+          if (o != undefined && o[i] != undefined) return o[i];
           else return undefined;
         }, systemData);
 
         // Append specialties
-        if(this.type === "character" && ret?.specialties && Array.isArray(ret.specialties)) {
+        if (this.type === "character" && ret?.specialties && Array.isArray(ret.specialties)) {
           specialties.push(...ret.specialties);
         }
 
-        if(!Number.isInteger(ret)) {
-          if(ret && typeof ret.max == 'number') ret = ret.max; // E.g. Willpower, ..
-          else if(ret && typeof ret.final == 'number') ret = ret.final;
-          else if(ret && typeof ret.value == 'number') ret = ret.value;
+        if (!Number.isInteger(ret)) {
+          if (ret && typeof ret.max == 'number') ret = ret.max; // E.g. Willpower, ..
+          else if (ret && typeof ret.final == 'number') ret = ret.final;
+          else if (ret && typeof ret.value == 'number') ret = ret.value;
           else {
             ret = 0;
             console.warn("CofD: A roll attribute could not be resolved. " + cur);
           }
         }
-        if(cur.split('.')[0] === "disciplines_own") flv = cur.split('.').reduce((o,i)=> o[i], systemData).label;
+        if (cur.split('.')[0] === "disciplines_own") flv = cur.split('.').reduce((o, i) => o[i], systemData).label;
         else flv = game.i18n.localize("MTA." + cur);
 
         // Apply penalty if character has 0 in a skill
         const skillType = cur.split('.')[0];
-        if(!ignoreUnskilled && (skillType === "skills_physical" || skillType === "skills_social") && ret <= 0){
+        if (!ignoreUnskilled && (skillType === "skills_physical" || skillType === "skills_social") && ret <= 0) {
           flv += " (inexperiente)";
           ret -= 1;
-        } else if(!ignoreUnskilled && skillType === "skills_mental" && ret <= 0){
+        } else if (!ignoreUnskilled && skillType === "skills_mental" && ret <= 0) {
           flv += " (inexperiente)";
           ret -= 3;
         }
 
-        if(skillType === "skills_physical" || skillType === "attributes_physical")
+        if (skillType === "skills_physical" || skillType === "attributes_physical")
           isPhysicalRoll = true;
 
-        
-        if(skillType === "skills_social" || skillType === "attributes_social")
+
+        if (skillType === "skills_social" || skillType === "attributes_social")
           isSocialRoll = true;
 
-        
-        if(skillType === "skills_mental" || skillType === "attributes_mental")
+
+        if (skillType === "skills_mental" || skillType === "attributes_mental")
           isMentalRoll = true;
 
-        if(flavor) flavor += " + " + flv;
+        if (flavor) flavor += " + " + flv;
         else flavor = flv;
         return acc + ret;
       }, 0) : 0;
@@ -569,53 +568,53 @@ export class ActorMtA extends Actor {
     }
     else flavor = "Teste de habilidade";
 
-    if(diceBonus) {
+    if (diceBonus) {
       dicePool += diceBonus;
-      flavor += diceBonus >= 0 ? ' (+' : ' ('; 
+      flavor += diceBonus >= 0 ? ' (+' : ' (';
       flavor += diceBonus + ' bonus)';
     }
 
     const general = this.system.generalModifiers;
-    if(general) {
-      if(general.allDicePools.final) {
+    if (general) {
+      if (general.allDicePools.final) {
         dicePool += general.allDicePools.final;
-        flavor += (general.allDicePools.final >= 0 ? ' (+' : ' (' ) + general.allDicePools.final + ' [todas])'; 
+        flavor += (general.allDicePools.final >= 0 ? ' (+' : ' (') + general.allDicePools.final + ' [todas])';
       }
 
-      if(isPhysicalRoll && general.physicalDicePools.final) {
+      if (isPhysicalRoll && general.physicalDicePools.final) {
         dicePool += general.physicalDicePools.final;
-        flavor += (general.physicalDicePools.final >= 0 ? ' (+' : ' (' ) + general.physicalDicePools.final + ' [física])'; 
+        flavor += (general.physicalDicePools.final >= 0 ? ' (+' : ' (') + general.physicalDicePools.final + ' [física])';
       }
 
-      if(isSocialRoll && general.socialDicePools.final) {
+      if (isSocialRoll && general.socialDicePools.final) {
         dicePool += general.socialDicePools.final;
-        flavor += (general.socialDicePools.final >= 0 ? ' (+' : ' (' ) + general.socialDicePools.final + ' [social])'; 
+        flavor += (general.socialDicePools.final >= 0 ? ' (+' : ' (') + general.socialDicePools.final + ' [social])';
       }
 
-      if(isMentalRoll && general.mentalDicePools.final) {
+      if (isMentalRoll && general.mentalDicePools.final) {
         dicePool += general.mentalDicePools.final;
-        flavor += (general.mentalDicePools.final >= 0 ? ' (+' : ' (' ) + general.mentalDicePools.final + ' [mental])'; 
+        flavor += (general.mentalDicePools.final >= 0 ? ' (+' : ' (') + general.mentalDicePools.final + ' [mental])';
       }
     }
 
-    console.log("AA", isPhysicalRoll, isSocialRoll, isMentalRoll, general.physicalDicePools.final, general.socialDicePools.final, general.mentalDicePools.final )
+    console.log("AA", isPhysicalRoll, isSocialRoll, isMentalRoll, general.physicalDicePools.final, general.socialDicePools.final, general.mentalDicePools.final)
 
     let woundPenalty = this.getWoundPenalties();
-    
-    if(woundPenalty > 0) {
+
+    if (woundPenalty > 0) {
       dicePool -= woundPenalty;
       flavor += " (Ferimentos: -" + woundPenalty + ")";
     }
 
-    return {dicePool, flavor, specialties};
+    return { dicePool, flavor, specialties };
   }
 
   async werewolfTransform(form) {
     let updates = [];
     const forms = this.items.filter(item => item.type === "form");
-    
+
     forms.forEach(f => {
-      updates.push({_id: f._id, 'system.effectsActive': f._id === form.id ? true : false});
+      updates.push({ _id: f._id, 'system.effectsActive': f._id === form.id ? true : false });
     });
     form.roll()
     await this.updateEmbeddedDocuments("Item", updates);
@@ -626,7 +625,7 @@ export class ActorMtA extends Actor {
    * Creates the 5 standard werewolf forms for the actor, and
    * deletes all existing forms.
    */
-  async createWerewolfForms(){
+  async createWerewolfForms() {
     //Add the 5 basic werewolf forms
     const itemData = [
       {
@@ -636,7 +635,7 @@ export class ActorMtA extends Actor {
         system: {
           subname: "Human",
           effects: [
-            {name: "derivedTraits.perception", value: 1, overFive: true}
+            { name: "derivedTraits.perception", value: 1, overFive: true }
           ],
           description_short: "Sheep's Clothing",
           description: "",
@@ -650,11 +649,11 @@ export class ActorMtA extends Actor {
         system: {
           subname: "Near-Human",
           effects: [
-            {name: "attributes_physical.strength", value: 1, overFive: true},
-            {name: "attributes_physical.stamina", value: 1, overFive: true},
-            {name: "attributes_social.manipulation", value: -1, overFive: true},
-            {name: "derivedTraits.size", value: 1, overFive: true},
-            {name: "derivedTraits.perception", value: 2, overFive: true}
+            { name: "attributes_physical.strength", value: 1, overFive: true },
+            { name: "attributes_physical.stamina", value: 1, overFive: true },
+            { name: "attributes_social.manipulation", value: -1, overFive: true },
+            { name: "derivedTraits.size", value: 1, overFive: true },
+            { name: "derivedTraits.perception", value: 2, overFive: true }
           ],
           description_short: "Teeth/Claws +0L\nDefense vs. Firearms\nMild Lunacy\nBadass Motherfucker",
           description: ""
@@ -667,11 +666,11 @@ export class ActorMtA extends Actor {
         system: {
           subname: "Wolf-Man",
           effects: [
-            {name: "attributes_physical.strength", value: 3, overFive: true},
-            {name: "attributes_physical.dexterity", value: 1, overFive: true},
-            {name: "attributes_physical.stamina", value: 2, overFive: true},
-            {name: "derivedTraits.size", value: 2, overFive: true},
-            {name: "derivedTraits.perception", value: 3, overFive: true}
+            { name: "attributes_physical.strength", value: 3, overFive: true },
+            { name: "attributes_physical.dexterity", value: 1, overFive: true },
+            { name: "attributes_physical.stamina", value: 2, overFive: true },
+            { name: "derivedTraits.size", value: 2, overFive: true },
+            { name: "derivedTraits.perception", value: 3, overFive: true }
           ],
           description_short: "Teeth/Claws +2L\n(Initiative +3)\nDefense vs. Firearms\nFull Lunacy\nRegeneration\nRage\nPrimal Fear",
           description: ""
@@ -684,13 +683,13 @@ export class ActorMtA extends Actor {
         system: {
           subname: "Near-Wolf",
           effects: [
-            {name: "attributes_physical.strength", value: 2, overFive: true},
-            {name: "attributes_physical.dexterity", value: 2, overFive: true},
-            {name: "attributes_physical.stamina", value: 2, overFive: true},
-            {name: "attributes_social.manipulation", value: -1, overFive: true},
-            {name: "derivedTraits.size", value: 1, overFive: true},
-            {name: "derivedTraits.speed", value: 3, overFive: true},
-            {name: "derivedTraits.perception", value: 3, overFive: true}
+            { name: "attributes_physical.strength", value: 2, overFive: true },
+            { name: "attributes_physical.dexterity", value: 2, overFive: true },
+            { name: "attributes_physical.stamina", value: 2, overFive: true },
+            { name: "attributes_social.manipulation", value: -1, overFive: true },
+            { name: "derivedTraits.size", value: 1, overFive: true },
+            { name: "derivedTraits.speed", value: 3, overFive: true },
+            { name: "derivedTraits.perception", value: 3, overFive: true }
           ],
           description_short: "Teeth +2L/Claws +1L\nDefense vs. Firearms\nModerate Lunacy\nWeaken the Prey",
           description: ""
@@ -703,12 +702,12 @@ export class ActorMtA extends Actor {
         system: {
           subname: "Wolf",
           effects: [
-            {name: "attributes_physical.dexterity", value: 2, overFive: true},
-            {name: "attributes_physical.stamina", value: 1, overFive: true},
-            {name: "attributes_social.manipulation", value: -1, overFive: true},
-            {name: "derivedTraits.size", value: -1, overFive: true},
-            {name: "derivedTraits.speed", value: 3, overFive: true},
-            {name: "derivedTraits.perception", value: 4, overFive: true}
+            { name: "attributes_physical.dexterity", value: 2, overFive: true },
+            { name: "attributes_physical.stamina", value: 1, overFive: true },
+            { name: "attributes_social.manipulation", value: -1, overFive: true },
+            { name: "derivedTraits.size", value: -1, overFive: true },
+            { name: "derivedTraits.speed", value: 3, overFive: true },
+            { name: "derivedTraits.perception", value: 4, overFive: true }
           ],
           description_short: "Teeth +1L\nChase Down",
           description: ""
@@ -716,7 +715,7 @@ export class ActorMtA extends Actor {
       }
     ];
     let oldForms = this.items.filter(item => item.type === "form").map(item => item.id);
-    if(oldForms) await this.deleteEmbeddedDocuments("Item",oldForms);
+    if (oldForms) await this.deleteEmbeddedDocuments("Item", oldForms);
     await this.createEmbeddedDocuments("Item", itemData);
   }
 
@@ -768,9 +767,9 @@ export class ActorMtA extends Actor {
   /** Returns the attribute limit of the character (e.g. Gnosis for mages) **/
   getTraitMaximum() {
     const data = this.system;
-    if(this.type !== "character")
+    if (this.type !== "character")
       return 999;
-  
+
     const powerStats = { //TODO: Put in config
       Mortal: 5,
       Sleepwalker: 5,
@@ -784,10 +783,10 @@ export class ActorMtA extends Actor {
       Demon: data.demon_traits.primum?.final,
       "Sin-Eater": data.sineater_traits.synergy?.final,
     };
-    if(!powerStats[data.characterType]) {
+    if (!powerStats[data.characterType]) {
       return 5;
     }
-    return Math.max(5,powerStats[data.characterType]);
+    return Math.max(5, powerStats[data.characterType]);
   }
 
   openMageSightDialogue() {
@@ -956,7 +955,7 @@ export class ActorMtA extends Actor {
     d.render(true);
   }
 
-// CÓDIGO GPT
+  // CÓDIGO GPT
 
   openClashOfWillsDialogue() {
     const s = this.system || {};
@@ -1338,7 +1337,7 @@ export class ActorMtA extends Actor {
     }
   }
 
-		rollGeneralDicepool(flavor, dicepool, quickRoll, hidden) {
+  rollGeneralDicepool(flavor, dicepool, quickRoll, hidden) {
     if (quickRoll) DiceRollerDialogue.rollToChat({
       dicePool: dicepool,
       flavor: flavor,
@@ -1358,7 +1357,7 @@ export class ActorMtA extends Actor {
     }
   }
 
-		rollCombatDicepool(flavor, dicepool, quickRoll, hidden) {
+  rollCombatDicepool(flavor, dicepool, quickRoll, hidden) {
     if (quickRoll) DiceRollerDialogue.rollToChat({
       dicePool: dicepool,
       flavor: flavor,
@@ -1366,7 +1365,7 @@ export class ActorMtA extends Actor {
       title: this.name + " - " + flavor,
       blindGMRoll: hidden,
       actorOverride: this,
-			damageRoll: true
+      damageRoll: true
     });
     else {
       let diceRoller = new DiceRollerDialogue({
@@ -1376,92 +1375,92 @@ export class ActorMtA extends Actor {
         title: this.name + " - " + flavor,
         blindGMRoll: true,
         actorOverride: this,
-				damageRoll: true,
-				itemImg: 'systems/mta/icons/placeholders/combat_dice_pool.svg'
+        damageRoll: true,
+        itemImg: 'systems/mta/icons/placeholders/combat_dice_pool.svg'
       });
       diceRoller.render(true);
     }
   }
 
-  damage(damageAmount, damagetype, resistant=false) {
-    if(damageAmount === 0) return;
+  damage(damageAmount, damagetype, resistant = false) {
+    if (damageAmount === 0) return;
     console.log("Damaging " + this.name + " by " + damageAmount + " " + damagetype + " damage");
-    if(damagetype === "bashing") damagetype = "value"
-    
-    if(this.system.health[damagetype] != undefined) {
+    if (damagetype === "bashing") damagetype = "value"
+
+    if (this.system.health[damagetype] != undefined) {
       let updateData = {};
-      if(damageAmount > 0) {
+      if (damageAmount > 0) {
 
         let carryOver_lethal = 0;
         let carryOver_aggravated = 0;
 
-        if(damagetype === 'aggravated') {
+        if (damagetype === 'aggravated') {
           updateData[`system.health.aggravated`] = Math.max(0, this.system.health.aggravated - damageAmount);
           updateData[`system.health.lethal`] = Math.max(0, this.system.health.lethal - damageAmount);
           updateData[`system.health.value`] = Math.max(0, this.system.health.value - damageAmount);
 
           const messageContent = (this.name + " recebeu " + damageAmount + " ponto(s) de dano agravado!");
           const chatData = {
-              speaker: ChatMessage.getSpeaker({}),
-              content: messageContent
+            speaker: ChatMessage.getSpeaker({}),
+            content: messageContent
           };
           ChatMessage.create(chatData);
 
         }
-        else if(damagetype === 'lethal') {
+        else if (damagetype === 'lethal') {
           carryOver_aggravated = - Math.min(0, this.system.health.lethal - damageAmount);
-          
-          if(carryOver_aggravated > 0) updateData[`system.health.aggravated`] = Math.max(0, this.system.health.aggravated - carryOver_aggravated);
+
+          if (carryOver_aggravated > 0) updateData[`system.health.aggravated`] = Math.max(0, this.system.health.aggravated - carryOver_aggravated);
           updateData[`system.health.lethal`] = Math.max(0, this.system.health.lethal - damageAmount);
           updateData[`system.health.value`] = Math.max(0, this.system.health.value - damageAmount);
 
           const messageContent = (this.name + " recebeu " + damageAmount + " ponto(s) de dano letal!");
           const chatData = {
-              speaker: ChatMessage.getSpeaker({}),
-              content: messageContent
+            speaker: ChatMessage.getSpeaker({}),
+            content: messageContent
           };
           ChatMessage.create(chatData);
-      
+
         }
-        else if(damagetype === 'value') {
+        else if (damagetype === 'value') {
           carryOver_lethal = - Math.min(0, this.system.health.value - damageAmount);
           carryOver_aggravated = - Math.min(0, this.system.health.lethal - carryOver_lethal);
 
-          if(carryOver_aggravated > 0) updateData[`system.health.aggravated`] = Math.max(0, this.system.health.aggravated - carryOver_aggravated);
-          if(carryOver_lethal > 0) updateData[`system.health.lethal`] = Math.max(0, this.system.health.lethal - damageAmount);
+          if (carryOver_aggravated > 0) updateData[`system.health.aggravated`] = Math.max(0, this.system.health.aggravated - carryOver_aggravated);
+          if (carryOver_lethal > 0) updateData[`system.health.lethal`] = Math.max(0, this.system.health.lethal - damageAmount);
           updateData[`system.health.value`] = Math.max(0, this.system.health.value - damageAmount);
 
           const messageContent = (this.name + " recebeu " + damageAmount + " ponto(s) de dano contundente!");
           const chatData = {
-              speaker: ChatMessage.getSpeaker({}),
-              content: messageContent
+            speaker: ChatMessage.getSpeaker({}),
+            content: messageContent
           };
           ChatMessage.create(chatData);
-      
+
         }
 
         // Apply resistant damage
-        if(resistant) {
+        if (resistant) {
           let marked = "";
-          let inflictedBashing = damagetype === "value" ? damageAmount - carryOver_lethal - carryOver_aggravated : 0 ;
+          let inflictedBashing = damagetype === "value" ? damageAmount - carryOver_lethal - carryOver_aggravated : 0;
           let inflictedLethal = (damagetype === "lethal" ? damageAmount - carryOver_aggravated : 0) + carryOver_lethal;
           let inflictedAggravated = (damagetype === "aggravated" ? damageAmount : 0) + carryOver_aggravated;
 
           const offsetBashing = this.system.health.max - (updateData[`system.health.lethal`] ?? this.system.health.lethal);
           const offsetLethal = this.system.health.max - (updateData[`system.health.aggravated`] ?? this.system.health.aggravated);
 
-          updateData['system.health.marked'] = this.system.health.marked.split(',').map( (cur,i) => {
-            if(cur === "1"){ return "1"; }
-            else{
-              if(inflictedAggravated) {
+          updateData['system.health.marked'] = this.system.health.marked.split(',').map((cur, i) => {
+            if (cur === "1") { return "1"; }
+            else {
+              if (inflictedAggravated) {
                 inflictedAggravated--;
                 return "1";
               }
-              else if(inflictedLethal && i >= offsetLethal) {
+              else if (inflictedLethal && i >= offsetLethal) {
                 inflictedLethal--;
                 return "1";
               }
-              else if(inflictedBashing && i >= offsetBashing) {
+              else if (inflictedBashing && i >= offsetBashing) {
                 inflictedBashing--;
                 return "1";
               }
@@ -1471,42 +1470,42 @@ export class ActorMtA extends Actor {
         }
       }
       else { // Negative damage == healing
-        if(damagetype === 'value') {
+        if (damagetype === 'value') {
           updateData[`system.health.value`] = Math.min(this.system.health.lethal, this.system.health.value - damageAmount);
 
           const messageContent = (this.name + " curou " + (damageAmount * -1) + " ponto(s) de dano contundente!");
           const chatData = {
-              speaker: ChatMessage.getSpeaker({}),
-              content: messageContent
+            speaker: ChatMessage.getSpeaker({}),
+            content: messageContent
           };
           ChatMessage.create(chatData);
-      
+
         }
-        
-        else if(damagetype === 'lethal') {
+
+        else if (damagetype === 'lethal') {
           updateData[`system.health.lethal`] = Math.min(this.system.health.aggravated, this.system.health.lethal - damageAmount);
           updateData[`system.health.value`] = Math.min(updateData[`system.health.lethal`], this.system.health.value - damageAmount);
 
           const messageContent = (this.name + " curou " + (damageAmount * -1) + " ponto(s) de dano letal!");
           const chatData = {
-              speaker: ChatMessage.getSpeaker({}),
-              content: messageContent
+            speaker: ChatMessage.getSpeaker({}),
+            content: messageContent
           };
           ChatMessage.create(chatData);
-      
+
         }
-        else if(damagetype === 'aggravated') {
+        else if (damagetype === 'aggravated') {
           updateData[`system.health.aggravated`] = Math.min(this.system.health.max, this.system.health.aggravated - damageAmount);
           updateData[`system.health.lethal`] = Math.min(updateData[`system.health.aggravated`], this.system.health.lethal - damageAmount);
           updateData[`system.health.value`] = Math.min(updateData[`system.health.lethal`], this.system.health.value - damageAmount);
 
           const messageContent = (this.name + " curou " + (damageAmount * -1) + " ponto(s) de dano agravado!");
           const chatData = {
-              speaker: ChatMessage.getSpeaker({}),
-              content: messageContent
+            speaker: ChatMessage.getSpeaker({}),
+            content: messageContent
           };
           ChatMessage.create(chatData);
-      
+
         }
       }
 
@@ -1530,8 +1529,8 @@ export class ActorMtA extends Actor {
    * 
    */
   areAnyItemsActive(...args) {
-    for(const item of this.items) {
-      if(args.includes(item.name) && item.system.effectsActive) {
+    for (const item of this.items) {
+      if (args.includes(item.name) && item.system.effectsActive) {
         return true;
       }
     }
@@ -1541,11 +1540,11 @@ export class ActorMtA extends Actor {
   getWoundPenalties() {
     const systemData = this.system;
     let woundPenalty = 0;
-    if(systemData.health.value <= 3 && !(this.type === "ephemeral")) {
-      woundPenalty = 2 - (systemData.health.value-1);
+    if (systemData.health.value <= 3 && !(this.type === "ephemeral")) {
+      woundPenalty = 2 - (systemData.health.value - 1);
       // Check for Iron Stamina Merit
       let ironStamina = this.getSpecialEffect("reducedWoundPenalty");
-      if(ironStamina) woundPenalty = Math.max(0, woundPenalty - ironStamina.rating);
+      if (ironStamina) woundPenalty = Math.max(0, woundPenalty - ironStamina.rating);
     }
     return woundPenalty;
   }
@@ -1557,18 +1556,18 @@ export class ActorMtA extends Actor {
    */
   getClarityBonus() {
     const systemData = this.system;
-    if(systemData.characterType !== "Changeling") return 0;
+    if (systemData.characterType !== "Changeling") return 0;
     let clarity = systemData.clarity.value;
     let clarityMax = systemData.clarity.max;
 
     let diceBonus = (clarity < 3) ? -2 : (clarity < 5) ? -1 : 0;
-    if(clarity === clarityMax) diceBonus += 2;
-    if(clarity <= 0) diceBonus = -99;
+    if (clarity === clarityMax) diceBonus += 2;
+    if (clarity <= 0) diceBonus = -99;
 
     return diceBonus;
   }
 
-  castSpell(spell){
+  castSpell(spell) {
     const itemData = spell ? foundry.utils.duplicate(spell.system) : {};
     if (spell) {
       if (spell.system.isRote) itemData.castRote = true;
@@ -1581,11 +1580,11 @@ export class ActorMtA extends Actor {
       }),
       name: spell ? spell.name : game.i18n.localize('MTA.ImprovisedSpell'),
       img: spell ? spell.img : '',
-      type:  "activeSpell"
-    }); 
+      type: "activeSpell"
+    });
 
     activeSpell.img = spell ? spell.img : '';
-    
+
     let spellDialogue = new ImprovisedSpellDialogue(activeSpell, this);
     spellDialogue.render(true);
   }
@@ -1597,8 +1596,8 @@ export class ActorMtA extends Actor {
    * @param {boolean} [hasResonance=false] - whether the keys used have synergy with the haunt (gives exceptional on 3)
    * @param {boolean} [spendWillpower=false] - whether Willpower should be spent to avoid the Doomed condition.
    */
-  async activateHauntPower(haunt, keys=[], spendWillpower=false, hasResonance=false) {
-    if(!haunt) return;
+  async activateHauntPower(haunt, keys = [], spendWillpower = false, hasResonance = false) {
+    if (!haunt) return;
     const firstKey = keys ? keys[0] : undefined;
     const keyAmount = keys ? keys.length : 0;
 
@@ -1606,7 +1605,7 @@ export class ActorMtA extends Actor {
 
     // Unlocking keys & gain free plasm
     let unlockAttributeValue = 0;
-    
+
     if (firstKey) {
       const unlockAttribute = firstKey.system.unlockAttribute;
       if (this.system.attributes_physical[unlockAttribute])
@@ -1639,7 +1638,7 @@ export class ActorMtA extends Actor {
       }
       else { // No willpower nor exceptional success -> add 1 doomed condition per key
         const conditionData = [];
-        for(let i = 0; i < keyAmount; i++) {
+        for (let i = 0; i < keyAmount; i++) {
           const k = keys[i];
           conditionData.push({
             name: `${game.i18n.localize("MTA.DoomedCondition")} (${k.name})`,
@@ -1673,7 +1672,7 @@ export class ActorMtA extends Actor {
     // Gain doomed
     const conditionData = [{
       name: `Doomed (${item.name})`,
-      type: "condition", 
+      type: "condition",
       system: {
         description: item.system.doom
       }
@@ -1699,7 +1698,7 @@ export class ActorMtA extends Actor {
     const systemData = this.system;
     let dicepool = systemData.attributes_social.composure.final + systemData.attributes_mental.resolve.final;
     let penalty = systemData.integrity > 8 ? 2 : systemData.integrity > 6 ? 1 : systemData.integrity <= 2 ? -2 : systemData.integrity <= 4 ? -1 : 0;
-    if(this.system.characterType === "Hunter") penalty = 0;
+    if (this.system.characterType === "Hunter") penalty = 0;
     dicepool += penalty;
     let flavor = "Ponto de Ruptura: Perseverança + Compostura + " + penalty;
     if (quickRoll) DiceRollerDialogue.rollToChat({
@@ -1748,7 +1747,7 @@ export class ActorMtA extends Actor {
    * Executes a cover compromise roll using Wits + Manipulation.
    * if hidden is set, the roll is executed as a blind GM roll.
    */
-   rollCompromise(quickRoll, hidden) {
+  rollCompromise(quickRoll, hidden) {
     const systemData = this.system;
     let dicepool = systemData.attributes_mental.wits.final + systemData.attributes_social.manipulation.final;
     let penalty = systemData.currentCover >= 8 ? 2 : systemData.currentCover >= 6 ? 1 : systemData.currentCover <= 1 ? -2 : systemData.currentCover <= 3 ? -1 : 0;
@@ -1779,17 +1778,17 @@ export class ActorMtA extends Actor {
     const systemData = this.system;
     const updateData = {};
     updateData['system.isDreaming'] = !systemData.isDreaming;
-    if(updateData['system.isDreaming']) {
+    if (updateData['system.isDreaming']) {
       // Start dreaming. Replace attributes and health.
-      if(systemData.characterType === "Mage" || systemData.characterType === "Scelesti") updateData['system.attributes_physical_dream.power.value'] = Math.max( systemData.attributes_mental.intelligence.final, systemData.attributes_social.presence.final);
+      if (systemData.characterType === "Mage" || systemData.characterType === "Scelesti") updateData['system.attributes_physical_dream.power.value'] = Math.max(systemData.attributes_mental.intelligence.final, systemData.attributes_social.presence.final);
       else if (systemData.characterType === "Changeling") updateData['system.attributes_physical_dream.power.value'] = systemData.attributes_social.presence.final;
       else updateData['system.attributes_physical_dream.power.value'] = systemData.attributes_mental.intelligence.final;
 
-      if(systemData.characterType === "Mage" || systemData.characterType === "Scelesti") updateData['system.attributes_social_dream.finesse.value'] = Math.max( systemData.attributes_mental.wits.final, systemData.attributes_social.manipulation.final);
+      if (systemData.characterType === "Mage" || systemData.characterType === "Scelesti") updateData['system.attributes_social_dream.finesse.value'] = Math.max(systemData.attributes_mental.wits.final, systemData.attributes_social.manipulation.final);
       else if (systemData.characterType === "Changeling") updateData['system.attributes_social_dream.finesse.value'] = systemData.attributes_social.manipulation.final;
       else updateData['system.attributes_social_dream.finesse.value'] = systemData.attributes_mental.wits.final;
-      
-      if(systemData.characterType === "Mage" || systemData.characterType === "Scelesti") updateData['system.attributes_mental_dream.resistance.value'] = Math.max( systemData.attributes_mental.resolve.final, systemData.attributes_social.composure.final);
+
+      if (systemData.characterType === "Mage" || systemData.characterType === "Scelesti") updateData['system.attributes_mental_dream.resistance.value'] = Math.max(systemData.attributes_mental.resolve.final, systemData.attributes_social.composure.final);
       else if (systemData.characterType === "Changeling") updateData['system.attributes_mental_dream.resistance.value'] = systemData.attributes_social.composure.final;
       else updateData['system.attributes_mental_dream.resistance.value'] = systemData.attributes_mental.resolve.final;
 
@@ -1798,11 +1797,11 @@ export class ActorMtA extends Actor {
       // a new type of health as a new trait. Dream health is not backed up, as I believe that's not a thing.
       updateData['system.dream_health'] = systemData.health;
       let newMax = 0;
-      if(systemData.characterType === "Changeling") newMax = systemData.clarity.value;
+      if (systemData.characterType === "Changeling") newMax = systemData.clarity.value;
       else newMax = updateData['system.attributes_mental_dream.resistance.value'];
-      
+
       //  Add Gnosis/Wyrd derived maximum
-      if(systemData.characterType === "Mage" || systemData.characterType === "Scelesti") newMax += Math.max(5, systemData.mage_traits.gnosis.final);
+      if (systemData.characterType === "Mage" || systemData.characterType === "Scelesti") newMax += Math.max(5, systemData.mage_traits.gnosis.final);
       else if (systemData.characterType === "Changeling") newMax += Math.max(5, systemData.changeling_traits.wyrd.final);
       else newMax += 5;
 
@@ -1812,30 +1811,32 @@ export class ActorMtA extends Actor {
         aggravated: newMax,
         value: newMax
       }
-      
+
     }
     else {
       // Dreaming ended. Reset health.
-      if(systemData.dream_health) updateData['system.health'] = systemData.dream_health;
+      if (systemData.dream_health) updateData['system.health'] = systemData.dream_health;
       let amnion = this.items.filter(item => item.name === "Amnion");
-      if(amnion) this.deleteEmbeddedDocuments("Item", amnion.map(item => item.id));
+      if (amnion) this.deleteEmbeddedDocuments("Item", amnion.map(item => item.id));
     }
-    if(unequipItems) {
+    if (unequipItems) {
       let equipped = this.items.filter(item => item.system.equipped);
-      if(equipped) {
-        this.updateEmbeddedDocuments("Item", equipped.map(item => {return {
-        _id: item.id, 
-        'system.equipped': false
-      }}));
+      if (equipped) {
+        this.updateEmbeddedDocuments("Item", equipped.map(item => {
+          return {
+            _id: item.id,
+            'system.equipped': false
+          }
+        }));
       }
     }
     this.update(updateData);
   }
 
   scourParadox() {
-    if(!this.system.patternParadox) return;
+    if (!this.system.patternParadox) return;
     this.damage(this.system.patternParadox, "lethal", true);
-    this.update({"system.patternParadox": 0});
+    this.update({ "system.patternParadox": 0 });
   }
 
   scourPattern() {
@@ -2033,7 +2034,7 @@ export class ActorMtA extends Actor {
   restorePattern() {
     return this._openPatternRestoreDialogue({
       title: "❤️‍🩹 Restaurando o Padrão",
-      description: `Através de uma <strong>Ação Instantânea</strong> que custa <strong>3 pontos de Mana</strong>, você pode recer 1 dos benefícios:`,
+      description: `Com uma <strong>Ação Instantânea</strong> que custa <strong>3 pontos de Mana</strong>, você pode receber 1 dos benefícios:`,
       options: [
         {
           id: "restore-lethal",
@@ -2051,20 +2052,20 @@ export class ActorMtA extends Actor {
           damage: { amount: -1, type: "bashing" }
         },
         {
-          id: "restore-condition",
-          value: "condition",
-          label: "Eliminar 1 <strong>Condição mental</strong>",
-          manaCost: 3,
-          deleteType: "condition",
-          selectLabel: "Condição:"
-        },
-        {
           id: "restore-tilt",
           value: "tilt",
           label: "Eliminar 1 <strong>Incidente físico</strong>",
           manaCost: 3,
           deleteType: "tilt",
-          selectLabel: "Incidente:"
+          selectLabel: "⚠️ <strong>Incidente:</strong>"
+        },
+        {
+          id: "restore-condition",
+          value: "condition",
+          label: "Eliminar 1 <strong>Condição mental</strong>",
+          manaCost: 3,
+          deleteType: "condition",
+          selectLabel: "⚠️ <strong>Condição:</strong>"
         }
       ]
     });
@@ -2073,7 +2074,7 @@ export class ActorMtA extends Actor {
   improvedRestorePattern() {
     return this._openPatternRestoreDialogue({
       title: "❤️‍🩹 Restaurando o Padrão aprimoradamente",
-      description: `Através de um Dote de Vida ••, você pode realizar uma <strong>Ação Instantânea</strong> que custa <strong>menos de Mana</strong> (conforme a opção escolhida), para receber 1 dos benefícios:`,
+      description: `Graças a um Dote de Vida ••, você pode realizar uma <strong>Ação Instantânea</strong> que custa <strong>menos Mana</strong> (conforme a opção escolhida), para receber 1 dos benefícios:`,
       options: [
         {
           id: "improved-restore-lethal",
@@ -2091,20 +2092,20 @@ export class ActorMtA extends Actor {
           damage: { amount: -1, type: "bashing" }
         },
         {
-          id: "improved-restore-condition",
-          value: "condition",
-          label: "Eliminar 1 <strong>Condição mental</strong> (<strong>-3 de Mana</strong>)",
-          manaCost: 3,
-          deleteType: "condition",
-          selectLabel: "Condição:"
-        },
-        {
           id: "improved-restore-tilt",
           value: "tilt",
           label: "Eliminar 1 <strong>Incidente físico</strong> (<strong>-3 de Mana</strong>)",
           manaCost: 3,
           deleteType: "tilt",
-          selectLabel: "Incidente:"
+          selectLabel: "⚠️ <strong>Incidente</strong>:"
+        },
+        {
+          id: "improved-restore-condition",
+          value: "condition",
+          label: "Eliminar 1 <strong>Condição mental</strong> (<strong>-3 de Mana</strong>)",
+          manaCost: 3,
+          deleteType: "condition",
+          selectLabel: "⚠️ <strong>Condição</strong>:"
         }
       ]
     });
@@ -2257,10 +2258,6 @@ export class ActorMtA extends Actor {
       ${description}
     </p>
 
-    <p style="margin:4px 0 10px;font-size:0.92em;opacity:0.78;line-height:1.35;text-align:justify;text-align-last:left;">
-      <strong>Obs.</strong>: <strong>Condições</strong> eliminadas desta forma <strong>não</strong> concedem um Beat como recompensa!
-    </p>
-
     <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
 
     <ul style="
@@ -2275,6 +2272,13 @@ export class ActorMtA extends Actor {
     </ul>
 
     ${selectGroupsHTML}
+
+
+    <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
+
+    <p style="margin:4px 0 10px;font-size:0.92em;opacity:0.78;line-height:1.35;text-align:justify;text-align-last:left;">
+    <strong>Obs.</strong>: <strong>Condições</strong> eliminadas desta forma <strong>não</strong> concedem um Beat como recompensa!
+    </p>
 
   </div>
 </form>
@@ -2403,15 +2407,15 @@ export class ActorMtA extends Actor {
       name: "Amnion",
       img: "systems/mta/icons/gui/macro-amnion.svg",
       'system.effectsActive': true,
-      'system.effects': [ 
+      'system.effects': [
         {
           name: "derivedTraits.armor",
-          value: Math.min( this.system.mage_traits.gnosis.final, Math.max(...Object.values(this.system.arcana_subtle).map(arcanum => arcanum.value)))
-        }, 
+          value: Math.min(this.system.mage_traits.gnosis.final, Math.max(...Object.values(this.system.arcana_subtle).map(arcanum => arcanum.value)))
+        },
         {
           name: "attributes_social_dream.finesse",
           value: -2
-        }, 
+        },
         {
           name: "derivedTraits.defense",
           value: -1
@@ -2456,7 +2460,7 @@ export class ActorMtA extends Actor {
     `;
 
     const content = `
-<form class="mta-dialogue cod-progress-dialog">
+<form class="mta-sheet mta-dialogue cod-progress-dialog">
   <div class="ms-wrap" style="padding:12px 14px 16px;">
 
     <legend class="ms-title" style="display:block;width:100%;text-align:center;margin:0 0 8px;">
@@ -2537,7 +2541,7 @@ export class ActorMtA extends Actor {
           id="cod-custom-reason"
           type="text"
           name="input.customReason"
-          class="cod-custom-reason"
+          class="attribute-specialty cod-custom-reason"
           disabled
           placeholder="Descreva o motivo"
           style="margin:0;min-width:220px;"
@@ -2546,7 +2550,7 @@ export class ActorMtA extends Actor {
     </div>
 
     <div class="cod-amount-group">
-      <div class="cod-amount-number" style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;">
+      <div class="cod-amount-number" style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;margin-top:10px;">
         <label for="cod-progress-amount" style="margin:0;"><strong>#️⃣ Quantidade de Beats</strong>:</label>
 
         <input
@@ -2561,20 +2565,55 @@ export class ActorMtA extends Actor {
         />
       </div>
 
-      <div class="cod-amount-aspiration" style="display:none;grid-template-columns:1fr auto;align-items:center;column-gap:12px;">
+      <div class="cod-amount-aspiration" style="display:none;grid-template-columns:1fr auto;align-items:center;column-gap:12px;margin-top:10px;">
         <p style="margin:0;">Aspiração:</p>
 
-        <div style="display:flex;gap:12px;align-items:center;justify-content:flex-end;">
-          <label style="display:flex;gap:6px;align-items:center;margin:0;white-space:nowrap;">
-            <input type="radio" name="input.aspirationMode" value="double" checked>
-            Dupla
-          </label>
+        <ul style="
+          display:grid;
+          grid-template-columns:1fr;
+          row-gap:4px;
+          margin:0;
+          padding:0;
+          list-style:none;
+          min-width:120px;
+        ">
+          <li
+            class="item-row mta-native-radio cod-aspiration-choice"
+            data-radio-group="input.aspirationMode"
+            style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;cursor:pointer;"
+          >
+            <label for="cod-aspiration-double" style="margin:0;cursor:pointer;">Dupla</label>
+            <span class="cell" style="padding:0;">
+              <i class="activeIcon fas fa-dot-circle"></i>
+            </span>
+            <input
+              id="cod-aspiration-double"
+              type="radio"
+              name="input.aspirationMode"
+              value="double"
+              checked
+              style="display:none;"
+            >
+          </li>
 
-          <label style="display:flex;gap:6px;align-items:center;margin:0;white-space:nowrap;">
-            <input type="radio" name="input.aspirationMode" value="single">
-            Única
-          </label>
-        </div>
+          <li
+            class="item-row mta-native-radio cod-aspiration-choice"
+            data-radio-group="input.aspirationMode"
+            style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;cursor:pointer;"
+          >
+            <label for="cod-aspiration-single" style="margin:0;cursor:pointer;">Única</label>
+            <span class="cell" style="padding:0;">
+              <i class="activeIcon far fa-circle" style="visibility:visible;"></i>
+            </span>
+            <input
+              id="cod-aspiration-single"
+              type="radio"
+              name="input.aspirationMode"
+              value="single"
+              style="display:none;"
+            >
+          </li>
+        </ul>
       </div>
     </div>
 
@@ -2597,8 +2636,56 @@ export class ActorMtA extends Actor {
 
         const amountNumberWrap = html.find(".cod-amount-number");
         const amountAspWrap = html.find(".cod-amount-aspiration");
-        const amountNumber = html.find("input[name='input.amount']");
         const aspirationRadios = html.find("input[name='input.aspirationMode']");
+
+        function syncNativeRadioGroup(groupName) {
+          const rows = html.find(`.mta-native-radio[data-radio-group="${groupName}"]`);
+
+          rows.each((i, rowEl) => {
+            const row = $(rowEl);
+            const input = row.find("input[type='radio']");
+            const icon = row.find(".activeIcon");
+            const checked = input.prop("checked");
+
+            if (checked) {
+              icon
+                .removeClass("far fa-circle")
+                .addClass("fas fa-dot-circle")
+                .css("visibility", "visible");
+
+              row.css("opacity", "1");
+            } else {
+              icon
+                .removeClass("fas fa-dot-circle")
+                .addClass("far fa-circle")
+                .css("visibility", "visible");
+
+              row.css("opacity", "0.72");
+            }
+          });
+        }
+
+        function bindNativeRadioGroup(groupName) {
+          const rows = html.find(`.mta-native-radio[data-radio-group="${groupName}"]`);
+
+          rows.on("click", event => {
+            const row = $(event.currentTarget);
+            const input = row.find("input[type='radio']");
+
+            if (input.prop("disabled")) return;
+
+            rows.find("input[type='radio']").prop("checked", false);
+            input.prop("checked", true).trigger("change");
+
+            syncNativeRadioGroup(groupName);
+          });
+
+          rows.find("input[type='radio']").on("change", () => {
+            syncNativeRadioGroup(groupName);
+          });
+
+          syncNativeRadioGroup(groupName);
+        }
 
         function toggleCustom() {
           const value = reasonSelect.val() || "";
@@ -2660,6 +2747,8 @@ export class ActorMtA extends Actor {
             if (!aspirationRadios.filter(":checked").length) {
               aspirationRadios.filter("[value='double']").prop("checked", true);
             }
+
+            syncNativeRadioGroup("input.aspirationMode");
           } else {
             amountAspWrap.hide();
             amountNumberWrap.show();
@@ -2691,6 +2780,8 @@ export class ActorMtA extends Actor {
             d.setPosition({ height: headerH + contentH + 8 });
           });
         }
+
+        bindNativeRadioGroup("input.aspirationMode");
 
         toggleCustom();
         togglePresenceUI();
@@ -2812,7 +2903,7 @@ export class ActorMtA extends Actor {
     `;
 
     const content = `
-<form class="mta-dialogue cod-progress-dialog">
+<form class="mta-sheet mta-dialogue cod-progress-dialog">
   <div class="ms-wrap" style="padding:12px 14px 16px;">
 
     <legend class="ms-title" style="display:block;width:100%;text-align:center;margin:0 0 8px;">
@@ -2857,17 +2948,52 @@ export class ActorMtA extends Actor {
       <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px;">
         <p style="margin:0;">🎖️ Tipo de Beats:</p>
 
-        <div style="display:flex;gap:12px;align-items:center;justify-content:flex-end;">
-          <label style="display:flex;gap:6px;align-items:center;margin:0;white-space:nowrap;">
-            <input type="radio" name="input.type" value="beat" checked>
-            Comuns
-          </label>
+        <ul style="
+          display:grid;
+          grid-template-columns:1fr;
+          row-gap:4px;
+          margin:0;
+          padding:0;
+          list-style:none;
+          min-width:120px;
+        ">
+          <li
+            class="item-row mta-native-radio cod-type-choice"
+            data-radio-group="input.type"
+            style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;cursor:pointer;"
+          >
+            <label for="cod-spend-type-beat" style="margin:0;cursor:pointer;">Comuns</label>
+            <span class="cell" style="padding:0;">
+              <i class="activeIcon fas fa-dot-circle"></i>
+            </span>
+            <input
+              id="cod-spend-type-beat"
+              type="radio"
+              name="input.type"
+              value="beat"
+              checked
+              style="display:none;"
+            >
+          </li>
 
-          <label style="display:flex;gap:6px;align-items:center;margin:0;white-space:nowrap;">
-            <input type="radio" name="input.type" value="arcane">
-            Arcanos
-          </label>
-        </div>
+          <li
+            class="item-row mta-native-radio cod-type-choice"
+            data-radio-group="input.type"
+            style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;cursor:pointer;"
+          >
+            <label for="cod-spend-type-arcane" style="margin:0;cursor:pointer;">Arcanos</label>
+            <span class="cell" style="padding:0;">
+              <i class="activeIcon far fa-circle" style="visibility:visible;"></i>
+            </span>
+            <input
+              id="cod-spend-type-arcane"
+              type="radio"
+              name="input.type"
+              value="arcane"
+              style="display:none;"
+            >
+          </li>
+        </ul>
       </div>
     </div>
 
@@ -2944,7 +3070,7 @@ export class ActorMtA extends Actor {
         id="cod-spend-custom-reason"
         type="text"
         name="input.customReason"
-        class="cod-custom-reason"
+        class="attribute-specialty cod-custom-reason"
         placeholder="Descreva o gasto"
         style="margin:0;min-width:220px;"
       />
@@ -2968,6 +3094,58 @@ export class ActorMtA extends Actor {
         const beatsArcaneInput = html.find("input[name='input.beatsArcane']");
         const mixedSummary = html.find(".cod-mixed-summary");
 
+        function syncNativeRadioGroup(groupName) {
+          const rows = html.find(`.mta-native-radio[data-radio-group="${groupName}"]`);
+
+          rows.each((i, rowEl) => {
+            const row = $(rowEl);
+            const input = row.find("input[type='radio']");
+            const icon = row.find(".activeIcon");
+            const checked = input.prop("checked");
+            const disabled = input.prop("disabled");
+
+            if (checked) {
+              icon
+                .removeClass("far fa-circle")
+                .addClass("fas fa-dot-circle")
+                .css("visibility", "visible");
+
+              row.css("opacity", disabled ? "0.45" : "1");
+            } else {
+              icon
+                .removeClass("fas fa-dot-circle")
+                .addClass("far fa-circle")
+                .css("visibility", "visible");
+
+              row.css("opacity", disabled ? "0.35" : "0.72");
+            }
+
+            row.css("cursor", disabled ? "default" : "pointer");
+          });
+        }
+
+        function bindNativeRadioGroup(groupName) {
+          const rows = html.find(`.mta-native-radio[data-radio-group="${groupName}"]`);
+
+          rows.on("click", event => {
+            const row = $(event.currentTarget);
+            const input = row.find("input[type='radio']");
+
+            if (input.prop("disabled")) return;
+
+            rows.find("input[type='radio']").prop("checked", false);
+            input.prop("checked", true).trigger("change");
+
+            syncNativeRadioGroup(groupName);
+          });
+
+          rows.find("input[type='radio']").on("change", () => {
+            syncNativeRadioGroup(groupName);
+          });
+
+          syncNativeRadioGroup(groupName);
+        }
+
         function updateMode() {
           const mixed = mixedCheckbox[0]?.checked;
 
@@ -2982,6 +3160,8 @@ export class ActorMtA extends Actor {
             xpTypeRadios.prop("disabled", false);
             mixedFields.hide();
           }
+
+          syncNativeRadioGroup("input.type");
         }
 
         function updateMixedSummary() {
@@ -3020,6 +3200,8 @@ export class ActorMtA extends Actor {
 
         beatsCommonInput.on("input", updateMixedSummary);
         beatsArcaneInput.on("input", updateMixedSummary);
+
+        bindNativeRadioGroup("input.type");
 
         updateMode();
         updateMixedSummary();
@@ -3159,11 +3341,11 @@ export class ActorMtA extends Actor {
     //if(data.characterType === "Vampire") maxHealth += data.disciplines.common.resilience.value;
 
     let diff = maxHealth - maxHealth_old;
-    if(diff === 0) return;
+    if (diff === 0) return;
 
     let updateData = {}
     updateData['system.health.max'] = maxHealth;
-    
+
     if (diff >= 0) { // New health is more than old
       updateData['system.health.lethal'] = (+system.health.lethal + diff);
       updateData['system.health.aggravated'] = (+system.health.aggravated + diff);
@@ -3173,15 +3355,15 @@ export class ActorMtA extends Actor {
       updateData['system.health.aggravated'] = Math.max(0, (+system.health.aggravated + diff));
       updateData['system.health.value'] = Math.max(0, (+system.health.value + diff));
 
-      if(system.health.lethal < Math.abs(diff)) { // Too much lethal damage, upgrade lethal to aggravated damage.
+      if (system.health.lethal < Math.abs(diff)) { // Too much lethal damage, upgrade lethal to aggravated damage.
         updateData['system.health.aggravated'] = Math.max(0, updateData['system.health.aggravated'] - Math.abs(Math.abs(diff) - system.health.lethal));
       }
 
       let diffBashing = Math.max(0, Math.abs(diff) - system.health.value);
-      if(system.health.lethal < Math.abs(diff)) diffBashing -= Math.abs(Math.abs(diff) - system.health.lethal);
-      if(diffBashing > 0) { // Too much bashing damage, upgrade bashing to lethal, or lethal to aggravated damage.
+      if (system.health.lethal < Math.abs(diff)) diffBashing -= Math.abs(Math.abs(diff) - system.health.lethal);
+      if (diffBashing > 0) { // Too much bashing damage, upgrade bashing to lethal, or lethal to aggravated damage.
         updateData['system.health.lethal'] -= diffBashing;
-        if(updateData['system.health.lethal'] < 0) {
+        if (updateData['system.health.lethal'] < 0) {
           updateData['system.health.aggravated'] = Math.max(0, updateData['system.health.aggravated'] + updateData['system.health.lethal']);
           updateData['system.health.lethal'] = 0;
         }
@@ -3215,7 +3397,7 @@ export class ActorMtA extends Actor {
       let obj = {}
       obj['system.essence.max'] = maxResource;
       this.update(obj);
-    } else if (system.characterType === "Demon") { 
+    } else if (system.characterType === "Demon") {
       let maxResource = CONFIG.MTA.primum_levels[Math.min(9, Math.max(0, system.demon_traits.primum.final - 1))].max_aether;
 
       let obj = {}
@@ -3227,7 +3409,7 @@ export class ActorMtA extends Actor {
       let obj = {}
       obj['system.plasm.max'] = maxResource;
       this.update(obj);
-    } 
+    }
   }
 
   /**
@@ -3283,7 +3465,7 @@ export class ActorMtA extends Actor {
   getNumDreadPowers() {
     let countDreadPowers = this.items.filter(item => item.type === "dreadPower").map(item => item.system.rating).reduce((a, b) => a + b, 0);
     countDreadPowers += this.items.filter(item => item.type === "numen").length;
-    
+
     return countDreadPowers;
   }
 }
