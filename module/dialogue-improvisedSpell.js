@@ -787,11 +787,12 @@ export class ImprovisedSpellDialogue extends FormApplication {
 
   /* Rolls the paradox roll separately if the user wishes. */
   async _rollParadox(spell) {
-    const gnosis = this.actor.type === "ephemeral" ? this.actor.system.eph_physical.power.final : this.actor.system.mage_traits.gnosis.final;
+    const gnosis = this.actor.type === "ephemeral" ? this.actor.system.eph_physical.power.final : this.actor.system.mage_traits.wisdom.final;
     if (spell.paradox.value > 0 || spell.paradox.chance_die) {
       //Paradox roll  
-      this.paradoxRolled = true;
-      DiceRollerDialogue.rollToChat({ dicePool: spell.paradox.value, tenAgain: spell.paradox_tenAgain, nineAgain: spell.paradox_nineAgain, eightAgain: spell.paradox_eightAgain, roteAction: spell.paradox_roteQuality, flavor: game.i18n.localize('MTA.ParadoxRoll') });
+      //this.paradoxRolled = true;
+      //DiceRollerDialogue.rollToChat({ dicePool: spell.paradox.value, tenAgain: spell.paradox_tenAgain, nineAgain: spell.paradox_nineAgain, eightAgain: spell.paradox_eightAgain, roteAction: spell.paradox_roteQuality, flavor: game.i18n.localize('MTA.ParadoxRoll') });
+        DiceRollerDialogue.rollToChat({ dicePool: gnosis, tenAgain: true, nineAgain: false, eightAgain: false, roteAction: false, flavor: "Contestação de Paradoxo" });
     }
     if (spell.isBefouled) {
       DiceRollerDialogue.rollToChat({ dicePool: gnosis, tenAgain: true, nineAgain: false, eightAgain: false, roteAction: false, flavor: "Paradoxo controlado" });
@@ -810,7 +811,7 @@ export class ImprovisedSpellDialogue extends FormApplication {
     //Use Mana
     const actorData = this.actor.system;
     let manaDiff = actorData.mana.value - spellData.manaCost;
-    if (manaDiff >= 0) {
+    if (manaDiff > 0) {
       this.actor.update({ "system.mana.value": actorData.mana.value - spellData.manaCost });
       ui.notifications.warn(`Você gastou Mana! O valor será reduzido automaticamente.`);
     } else {
@@ -818,7 +819,7 @@ export class ImprovisedSpellDialogue extends FormApplication {
       return;
     }
     let willDiff = actorData.willpower.value - spellData.willpowerCost;
-    if (willDiff >= 0) this.actor.update({ "system.willpower.value": willDiff });
+    if (willDiff > 0) this.actor.update({ "system.willpower.value": willDiff });
     else {
       ui.notifications.warn(game.i18n.localize('MTA.spell.errorWillpowerDeficit'));
       return;

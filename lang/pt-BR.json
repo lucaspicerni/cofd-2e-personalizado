@@ -3,6 +3,7 @@
   "MTA.ButtonSpend": "-",
   "MTA.Health": "Vitalidade",
   "MTA.Willpower": "Força de vontade",
+  "MTA.Willpower.value": "Força de vontade atual",
   "MTA.Integrity": "Integridade",
   "MTA.Size": "Tamanho",
   "MTA.Speed": "Deslocamento",
@@ -514,6 +515,7 @@
     "wisdom": "Sabedoria"
   },
   "MTA.willpower": "Força de vontade",
+  "MTA.willpower.value": "Força de vontade atual",
   "MTA.clarity.value": "Clareza",
   "MTA.currentCover": "Cobertura",
   "MTA.integrity": "Integridade",
@@ -572,7 +574,7 @@
   "MTA.attributes_mental_dream": {
     "resistance": "Resistência"
   },
-  "MTA.relinquished": "Renunciado",
+  "MTA.relinquished": "Abdicado",
   "MTA.Bashing": "Contundente",
   "MTA.ShowEquipment": "Exibir equipamento",
   "MTA.ShowUnwielded": "Exibir não empunhado",
