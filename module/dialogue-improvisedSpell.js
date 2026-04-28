@@ -792,7 +792,7 @@ export class ImprovisedSpellDialogue extends FormApplication {
       //Paradox roll  
       //this.paradoxRolled = true;
       //DiceRollerDialogue.rollToChat({ dicePool: spell.paradox.value, tenAgain: spell.paradox_tenAgain, nineAgain: spell.paradox_nineAgain, eightAgain: spell.paradox_eightAgain, roteAction: spell.paradox_roteQuality, flavor: game.i18n.localize('MTA.ParadoxRoll') });
-        DiceRollerDialogue.rollToChat({ dicePool: gnosis, tenAgain: true, nineAgain: false, eightAgain: false, roteAction: false, flavor: "Contestação de Paradoxo" });
+        DiceRollerDialogue.rollToChat({ dicePool: gnosis, tenAgain: true, nineAgain: false, eightAgain: false, roteAction: false, flavor: "Contestação de Paradoxo: Sabedoria" });
     }
     if (spell.isBefouled) {
       DiceRollerDialogue.rollToChat({ dicePool: gnosis, tenAgain: true, nineAgain: false, eightAgain: false, roteAction: false, flavor: "Paradoxo controlado" });
