@@ -1029,31 +1029,31 @@ export class ActorMtA extends Actor {
       margin:0; padding:0; list-style:none;
     ">
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;">Duração avançada: <b>1 dia</b></p>
+        <p style="margin:0;">Duração avançada: 1 dia (<b>+1</b>)</p>
         <label class="equipped checkBox" for="ms-mod-dur1d">
           <input id="ms-mod-dur1d" type="checkbox" name="dur1d"><span></span>
         </label>
       </li>
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;">Duração avançada: <b>1 semana</b></p>
+        <p style="margin:0;">Duração avançada: 1 semana (<b>+2</b>)</p>
         <label class="equipped checkBox" for="ms-mod-dur1w">
           <input id="ms-mod-dur1w" type="checkbox" name="dur1w"><span></span>
         </label>
       </li>
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;">Duração avançada: <b>1 mês</b></p>
+        <p style="margin:0;">Duração avançada: 1 mês (<b>+3</b>)</p>
         <label class="equipped checkBox" for="ms-mod-dur1m">
           <input id="ms-mod-dur1m" type="checkbox" name="dur1m"><span></span>
         </label>
       </li>
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;">Duração avançada: <b>1 ano ou Indefinida</b></p>
+        <p style="margin:0;">Duração avançada: 1 ano ou Indefinida (<b>+4</b>)</p>
         <label class="equipped checkBox" for="ms-mod-dur1y">
           <input id="ms-mod-dur1y" type="checkbox" name="dur1y"><span></span>
         </label>
       </li>
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;">Potência avançada</p>
+        <p style="margin:0;">Potência avançada (<b>+1</b>)</p>
         <label class="equipped checkBox" for="ms-mod-advPot">
           <input id="ms-mod-advPot" type="checkbox" name="advPot"><span></span>
         </label>
@@ -3222,7 +3222,8 @@ export class ActorMtA extends Actor {
   data-radio-group="${effect.type === "zone-radio" ? "antimagic-zone" : ""}"
   data-effect-id="${effect.id}"
   data-control="${effect.type}"
-  data-cost="${effect.cost}">
+  data-cost="${effect.cost}"
+  data-disabled="${effect.disabled ? "1" : "0"}">
   <div class="ph-cost">${effect.costLabel ?? effect.cost}</div>
   <div class="ph-effect-cell"><label for="ph-${effect.id}" class="ph-effect-label${effect.type === "zone-radio" ? " ph-clickable-label" : ""}">${effect.label}</label>${detailHTML(effect)}</div>
   <div class="ph-control-cell">${controlHTML(effect)}</div>

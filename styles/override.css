@@ -1124,3 +1124,48 @@ form.cod-spend-dialog .mta-native-radio[data-checked="1"][data-disabled="0"] {
 form.cod-spend-dialog .mta-native-radio[data-checked="0"][data-disabled="0"] {
   opacity: 0.75;
 }
+
+/* ============================================================
+   Fix: Assistente de Anomalias Paradoxais
+   Estados visuais de rádio/opções indisponíveis
+   ============================================================ */
+
+/* Primeiro diálogo: publicidade da mensagem no chat */
+form.paradox-helper-dialog .mta-native-radio[data-checked="1"] {
+  opacity: 1;
+}
+
+form.paradox-helper-dialog .mta-native-radio[data-checked="0"] {
+  opacity: 0.3;
+}
+
+/* Segundo diálogo: zonas antimagia */
+form.paradox-builder-dialog .mta-native-radio[data-checked="1"] {
+  opacity: 1;
+}
+
+form.paradox-builder-dialog .mta-native-radio[data-checked="0"] {
+  opacity: 0.3;
+}
+
+/* Estado desabilitado em radios, se houver */
+form.paradox-helper-dialog .mta-native-radio[data-disabled="1"],
+form.paradox-builder-dialog .mta-native-radio[data-disabled="1"] {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* Fadiga abissal no máximo: campo numérico desabilitado apaga a linha */
+form.paradox-builder-dialog .ph-effect-row:has(input:disabled) {
+  opacity: 0.3;
+}
+
+/* Mantém ícones visíveis depois que a opacidade passa para a linha */
+form.paradox-helper-dialog .activeIcon,
+form.paradox-builder-dialog .activeIcon {
+  visibility: visible;
+}
+
+form.paradox-builder-dialog .ph-effect-row[data-disabled="1"] {
+  opacity: 0.3;
+}
