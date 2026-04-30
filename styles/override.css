@@ -371,3 +371,756 @@
   text-align: right;                   /* alinha os botões à direita (opcional) */
 }
 
+/* ================== CofD – Classes personalizadas para os diállogos das macros ================== */
+
+/* ============================================================
+   Macro: Restauração de Padrão
+   Uso: colar no fim do CSS personalizado do sistema.
+   ============================================================ */
+
+/* Base dos diálogos customizados da macro */
+form.mta-dialogue {
+  color: var(--color-text-main);
+}
+
+/* Wrapper interno usado nos diálogos */
+form.mta-dialogue .ms-wrap {
+  padding: 12px 14px 16px;
+}
+
+/* Texto principal do diálogo */
+form.mta-restore-pattern-dialog .mta-restore-description,
+form.mta-restore-confirm-dialog .mta-restore-confirm-text {
+  margin: 4px 0 8px;
+  line-height: 1.35;
+  text-align: justify;
+  text-align-last: left;
+}
+
+/* Texto secundário / nota final */
+form.mta-restore-pattern-dialog .mta-restore-note,
+form.mta-restore-confirm-dialog .mta-restore-confirm-note {
+  margin: 4px 0 10px;
+  font-size: 0.92em;
+  opacity: 0.5;
+  line-height: 1.35;
+  text-align: justify;
+  text-align-last: left;
+}
+
+/* Nota específica do diálogo de confirmação */
+form.mta-restore-confirm-dialog .mta-restore-confirm-note {
+  margin-bottom: 0;
+}
+
+/* Separadores internos */
+form.mta-dialogue .mta-restore-separator {
+  border: 0;
+  border-top: 1px solid var(--color-active, #d59861e6);
+  margin: 12px 0;
+}
+
+/* Lista de opções */
+form.mta-restore-pattern-dialog .mta-restore-options-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Item individual da lista */
+form.mta-restore-pattern-dialog .mta-restore-option-row {
+  padding: 3px 0;
+}
+
+/* Linha interna: texto + checkbox */
+form.mta-restore-pattern-dialog .mta-restore-option-content {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 8px;
+}
+
+/* Opções indisponíveis ficam visualmente apagadas */
+form.mta-restore-pattern-dialog .mta-restore-option-row[data-available="0"] .mta-restore-option-content {
+  opacity: 0.3;
+}
+
+/* Label textual da opção */
+form.mta-restore-pattern-dialog .mta-restore-option-label {
+  margin: 0;
+  line-height: 1.25;
+  cursor: pointer;
+}
+
+/* Cursor quando a opção está indisponível */
+form.mta-restore-pattern-dialog .mta-restore-option-row[data-available="0"] .mta-restore-option-label,
+form.mta-restore-pattern-dialog .mta-restore-option-row[data-available="0"] .checkBox {
+  cursor: not-allowed;
+}
+
+/* Cursor quando a opção está disponível */
+form.mta-restore-pattern-dialog .mta-restore-option-row[data-available="1"] .mta-restore-option-label,
+form.mta-restore-pattern-dialog .mta-restore-option-row[data-available="1"] .checkBox {
+  cursor: pointer;
+}
+
+/* Aviso de Mana insuficiente */
+form.mta-restore-pattern-dialog .mta-restore-mana-warning {
+  margin: 2px 0 0;
+  font-size: 0.84em;
+  font-style: italic;
+  line-height: 1.2;
+  opacity: 1;
+}
+
+/* Grupo de seleção de Incidente/Condição */
+form.mta-restore-pattern-dialog .mta-restore-item-select {
+  display: none;
+  margin-top: 10px;
+}
+
+/* Linha interna do select */
+form.mta-restore-pattern-dialog .mta-restore-select-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 8px;
+}
+
+/* Label do select */
+form.mta-restore-pattern-dialog .mta-restore-select-label {
+  margin: 0;
+}
+
+/* Select de item removível */
+form.mta-restore-pattern-dialog .mta-restore-item-choice {
+  margin: 0;
+  width: auto;
+  min-width: 220px;
+}
+
+/* Ajuste defensivo para selects desabilitados */
+form.mta-restore-pattern-dialog .mta-restore-item-choice:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Checkbox visual do sistema, preservando equipped checkBox */
+form.mta-restore-pattern-dialog .equipped.checkBox {
+  margin: 0;
+}
+
+/* Diálogo de confirmação de exclusão */
+form.mta-restore-confirm-dialog .mta-restore-confirm-text {
+  margin-bottom: 8px;
+}
+
+/* Opcional: mantém selects e labels alinhados visualmente com o sistema */
+form.mta-dialogue label,
+form.mta-dialogue select {
+  color: var(--color-text-main);
+}
+
+/* ============================================================
+   Macro: Assistente de Anomalias Paradoxais
+   Diálogos
+   ============================================================ */
+
+form.paradox-helper-dialog,
+form.paradox-builder-dialog {
+  color: var(--color-text-main);
+}
+
+/* Wrapper interno dos diálogos */
+form.paradox-helper-dialog .ph-wrap,
+form.paradox-builder-dialog .ph-wrap {
+  padding: 12px 14px 16px;
+}
+
+/* Linha genérica de formulário */
+form.paradox-helper-dialog .ph-form-row,
+form.paradox-builder-dialog .ph-form-row {
+  display: grid;
+  grid-template-columns: 1fr 84px;
+  align-items: center;
+  column-gap: 8px;
+  margin-top: 8px;
+}
+
+/* Linha de seleção de personagem */
+form.paradox-helper-dialog .ph-actor-row,
+form.paradox-builder-dialog .ph-actor-row {
+  grid-template-columns: 1fr 300px;
+}
+
+/* Campo numérico compacto */
+form.paradox-helper-dialog .ph-number,
+form.paradox-builder-dialog .ph-number {
+  margin: 0 !important;
+  width: 84px !important;
+  min-width: 84px !important;
+  max-width: 84px !important;
+  box-sizing: border-box;
+  padding: 2px 6px !important;
+  text-align: right;
+  justify-self: end;
+}
+
+/* Campos readonly usados para valores detectados automaticamente */
+form.paradox-helper-dialog .ph-number[readonly],
+form.paradox-builder-dialog .ph-number[readonly] {
+  opacity: 0.30;
+  cursor: default;
+}
+
+/* Select largo alinhado à direita */
+form.paradox-helper-dialog .ph-select,
+form.paradox-builder-dialog .ph-select {
+  margin: 0 !important;
+  width: 300px !important;
+  min-width: 300px !important;
+  max-width: 300px !important;
+  box-sizing: border-box;
+  justify-self: end;
+}
+
+/* Checkbox visual do sistema dentro de linha de formulário */
+form.paradox-helper-dialog .ph-form-row > .checkBox,
+form.paradox-builder-dialog .ph-form-row > .checkBox {
+  justify-self: end;
+  margin: 0;
+}
+
+/* Separador */
+form.paradox-helper-dialog .ph-hr,
+form.paradox-builder-dialog .ph-hr {
+  border: 0;
+  border-top: 1px solid var(--color-active, #d59861e6);
+  margin: 12px 0;
+}
+
+/* Títulos internos */
+form.paradox-helper-dialog .ph-title,
+form.paradox-builder-dialog .ph-title {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin: 0 0 8px;
+}
+
+/* Variações de espaçamento de título */
+form.paradox-builder-dialog .ph-title.ph-title-common {
+  margin: 8px 0 12px;
+}
+
+form.paradox-builder-dialog .ph-title.ph-title-eruption {
+  margin: 24px 0;
+}
+
+/* Caixa visual genérica */
+form.paradox-helper-dialog .ph-box,
+form.paradox-builder-dialog .ph-box {
+  padding: 8px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Parágrafos compactos dentro de caixas */
+form.paradox-helper-dialog .ph-box p,
+form.paradox-builder-dialog .ph-box p {
+  margin: 0;
+}
+
+/* Grade de orçamento */
+form.paradox-builder-dialog .ph-budget-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+form.paradox-builder-dialog .ph-budget-grid p {
+  margin: 0;
+  text-align: center;
+}
+
+form.paradox-builder-dialog .ph-budget-grid .value {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Avisos */
+form.paradox-builder-dialog .ph-warning,
+form.paradox-helper-dialog .ph-warning {
+  display: none;
+  margin: 12px 0 0;
+  padding: 6px 8px;
+  border: 1px solid #9b1c1c;
+  background: rgba(155, 28, 28, 0.14);
+}
+
+/* Tabela de efeitos */
+form.paradox-builder-dialog .ph-table {
+  border: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+form.paradox-builder-dialog .ph-head,
+form.paradox-builder-dialog .ph-effect-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 120px;
+  column-gap: 10px;
+  padding: 6px 8px;
+}
+
+form.paradox-builder-dialog .ph-head {
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  font-weight: bold;
+}
+
+form.paradox-builder-dialog .ph-head div,
+form.paradox-builder-dialog .ph-cost {
+  text-align: center;
+}
+
+form.paradox-builder-dialog .ph-effect-row {
+  align-items: end;
+}
+
+/* Substitui setRowBackgrounds via JS, se quisermos remover essa função depois */
+form.paradox-builder-dialog .ph-effect-row:nth-child(odd) {
+  background: rgba(0, 0, 0, 0.055);
+}
+
+form.paradox-builder-dialog .ph-effect-row:nth-child(even) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+form.paradox-builder-dialog .ph-cost {
+  font-weight: bold;
+  align-self: center;
+}
+
+form.paradox-builder-dialog .ph-effect-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
+}
+
+form.paradox-builder-dialog .ph-control-cell {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Campos de detalhe dos efeitos */
+form.paradox-builder-dialog .ph-detail,
+form.paradox-builder-dialog .ph-detail-select,
+form.paradox-builder-dialog .ph-entity-extra {
+  display: none;
+  margin: 0;
+  width: 350px;
+  max-width: 100%;
+  padding: 2px 6px;
+}
+
+/* Campo numérico de efeito */
+form.paradox-builder-dialog .ph-effect-number {
+  margin: 0;
+  width: 82px;
+  padding: 2px 6px;
+  text-align: right;
+  flex: 0 0 auto;
+  align-self: flex-end;
+}
+
+/* Checkbox de incidência */
+form.paradox-builder-dialog .ph-incidence-checkbox {
+  margin: 0;
+  flex: 0 0 auto;
+  align-self: flex-end;
+}
+
+/* Radio visual de incidência */
+form.paradox-builder-dialog .ph-incidence-radio {
+  padding: 0;
+  text-align: right;
+  align-self: flex-end;
+}
+
+form.paradox-builder-dialog .ph-incidence-radio .activeIcon {
+  visibility: visible;
+}
+
+/* Linhas clicáveis de radio */
+form.paradox-helper-dialog .ph-radio-row,
+form.paradox-builder-dialog .ph-radio-row {
+  cursor: pointer;
+}
+
+/* Lista de radios */
+form.paradox-helper-dialog .ph-radio-list,
+form.paradox-builder-dialog .ph-radio-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+form.paradox-helper-dialog .ph-radio-list li,
+form.paradox-builder-dialog .ph-radio-list li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 8px;
+  padding: 2px 0;
+  cursor: pointer;
+}
+
+form.paradox-helper-dialog .ph-radio-list label,
+form.paradox-builder-dialog .ph-radio-list label {
+  cursor: pointer;
+}
+
+form.paradox-helper-dialog .ph-radio-list .cell,
+form.paradox-builder-dialog .ph-radio-list .cell {
+  padding: 0;
+}
+
+form.paradox-helper-dialog .ph-radio-list .activeIcon,
+form.paradox-builder-dialog .ph-radio-list .activeIcon {
+  visibility: visible;
+}
+
+/* Inputs radio nativos ocultos */
+form.paradox-helper-dialog input.ph-hidden-radio,
+form.paradox-builder-dialog input.ph-hidden-radio {
+  display: none;
+}
+
+/* Lista de efeitos */
+form.paradox-builder-dialog .ph-effect-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Botões de journal */
+form.paradox-helper-dialog .ph-journal-btn,
+form.paradox-builder-dialog .ph-journal-btn {
+  margin: 0 0 0 4px;
+  padding: 0 4px;
+  line-height: 18px;
+  min-height: 18px;
+  height: 20px;
+  width: auto;
+  vertical-align: middle;
+}
+
+/* Labels internos de efeito */
+form.paradox-builder-dialog .ph-effect-label {
+  margin: 0;
+}
+
+form.paradox-builder-dialog .ph-effect-label.ph-clickable-label {
+  cursor: pointer;
+}
+
+/* Ajuste de cor dinâmica no orçamento restante */
+form.paradox-builder-dialog .ph-budget-left.ph-budget-negative {
+  color: #9b1c1c;
+}
+
+form.paradox-builder-dialog .ph-budget-left.ph-budget-positive {
+  color: #946200;
+}
+
+/* ============================================================
+   Macro: Assistente de Anomalias Paradoxais
+   Card de chat
+   ============================================================ */
+
+.chat-message:has(.paradox-chat-card),
+.chat-message:has(.paradox-chat-card) .message-content,
+.chat-message:has(.paradox-chat-card) .message-header {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.paradox-chat-card {
+  border: 1px solid #5b4636;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.04) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.paradox-chat-card h3 {
+  margin: 0 0 4px;
+}
+
+.paradox-chat-card p {
+  margin: 0;
+}
+
+.paradox-chat-card .ph-chat-gap {
+  line-height: 6px;
+}
+
+.paradox-chat-card hr {
+  border: 0;
+  border-top: 1px solid var(--color-active, #d59861e6);
+  margin: 8px 0;
+}
+
+.paradox-chat-card ul {
+  margin: 0 0 0 18px;
+  padding: 0;
+}
+
+/* ============================================================
+   Macro: Adicionar Experiência / Beats
+   Diálogo
+   ============================================================ */
+
+form.cod-progress-dialog {
+  color: var(--color-text-main);
+}
+
+form.cod-progress-dialog [hidden] {
+  display: none !important;
+}
+
+form.cod-progress-dialog .cod-actor-header {
+  display: grid;
+  grid-template-columns: 32px 1fr 32px;
+  align-items: center;
+  width: 100%;
+  margin: 0 0 8px;
+}
+
+form.cod-progress-dialog .cod-title {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin: 0;
+}
+
+form.cod-progress-dialog .cod-select-all-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+form.cod-progress-dialog .cod-select-all-label {
+  margin: 0;
+  line-height: 1;
+}
+
+form.cod-progress-dialog .cod-actor-list,
+form.cod-progress-dialog .cod-aspiration-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+form.cod-progress-dialog .cod-aspiration-list {
+  row-gap: 4px;
+  min-width: 120px;
+}
+
+form.cod-progress-dialog .cod-check-row,
+form.cod-progress-dialog .cod-form-row,
+form.cod-progress-dialog .cod-aspiration-choice {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 8px;
+  padding: 2px 0;
+}
+
+form.cod-progress-dialog .cod-form-row {
+  margin-top: 10px;
+  padding: 0;
+}
+
+form.cod-progress-dialog .cod-form-row:first-child {
+  margin-top: 6px;
+}
+
+form.cod-progress-dialog .cod-check-row[data-locked="1"] {
+  opacity: 0.3;
+}
+
+form.cod-progress-dialog .cod-empty-row {
+  padding: 2px 0;
+}
+
+form.cod-progress-dialog .cod-empty-row p,
+form.cod-progress-dialog .cod-amount-aspiration p {
+  margin: 0;
+}
+
+form.cod-progress-dialog .cod-field-label {
+  margin: 0;
+}
+
+form.cod-progress-dialog .cod-clickable-label,
+form.cod-progress-dialog .cod-aspiration-choice {
+  cursor: pointer;
+}
+
+form.cod-progress-dialog .cod-separator {
+  border: 0;
+  border-top: 1px solid var(--color-active, #d59861e6);
+  margin: 12px 0;
+}
+
+form.cod-progress-dialog .cod-reason-select {
+  margin: 0;
+  width: auto;
+  min-width: 220px;
+}
+
+form.cod-progress-dialog .cod-custom-group {
+  margin-top: 10px;
+}
+
+form.cod-progress-dialog .cod-custom-reason {
+  margin: 0;
+  min-width: 220px;
+}
+
+form.cod-progress-dialog .cod-number-input {
+  margin: 0;
+  width: 84px;
+  padding: 2px 6px;
+  text-align: right;
+}
+
+form.cod-progress-dialog .cod-amount-aspiration {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 12px;
+  margin-top: 10px;
+}
+
+form.cod-progress-dialog .cod-radio-icon-cell {
+  padding: 0;
+}
+
+form.cod-progress-dialog .activeIcon {
+  visibility: visible;
+}
+
+form.cod-progress-dialog .cod-hidden-radio {
+  display: none;
+}
+
+form.cod-progress-dialog .mta-native-radio[data-checked="1"] {
+  opacity: 1;
+}
+
+form.cod-progress-dialog .mta-native-radio[data-checked="0"] {
+  opacity: 0.3;
+}
+
+form.cod-progress-dialog .checkBox {
+  margin: 0;
+}
+
+/* ============================================================
+   Macro: Gastar Experiência / Beats
+   Complemento para cod-progress-dialog
+   ============================================================ */
+
+form.cod-spend-dialog .cod-section-title {
+  margin: 0 0 8px;
+}
+
+form.cod-spend-dialog .cod-mode-list,
+form.cod-spend-dialog .cod-type-list,
+form.cod-spend-dialog .cod-mixed-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+form.cod-spend-dialog .cod-type-list {
+  row-gap: 4px;
+  min-width: 120px;
+}
+
+form.cod-spend-dialog .cod-type-fields,
+form.cod-spend-dialog .cod-xp-fields,
+form.cod-spend-dialog .cod-mixed-fields {
+  margin-top: 10px;
+}
+
+form.cod-spend-dialog .cod-type-layout {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 12px;
+}
+
+form.cod-spend-dialog .cod-type-layout p {
+  margin: 0;
+}
+
+form.cod-spend-dialog .cod-type-choice {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 8px;
+  padding: 2px 0;
+}
+
+form.cod-spend-dialog .cod-compact-row {
+  margin-top: 0;
+  padding: 2px 0;
+}
+
+form.cod-spend-dialog .cod-mixed-summary {
+  font-size: 0.9em;
+  opacity: 0.5;
+  margin: 8px 0 0;
+  text-align: center;
+}
+
+form.cod-spend-dialog .mta-native-radio[data-disabled="1"] {
+  opacity: 0.3;
+  cursor: default;
+}
+
+form.cod-spend-dialog .mta-native-radio[data-disabled="0"] {
+  cursor: pointer;
+}
+
+form.cod-spend-dialog .mta-native-radio[data-checked="1"][data-disabled="0"] {
+  opacity: 1;
+}
+
+form.cod-spend-dialog .mta-native-radio[data-checked="0"][data-disabled="0"] {
+  opacity: 0.75;
+}

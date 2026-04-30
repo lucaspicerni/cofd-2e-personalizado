@@ -578,22 +578,22 @@ export class ActorMtA extends Actor {
     if (general) {
       if (general.allDicePools.final) {
         dicePool += general.allDicePools.final;
-        flavor += (general.allDicePools.final >= 0 ? ' (+' : ' (') + general.allDicePools.final + ' [todas])';
+        flavor += (general.allDicePools.final >= 0 ? ' (+' : ' (') + general.allDicePools.final + ' em tudo)';
       }
 
       if (isPhysicalRoll && general.physicalDicePools.final) {
         dicePool += general.physicalDicePools.final;
-        flavor += (general.physicalDicePools.final >= 0 ? ' (+' : ' (') + general.physicalDicePools.final + ' [física])';
+        flavor += (general.physicalDicePools.final >= 0 ? ' (+' : ' (') + general.physicalDicePools.final + ' físico)';
       }
 
       if (isSocialRoll && general.socialDicePools.final) {
         dicePool += general.socialDicePools.final;
-        flavor += (general.socialDicePools.final >= 0 ? ' (+' : ' (') + general.socialDicePools.final + ' [social])';
+        flavor += (general.socialDicePools.final >= 0 ? ' (+' : ' (') + general.socialDicePools.final + ' social)';
       }
 
       if (isMentalRoll && general.mentalDicePools.final) {
         dicePool += general.mentalDicePools.final;
-        flavor += (general.mentalDicePools.final >= 0 ? ' (+' : ' (') + general.mentalDicePools.final + ' [mental])';
+        flavor += (general.mentalDicePools.final >= 0 ? ' (+' : ' (') + general.mentalDicePools.final + ' mental)';
       }
     }
 
@@ -1029,25 +1029,25 @@ export class ActorMtA extends Actor {
       margin:0; padding:0; list-style:none;
     ">
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;">Duração avançada (1 dia)</p>
+        <p style="margin:0;">Duração avançada: <b>1 dia</b></p>
         <label class="equipped checkBox" for="ms-mod-dur1d">
           <input id="ms-mod-dur1d" type="checkbox" name="dur1d"><span></span>
         </label>
       </li>
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;">Duração avançada (1 semana)</p>
+        <p style="margin:0;">Duração avançada: <b>1 semana</b></p>
         <label class="equipped checkBox" for="ms-mod-dur1w">
           <input id="ms-mod-dur1w" type="checkbox" name="dur1w"><span></span>
         </label>
       </li>
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;">Duração avançada (1 mês)</p>
+        <p style="margin:0;">Duração avançada: <b>1 mês</b></p>
         <label class="equipped checkBox" for="ms-mod-dur1m">
           <input id="ms-mod-dur1m" type="checkbox" name="dur1m"><span></span>
         </label>
       </li>
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;">Duração avançada (1 ano ou indefinida)</p>
+        <p style="margin:0;">Duração avançada: <b>1 ano ou Indefinida</b></p>
         <label class="equipped checkBox" for="ms-mod-dur1y">
           <input id="ms-mod-dur1y" type="checkbox" name="dur1y"><span></span>
         </label>
@@ -1061,13 +1061,13 @@ export class ActorMtA extends Actor {
 
       ${canSpendWill ? `
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;">⚡ Força de vontade</p>
+        <p style="margin:0;"><b>⚡ Força de vontade</b></p>
         <label class="equipped checkBox" for="ms-mod-willpower">
           <input id="ms-mod-willpower" type="checkbox" name="willpower"><span></span>
         </label>
       </li>` : ``}
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;">⚙️ Modificadores genéricos</p>
+        <p style="margin:0;"><b>⚙️ Modificadores genéricos</b></p>
         <input
           id="ms-mod-generic"
           type="number"
@@ -1865,11 +1865,36 @@ export class ActorMtA extends Actor {
         "system.mana.value": Math.clamp(manaValue + 3, 0, manaMax)
       });
 
-      ui.notifications.warn(`Você recebeu Mana! O valor será atualizado automaticamente.`);
+      ui.notifications.warn("Você recebeu Mana! O valor será atualizado automaticamente.");
     };
 
     const warnScouredPattern = () => {
-      ui.notifications.warn(`A Condição 'Padrão danificado' foi adicionada à sua ficha, ela atualiza seu atributo automaticamente.`);
+      ui.notifications.warn("A Condição 'Padrão danificado' foi adicionada à sua ficha, ela atualiza seu atributo automaticamente.");
+    };
+
+    const scourAttribute = async (attribute) => {
+      await reduceAttribute(attribute);
+      await grantMana();
+      warnScouredPattern();
+    };
+
+    const scouringActions = {
+      lethal: async () => {
+        await this.damage(1, "lethal", true);
+        await grantMana();
+      },
+
+      strength: async () => {
+        await scourAttribute("attributes_physical.strength");
+      },
+
+      dexterity: async () => {
+        await scourAttribute("attributes_physical.dexterity");
+      },
+
+      stamina: async () => {
+        await scourAttribute("attributes_physical.stamina");
+      }
     };
 
     const gnosis = Math.clamp(
@@ -1931,9 +1956,9 @@ export class ActorMtA extends Actor {
 <form class="mta-dialogue mta-scour-pattern-dialog">
   <div class="ms-wrap" style="padding:12px 14px 16px;">
 
-<p style="margin:4px 0 10px;line-height:1.35;text-align:justify;text-align-last:left;">
-  ${game.i18n.format("MTA.DialoguePatternScouring.ScouringFrequency", { var: scouringFrequency })}
-</p>
+    <p style="margin:4px 0 10px;line-height:1.35;text-align:justify;text-align-last:left;">
+      ${game.i18n.format("MTA.DialoguePatternScouring.ScouringFrequency", { var: scouringFrequency })}
+    </p>
 
     <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
 
@@ -1952,9 +1977,7 @@ export class ActorMtA extends Actor {
 </form>
 `;
 
-    let d;
-
-    d = new Dialog({
+    new Dialog({
       title: game.i18n.localize("MTA.DialoguePatternScouring.Title"),
       content,
       render: html => {
@@ -1966,18 +1989,6 @@ export class ActorMtA extends Actor {
           if (changed.checked) {
             options.not(changed).prop("checked", false);
           }
-        });
-
-        requestAnimationFrame(() => {
-          if (!d?.element?.length) return;
-
-          const appEl = d.element;
-          const headerH = appEl.find(".window-header").outerHeight(true) || 0;
-
-          const contentEl = appEl.find(".window-content")[0];
-          const contentH = contentEl ? contentEl.scrollHeight : 0;
-
-          d.setPosition({ height: headerH + contentH + 8 });
         });
       },
       buttons: {
@@ -1992,32 +2003,14 @@ export class ActorMtA extends Actor {
               return false;
             }
 
-            if (selected === "lethal") {
-              await this.damage(1, "lethal", true);
-              await grantMana();
-              return;
+            const action = scouringActions[selected];
+
+            if (!action) {
+              ui.notifications.warn("Opção de Purga do Padrão inválida.");
+              return false;
             }
 
-            if (selected === "strength") {
-              await reduceAttribute("attributes_physical.strength");
-              await grantMana();
-              warnScouredPattern();
-              return;
-            }
-
-            if (selected === "dexterity") {
-              await reduceAttribute("attributes_physical.dexterity");
-              await grantMana();
-              warnScouredPattern();
-              return;
-            }
-
-            if (selected === "stamina") {
-              await reduceAttribute("attributes_physical.stamina");
-              await grantMana();
-              warnScouredPattern();
-              return;
-            }
+            await action();
           }
         },
         cancel: {
@@ -2026,9 +2019,241 @@ export class ActorMtA extends Actor {
         }
       },
       default: "confirm"
+    }).render(true);
+  }
+
+  /* -------------------------------------------- */
+  /*  Shared dialogue helpers                     */
+  /* -------------------------------------------- */
+
+  _codEscapeHTML(value) {
+    const div = document.createElement("div");
+    div.innerText = String(value ?? "");
+    return div.innerHTML;
+  }
+
+  _codToFiniteNumber(value, fallback = 0) {
+    const number = Number(value ?? fallback);
+    return Number.isFinite(number) ? number : fallback;
+  }
+
+  _codClamp(value, min, max) {
+    return Math.max(min, Math.min(max, Number(value) || 0));
+  }
+
+  _codGetByPath(obj, path) {
+    return String(path ?? "").split(".").reduce((acc, key) => acc?.[key], obj);
+  }
+
+  _codItemNumber(actor, regex) {
+    for (const item of actor?.items ? Array.from(actor.items) : []) {
+      const match = String(item?.name ?? "").match(regex);
+      if (match) return Number(match[1]) || 0;
+    }
+    return 0;
+  }
+
+  _codBuildOptions(options = []) {
+    const safe = Array.isArray(options) ? options : [];
+    if (!safe.length) return `<option value="">Nenhuma opção encontrada</option>`;
+
+    return safe.map(option => {
+      if (typeof option === "string") {
+        return `<option value="${this._codEscapeHTML(option)}">${this._codEscapeHTML(option)}</option>`;
+      }
+
+      const value = option?.value ?? option?.label ?? "";
+      const label = option?.label ?? option?.value ?? "";
+      const disabled = option?.disabled ? "disabled" : "";
+      return `<option value="${this._codEscapeHTML(value)}" ${disabled}>${this._codEscapeHTML(label)}</option>`;
+    }).join("");
+  }
+
+  _codPlainUUID(value) {
+    const text = String(value ?? "");
+    return text.match(/^@UUID\[[^\]]+\]\{([^}]+)\}$/)?.[1] ?? text;
+  }
+
+  _codRawUUID(value) {
+    const text = String(value ?? "").trim();
+    return text.match(/^@UUID\[([^\]]+)\](?:\{[^}]*\})?$/)?.[1] ?? text;
+  }
+
+  _codCleanItemName(value) {
+    return String(value ?? "").replace(/\s*\([^)]*\)\s*$/g, "").trim();
+  }
+
+  _codArcanoFromDetail(value) {
+    return String(value ?? "").replace(/\s+\d+\s*$/g, "").trim();
+  }
+
+  _codGetDateLabel() {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, "0");
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const year = String(today.getFullYear()).slice(-2);
+    return `${day}/${month}/${year}`;
+  }
+
+  _codUtilityFacade() {
+    return {
+      esc: value => this._codEscapeHTML(value),
+      clamp: (value, min, max) => this._codClamp(value, min, max),
+      path: (obj, path) => this._codGetByPath(obj, path),
+      itemNumber: (actor, regex) => this._codItemNumber(actor, regex),
+      options: options => this._codBuildOptions(options),
+      plainUUID: value => this._codPlainUUID(value),
+      rawUUID: value => this._codRawUUID(value),
+      cleanItemName: value => this._codCleanItemName(value),
+      arcanoFromDetail: value => this._codArcanoFromDetail(value)
+    };
+  }
+
+  _codResizeDialogToFit(dialog, formSelector) {
+    requestAnimationFrame(() => {
+      if (!dialog?.element?.length) return;
+
+      const appEl = dialog.element;
+      const header = appEl.find(".window-header");
+      const windowContent = appEl.find(".window-content");
+      const form = appEl.find(formSelector);
+      const buttons = appEl.find(".dialog-buttons");
+
+      appEl.css({ height: "auto" });
+
+      windowContent.css({
+        height: "auto",
+        "max-height": "none",
+        overflow: "visible"
+      });
+
+      buttons.css({
+        height: "auto",
+        "min-height": "",
+        "max-height": "",
+        flex: "0 0 auto"
+      });
+
+      buttons.find("button").css({
+        height: "auto",
+        "min-height": "",
+        "max-height": ""
+      });
+
+      const headerH = header.outerHeight(true) || 0;
+      const formH = form.outerHeight(true) || 0;
+      const buttonsH = buttons.outerHeight(true) || 0;
+      const paddingTop = parseFloat(windowContent.css("padding-top")) || 0;
+      const paddingBottom = parseFloat(windowContent.css("padding-bottom")) || 0;
+      const wantedHeight = Math.ceil(headerH + formH + buttonsH + paddingTop + paddingBottom + 8);
+      const maxHeight = Math.floor(window.innerHeight - 80);
+
+      dialog.setPosition({ height: Math.min(wantedHeight, maxHeight) });
+      windowContent.css({ overflow: wantedHeight > maxHeight ? "auto" : "visible" });
+    });
+  }
+
+  _codSyncNativeRadioGroup(html, groupName) {
+    const rows = html.find(`.mta-native-radio[data-radio-group="${groupName}"]`);
+
+    rows.each((_, rowEl) => {
+      const row = $(rowEl);
+      const input = row.find("input[type='radio']");
+      const checked = input.prop("checked");
+      const disabled = input.prop("disabled");
+
+      row.find(".activeIcon")
+        .toggleClass("fas fa-dot-circle", checked)
+        .toggleClass("far fa-circle", !checked)
+        .css("visibility", "visible");
+
+      row
+        .attr("data-checked", checked ? "1" : "0")
+        .attr("data-disabled", disabled ? "1" : "0");
+    });
+  }
+
+  _codBindNativeRadioGroup(html, groupName) {
+    const rows = html.find(`.mta-native-radio[data-radio-group="${groupName}"]`);
+
+    rows.on("click", event => {
+      const row = $(event.currentTarget);
+      const input = row.find("input[type='radio']");
+
+      if (input.prop("disabled")) return;
+
+      rows.find("input[type='radio']").prop("checked", false);
+      input.prop("checked", true).trigger("change");
+      this._codSyncNativeRadioGroup(html, groupName);
     });
 
-    d.render(true);
+    rows.find("input[type='radio']").on("change", () => this._codSyncNativeRadioGroup(html, groupName));
+    this._codSyncNativeRadioGroup(html, groupName);
+  }
+
+  _codGetPlayerCharacterActors() {
+    const actors = new Map();
+
+    for (const user of game.users.players ?? []) {
+      const actor = user.character;
+      if (actor?.id && !actors.has(actor.id)) actors.set(actor.id, actor);
+    }
+
+    return Array.from(actors.values());
+  }
+
+  _codBuildActorCheckbox(actor, prefix) {
+    const safeId = this._codEscapeHTML(actor.id);
+    const inputId = `${prefix}-actor-${safeId}`;
+
+    return `
+      <li class="cod-check-row" data-locked="0">
+        <label for="${inputId}" class="cod-field-label">
+          ${this._codEscapeHTML(actor.name)}
+        </label>
+
+        <label class="equipped checkBox" for="${inputId}">
+          <input id="${inputId}" type="checkbox" class="cod-actor-checkbox" value="${safeId}">
+          <span></span>
+        </label>
+      </li>
+    `;
+  }
+
+  _codBuildActorList(actors, prefix) {
+    if (!actors.length) {
+      return `
+        <li class="cod-empty-row">
+          <p>Nenhum personagem principal de jogador encontrado.</p>
+        </li>
+      `;
+    }
+
+    return actors.map(actor => this._codBuildActorCheckbox(actor, prefix)).join("");
+  }
+
+  _codSyncSelectAll(refs) {
+    const locked = refs.selectAllCheckbox.prop("checked");
+
+    refs.actorCheckboxes
+      .prop("checked", locked)
+      .prop("disabled", locked)
+      .closest(".cod-check-row")
+      .attr("data-locked", locked ? "1" : "0");
+  }
+
+  _codGetSelectedActorIds(html) {
+    return html.find(".cod-actor-checkbox:checked")
+      .map((_, el) => el.value)
+      .get();
+  }
+
+  _codApplyProgressToActors(actorIds, actorsById, name, beats, arcaneBeats) {
+    for (const id of actorIds) {
+      const actor = actorsById.get(id) ?? game.actors.get(id);
+      if (typeof actor?.addProgress !== "function") continue;
+      actor.addProgress(name, beats, arcaneBeats);
+    }
   }
 
   restorePattern() {
@@ -2119,171 +2344,188 @@ export class ActorMtA extends Actor {
       return;
     }
 
-    const escapeHTML = (value) => {
-      const div = document.createElement("div");
-      div.innerText = String(value ?? "");
-      return div.innerHTML;
+    const itemTypeCache = new Map();
+    const getCachedItemsByType = type => this._mtaRestoreGetItemsByType(actor, type, itemTypeCache);
+
+    const preparedOptions = this._preparePatternRestoreOptions(actor, options, getCachedItemsByType);
+
+    const hasAnyTarget = preparedOptions.some(option => option.hasTarget);
+    const hasAnyAvailableOption = preparedOptions.some(option => option.available);
+
+    if (!hasAnyTarget) {
+      ui.notifications.error("<b>Não há Incidentes, Condições ou ferimentos</b> para Restauração!");
+      return;
+    }
+
+    if (!hasAnyAvailableOption) {
+      ui.notifications.error("<b>Mana insuficiente</b> para Restauração!");
+      return;
+    }
+
+    const optionsByValue = new Map(preparedOptions.map(option => [option.value, option]));
+
+    const buildOptionRow = option => {
+      const disabled = option.available ? "" : "disabled";
+      const checked = option.checked && option.available ? "checked" : "";
+      const title = this._mtaRestoreGetUnavailableTitle(option);
+      const titleAttr = title ? `title="${this._codEscapeHTML(title)}"` : "";
+
+      return `
+      <li
+        class="mta-restore-option-row"
+        data-option="${this._codEscapeHTML(option.value)}"
+        data-available="${option.available ? "1" : "0"}"
+        data-insufficient-mana="${option.insufficientMana ? "1" : "0"}"
+        ${titleAttr}
+      >
+        <div class="mta-restore-option-content">
+          <label for="${this._codEscapeHTML(option.id)}" class="mta-restore-option-label">
+            ${option.label}
+          </label>
+
+          <label class="equipped checkBox" for="${this._codEscapeHTML(option.id)}">
+            <input
+              id="${this._codEscapeHTML(option.id)}"
+              type="checkbox"
+              class="mta-restore-option"
+              name="input.restoreOption"
+              value="${this._codEscapeHTML(option.value)}"
+              ${checked}
+              ${disabled}
+              aria-disabled="${option.available ? "false" : "true"}"
+            >
+            <span></span>
+          </label>
+        </div>
+
+        ${option.insufficientMana ? `
+          <div class="mta-restore-mana-warning">
+            Mana insuficiente!
+          </div>
+        ` : ""}
+      </li>
+    `;
     };
 
-    const spendMana = async (cost) => {
-      const manaValue = Number(actor.system?.mana?.value ?? 0);
-      const manaMax = Number(actor.system?.mana?.max ?? 0);
-
-      await actor.update({
-        "system.mana.value": Math.clamp(manaValue - cost, 0, manaMax)
-      });
-
-      ui.notifications.warn(`Você gastou Mana! O valor será atualizado automaticamente.`);
-    };
-
-    const getItemsByType = (type) => {
-      return actor.items
-        .filter(item => String(item.type).toLowerCase() === type)
-        .sort((a, b) => {
-          return String(a.name ?? "").localeCompare(String(b.name ?? ""), "pt-BR", {
-            sensitivity: "base",
-            numeric: true
-          });
-        });
-    };
-    const buildItemOptions = (items) => {
-      if (!items.length) {
-        return `<option value="">Nenhum item encontrado</option>`;
-      }
-
-      return items.map(item => `
-      <option value="${item.id}">${escapeHTML(item.name)}</option>
-    `).join("");
-    };
-
-    const buildItemSelectGroup = (option) => {
+    const buildItemSelectGroup = option => {
       if (!option.deleteType) return "";
 
-      const items = getItemsByType(option.deleteType);
+      const items = option.items ?? [];
       const selectId = `${option.id}-select`;
+      const disabled = option.available && items.length ? "" : "disabled";
 
       return `
       <div
         class="mta-restore-item-select"
-        data-option="${option.value}"
-        style="display:none;margin-top:10px;"
+        data-option="${this._codEscapeHTML(option.value)}"
       >
-        <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
+        <hr role="separator" class="mta-restore-separator">
 
-        <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;">
-          <label for="${selectId}" style="margin:0;">${option.selectLabel}</label>
+        <div class="mta-restore-select-row">
+          <label for="${this._codEscapeHTML(selectId)}" class="mta-restore-select-label">
+            ${option.selectLabel}
+          </label>
 
           <select
-            id="${selectId}"
-            name="input.${option.value}Item"
+            id="${this._codEscapeHTML(selectId)}"
+            name="input.${this._codEscapeHTML(option.value)}Item"
             class="mta-restore-item-choice"
-            data-option="${option.value}"
-            style="margin:0;width:auto;min-width:220px;"
-            ${items.length ? "" : "disabled"}
+            data-option="${this._codEscapeHTML(option.value)}"
+            ${disabled}
           >
-            ${buildItemOptions(items)}
+            ${this._mtaRestoreBuildItemOptions(items)}
           </select>
         </div>
       </div>
     `;
     };
 
-    const confirmItemDeletion = (item, option) => {
-      return new Promise(resolve => {
-        let resolved = false;
-
-        const finish = (value) => {
-          if (resolved) return;
-          resolved = true;
-          resolve(value);
-        };
-
-        const content = `
-<form class="mta-dialogue mta-restore-confirm-dialog">
-  <div class="ms-wrap" style="padding:12px 14px 16px;">
-    <p style="margin:4px 0 8px;line-height:1.35;text-align:justify;text-align-last:left;">
-      <strong>ATENÇÃO!</strong> Você escolheu eliminar <strong>${escapeHTML(item.name)}</strong> da ficha de
-      <strong>${escapeHTML(actor.name)}</strong>. Deseja prosseguir com a exclusão?
-    </p>
-
-    <p style="margin:4px 0 0;font-size:0.92em;opacity:0.78;line-height:1.35;text-align:justify;text-align-last:left;">
-      Esta ação também gastará <strong>${option.manaCost} ponto${option.manaCost === 1 ? "" : "s"} de Mana</strong>.
-    </p>
-  </div>
-</form>
-`;
-
-        new Dialog({
-          title: "⚠️ Confirmar exclusão?",
-          content,
-          buttons: {
-            confirm: {
-              icon: '<i class="fas fa-trash"></i>',
-              label: "Excluir",
-              callback: () => finish(true)
-            },
-            cancel: {
-              icon: '<i class="fas fa-times"></i>',
-              label: "Cancelar",
-              callback: () => finish(false)
-            }
-          },
-          default: "cancel",
-          close: () => finish(false)
-        }).render(true);
-      });
+    const getSelectedOption = html => {
+      const selected = html.find(".mta-restore-option:checked:not(:disabled)").val();
+      return optionsByValue.get(selected);
     };
 
-    const optionHTML = options.map(option => `
-    <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:3px 0;">
-      <label for="${option.id}" style="margin:0;line-height:1.25;">
-        ${option.label}
-      </label>
+    const restoreDamage = async option => {
+      await actor.damage(option.damage.amount, option.damage.type, true);
+      await this._mtaRestoreSpendMana(actor, option.manaCost);
+    };
 
-      <label class="equipped checkBox" for="${option.id}">
-        <input
-          id="${option.id}"
-          type="checkbox"
-          class="mta-restore-option"
-          name="input.restoreOption"
-          value="${option.value}"
-          ${option.checked ? "checked" : ""}
-        >
-        <span></span>
-      </label>
-    </li>
-  `).join("");
+    const deleteSelectedItem = async (html, option) => {
+      const itemId = html.find(`.mta-restore-item-choice[data-option="${option.value}"]`).val();
 
-    const selectGroupsHTML = options.map(buildItemSelectGroup).join("");
+      if (!itemId) {
+        ui.notifications.warn("Selecione um item para eliminar.");
+        return false;
+      }
+
+      const item = actor.items.get(itemId);
+
+      if (!item) {
+        ui.notifications.warn("O item selecionado não foi encontrado na ficha do personagem.");
+        return false;
+      }
+
+      const confirmed = await this._mtaRestoreConfirmItemDeletion(actor, item, option);
+
+      if (!confirmed) return false;
+
+      await actor.deleteEmbeddedDocuments("Item", [item.id]);
+      await this._mtaRestoreSpendMana(actor, option.manaCost);
+
+      ui.notifications.warn(`O item '${item.name}' foi removido da ficha do personagem.`);
+    };
+
+    const executeRestoreOption = async (html, option) => {
+      /*
+       * Revalidação no clique.
+       * Não usa o cache preparado para a abertura do diálogo.
+       */
+      if (!this._mtaRestoreHasOptionTarget(actor, option)) {
+        ui.notifications.warn("Esta opção não está mais disponível para este personagem.");
+        return false;
+      }
+
+      if (!this._mtaRestoreHasEnoughMana(actor, option)) {
+        ui.notifications.warn("Mana insuficiente!");
+        return false;
+      }
+
+      if (option.damage) {
+        await restoreDamage(option);
+        return;
+      }
+
+      if (option.deleteType) {
+        return deleteSelectedItem(html, option);
+      }
+
+      ui.notifications.warn("A opção selecionada não possui uma ação configurada.");
+      return false;
+    };
+
+    const optionHTML = preparedOptions.map(buildOptionRow).join("");
+    const selectGroupsHTML = preparedOptions.map(buildItemSelectGroup).join("");
 
     const content = `
 <form class="mta-dialogue mta-restore-pattern-dialog">
-  <div class="ms-wrap" style="padding:12px 14px 16px;">
+  <div class="ms-wrap">
 
-    <p style="margin:4px 0 8px;line-height:1.35;text-align:justify;text-align-last:left;">
+    <p class="mta-restore-description">
       ${description}
     </p>
 
-    <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
+    <hr role="separator" class="mta-restore-separator">
 
-    <ul style="
-      display:grid;
-      grid-template-columns:1fr;
-      row-gap:6px;
-      margin:0;
-      padding:0;
-      list-style:none;
-    ">
+    <ul class="mta-restore-options-list">
       ${optionHTML}
     </ul>
 
     ${selectGroupsHTML}
 
+    <hr role="separator" class="mta-restore-separator">
 
-    <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
-
-    <p style="margin:4px 0 10px;font-size:0.92em;opacity:0.78;line-height:1.35;text-align:justify;text-align-last:left;">
-    <strong>Obs.</strong>: <strong>Condições</strong> eliminadas desta forma <strong>não</strong> concedem um Beat como recompensa!
+    <p class="mta-restore-note">
+      <strong>Obs.</strong>: <strong>Condições</strong> eliminadas desta forma <strong>não</strong> concedem um Beat como recompensa!
     </p>
 
   </div>
@@ -2292,104 +2534,63 @@ export class ActorMtA extends Actor {
 
     let d;
 
+    const resizeToFit = () => this._codResizeDialogToFit(d, "form.mta-restore-pattern-dialog");
+
+    const updateConfirmButtonState = html => {
+      const hasEnabledSelection = Boolean(html.find(".mta-restore-option:checked:not(:disabled)").length);
+      d?.element?.find('button[data-button="confirm"]').prop("disabled", !hasEnabledSelection);
+    };
+
+    const updateItemSelectVisibility = html => {
+      const selected = html.find(".mta-restore-option:checked:not(:disabled)").val();
+
+      html.find(".mta-restore-item-select").hide();
+
+      if (selected) {
+        html.find(`.mta-restore-item-select[data-option="${selected}"]`).show();
+      }
+
+      updateConfirmButtonState(html);
+      resizeToFit();
+    };
+
+    const bindExclusiveCheckboxes = html => {
+      const optionInputs = html.find(".mta-restore-option");
+      const enabledInputs = optionInputs.filter(":not(:disabled)");
+
+      enabledInputs.on("change", event => {
+        const changed = event.currentTarget;
+
+        if (changed.checked) {
+          enabledInputs.not(changed).prop("checked", false);
+        } else {
+          changed.checked = true;
+        }
+
+        updateItemSelectVisibility(html);
+      });
+    };
+
     d = new Dialog({
       title,
       content,
       render: html => {
-        const optionInputs = html.find(".mta-restore-option");
-        const selectGroups = html.find(".mta-restore-item-select");
-
-        function resizeToFit() {
-          requestAnimationFrame(() => {
-            if (!d?.element?.length) return;
-
-            const appEl = d.element;
-            const headerH = appEl.find(".window-header").outerHeight(true) || 0;
-
-            const contentEl = appEl.find(".window-content")[0];
-            const contentH = contentEl ? contentEl.scrollHeight : 0;
-
-            d.setPosition({ height: headerH + contentH + 8 });
-          });
-        }
-
-        function updateItemSelectVisibility() {
-          const selected = optionInputs.filter(":checked").val();
-
-          selectGroups.hide();
-
-          if (selected) {
-            html.find(`.mta-restore-item-select[data-option="${selected}"]`).show();
-          }
-
-          resizeToFit();
-        }
-
-        optionInputs.on("change", event => {
-          const changed = event.currentTarget;
-
-          if (changed.checked) {
-            optionInputs.not(changed).prop("checked", false);
-          } else {
-            changed.checked = true;
-          }
-
-          updateItemSelectVisibility();
-        });
-
-        updateItemSelectVisibility();
-        resizeToFit();
+        bindExclusiveCheckboxes(html);
+        updateItemSelectVisibility(html);
       },
       buttons: {
         confirm: {
           icon: '<i class="fas fa-check"></i>',
           label: "Confirmar",
           callback: async html => {
-            const selected = html.find(".mta-restore-option:checked").val();
+            const option = getSelectedOption(html);
 
-            if (!selected) {
+            if (!option) {
               ui.notifications.warn("Selecione uma opção de Restauração de Padrão.");
               return false;
             }
 
-            const option = options.find(o => o.value === selected);
-
-            if (!option) {
-              ui.notifications.warn("A opção selecionada não foi reconhecida.");
-              return false;
-            }
-
-            if (option.damage) {
-              await actor.damage(option.damage.amount, option.damage.type, true);
-              await spendMana(option.manaCost);
-              return;
-            }
-
-            if (option.deleteType) {
-              const itemId = html.find(`.mta-restore-item-choice[data-option="${option.value}"]`).val();
-
-              if (!itemId) {
-                ui.notifications.warn("Selecione um item para eliminar.");
-                return false;
-              }
-
-              const item = actor.items.get(itemId);
-
-              if (!item) {
-                ui.notifications.warn("O item selecionado não foi encontrado na ficha do personagem.");
-                return false;
-              }
-
-              const confirmed = await confirmItemDeletion(item, option);
-
-              if (!confirmed) return false;
-
-              await actor.deleteEmbeddedDocuments("Item", [item.id]);
-              await spendMana(option.manaCost);
-
-              ui.notifications.warn(`O item '${item.name}' foi removido da ficha do personagem.`);
-              return;
-            }
+            return executeRestoreOption(html, option);
           }
         },
         cancel: {
@@ -2403,93 +2604,1118 @@ export class ActorMtA extends Actor {
     d.render(true);
   }
 
-  /**
-   * A mage macro which conjures the amnion (as an item)
-   * and equips it.
-   */
-  callAmnion() {
-    const itemData = {
-      type: "condition",
-      name: "Amnion",
-      img: "systems/mta/icons/gui/macro-amnion.svg",
-      'system.effectsActive': true,
-      'system.effects': [
-        {
-          name: "derivedTraits.armor",
-          value: Math.min(this.system.mage_traits.gnosis.final, Math.max(...Object.values(this.system.arcana_subtle).map(arcanum => arcanum.value)))
-        },
-        {
-          name: "attributes_social_dream.finesse",
-          value: -2
-        },
-        {
-          name: "derivedTraits.defense",
-          value: -1
-        }
-      ]
+  _preparePatternRestoreOptions(actor, options, getItemsByType) {
+    const preparedOptions = options.map(option => {
+      const items = option.deleteType ? getItemsByType(option.deleteType) : [];
+      const hasTarget = option.damage
+        ? this._mtaRestoreHasCurableDamage(actor, option.damage.type)
+        : items.length > 0;
+      const hasMana = this._mtaRestoreHasEnoughMana(actor, option);
+
+      return {
+        ...option,
+        items,
+        hasTarget,
+        hasMana,
+        insufficientMana: hasTarget && !hasMana,
+        available: hasTarget && hasMana
+      };
+    });
+
+    const defaultOption = preparedOptions.find(option => option.available && option.checked)
+      ?? preparedOptions.find(option => option.available);
+
+    for (const option of preparedOptions) {
+      option.checked = defaultOption ? option.value === defaultOption.value : false;
     }
-    return this.createEmbeddedDocuments("Item", [itemData]);
+
+    return preparedOptions;
+  }
+
+  _mtaRestoreNormalizeDamageType(type) {
+    return type === "bashing" ? "value" : String(type ?? "").toLowerCase();
+  }
+
+  _mtaRestoreGetHealth(actor) {
+    return actor.system?.health ?? {};
+  }
+
+  _mtaRestoreGetAvailableMana(actor) {
+    return this._codToFiniteNumber(actor.system?.mana?.value);
+  }
+
+  _mtaRestoreHasEnoughMana(actor, option) {
+    return this._mtaRestoreGetAvailableMana(actor) >= this._codToFiniteNumber(option.manaCost);
+  }
+
+  _mtaRestoreHasCurableDamage(actor, type) {
+    const health = this._mtaRestoreGetHealth(actor);
+    const damageType = this._mtaRestoreNormalizeDamageType(type);
+
+    const value = this._codToFiniteNumber(health.value);
+    const lethal = this._codToFiniteNumber(health.lethal);
+    const aggravated = this._codToFiniteNumber(health.aggravated);
+    const max = this._codToFiniteNumber(health.max);
+
+    if (damageType === "value") return value < lethal;
+    if (damageType === "lethal") return lethal < aggravated;
+    if (damageType === "aggravated") return aggravated < max;
+
+    return false;
+  }
+
+  _mtaRestoreGetItemsByType(actor, type, cache) {
+    const normalizedType = String(type ?? "").toLowerCase();
+
+    if (!cache.has(normalizedType)) {
+      const items = actor.items
+        .filter(item => String(item.type ?? "").toLowerCase() === normalizedType)
+        .sort((a, b) => {
+          return String(a.name ?? "").localeCompare(String(b.name ?? ""), "pt-BR", {
+            sensitivity: "base",
+            numeric: true
+          });
+        });
+
+      cache.set(normalizedType, items);
+    }
+
+    return cache.get(normalizedType);
+  }
+
+  _mtaRestoreHasItemOfType(actor, type) {
+    const normalizedType = String(type ?? "").toLowerCase();
+    return actor.items.some(item => String(item.type ?? "").toLowerCase() === normalizedType);
+  }
+
+  _mtaRestoreHasOptionTarget(actor, option) {
+    if (option.damage) return this._mtaRestoreHasCurableDamage(actor, option.damage.type);
+    if (option.deleteType) return this._mtaRestoreHasItemOfType(actor, option.deleteType);
+    return false;
+  }
+
+  _mtaRestoreGetUnavailableTitle(option) {
+    if (option.insufficientMana) return "Mana insuficiente.";
+    if (!option.hasTarget) return "Não disponível para este personagem.";
+    return "";
+  }
+
+  _mtaRestoreBuildItemOptions(items) {
+    if (!items.length) {
+      return `<option value="">Nenhum item encontrado</option>`;
+    }
+
+    return items.map(item => {
+      return `<option value="${this._codEscapeHTML(item.id)}">${this._codEscapeHTML(item.name)}</option>`;
+    }).join("");
+  }
+
+  async _mtaRestoreSpendMana(actor, cost) {
+    const manaValue = Number(actor.system?.mana?.value ?? 0);
+    const manaMax = Number(actor.system?.mana?.max ?? 0);
+    const finiteCost = this._codToFiniteNumber(cost);
+
+    await actor.update({
+      "system.mana.value": Math.clamp(manaValue - finiteCost, 0, manaMax)
+    });
+
+    ui.notifications.warn("Você gastou Mana! O valor será atualizado automaticamente.");
+  }
+
+  _mtaRestoreConfirmItemDeletion(actor, item, option) {
+    return new Promise(resolve => {
+      let resolved = false;
+
+      const finish = value => {
+        if (resolved) return;
+        resolved = true;
+        resolve(value);
+      };
+
+      const content = `
+<form class="mta-dialogue mta-restore-confirm-dialog">
+  <div class="ms-wrap">
+    <p class="mta-restore-confirm-text">
+      <strong>ATENÇÃO!</strong> Você escolheu eliminar '<em>${this._codEscapeHTML(item.name)}</em>' da ficha de
+      '<em>${this._codEscapeHTML(actor.name)}</em>'. Deseja prosseguir com a exclusão?
+    </p>
+
+    <p class="mta-restore-confirm-note">
+      Esta ação também gastará <strong>${this._codEscapeHTML(option.manaCost)} ponto${option.manaCost === 1 ? "" : "s"} de Mana</strong>.
+    </p>
+  </div>
+</form>
+`;
+
+      new Dialog({
+        title: "⚠️ Confirmar exclusão?",
+        content,
+        buttons: {
+          confirm: {
+            icon: '<i class="fas fa-trash"></i>',
+            label: "Excluir",
+            callback: () => finish(true)
+          },
+          cancel: {
+            icon: '<i class="fas fa-times"></i>',
+            label: "Cancelar",
+            callback: () => finish(false)
+          }
+        },
+        default: "cancel",
+        close: () => finish(false)
+      }).render(true);
+    });
+  }
+
+  // Macro: Assistente de Anomalias paradoxais — MtA 2e / Foundry V12
+  // Versão V4.2 refatorada — automações da V4.1 com polimento estrutural da V3.
+  // Escopo: usar depois de uma rolagem de Paradoxo bem-sucedida.
+
+  async openParadoxAnomalyAssistant() {
+    // ---------------------------------------------------------------------------
+    // Utilidades
+    // ---------------------------------------------------------------------------
+    const U = this._codUtilityFacade();
+
+    // ---------------------------------------------------------------------------
+    // Dados fixos / caminhos exatos do sistema
+    // ---------------------------------------------------------------------------
+    const ARCANA_PATHS = {
+      "Destino": "arcana_subtle.fate",
+      "Espaço": "arcana_gross.space",
+      "Espírito": "arcana_subtle.spirit",
+      "Força": "arcana_gross.forces",
+      "Matéria": "arcana_gross.matter",
+      "Mente": "arcana_subtle.mind",
+      "Morte": "arcana_subtle.death",
+      "Primórdio": "arcana_subtle.prime",
+      "Tempo": "arcana_gross.time",
+      "Vida": "arcana_gross.life"
+    };
+
+    const UUIDS = {
+      fatigue: "@UUID[Compendium.CompendiumCofD.cond.Item.zkUPLG5H4LYLLBzd]{Fadiga abissal}",
+      deferred: "@UUID[Compendium.CompendiumCofD.cond.Item.sazbsIkVk7vlXcFL]{Paradoxo prorrogado}",
+      veto: "@UUID[Compendium.CompendiumCofD.cond.Item.m86g3SqqcNscOfH8]{Veto abissal}",
+      personalIncident: "@UUID[Compendium.CompendiumCofD.journal.JournalEntry.UcNmAYrzjV5flyAH.JournalEntryPage.7sms5C0goNROuDFd]",
+      environmentalIncident: "@UUID[Compendium.CompendiumCofD.journal.JournalEntry.UcNmAYrzjV5flyAH.JournalEntryPage.QznF5mrSkuektBaf]"
+    };
+
+    const PARADOX_CONDITION_LINKS = [
+      { label: "Coice abissal", value: "@UUID[Compendium.CompendiumCofD.cond.Item.zGAINsoG5uWSprXR]{Coice abissal}" },
+      { label: "Imago abissal", value: "@UUID[Compendium.CompendiumCofD.cond.Item.OUMmGsDx0cTJvHcz]{Imago abissal}" },
+      { label: "Impureza abissal", value: "@UUID[Compendium.CompendiumCofD.cond.Item.kLWBZp1KOnARcNxp]{Impureza abissal}" },
+      { label: "Nimbus abissal", value: "@UUID[Compendium.CompendiumCofD.cond.Item.vxB97gtW1J9d9QSi]{Nimbus abissal}" }
+    ];
+
+    const CONDITION_UUID_BY_NAME = Object.fromEntries(PARADOX_CONDITION_LINKS.map(c => [c.label, c.value]));
+
+    const SPELL_FACTORS = [
+      ["factor-primary", "Modificar Elevação: <strong>Fator primário</strong>", "Modificar Elevação: Fator primário"],
+      ["factor-advanced-potency", "Modificar Elevação: <strong>Potência avançada</strong>", "Modificar Elevação: Potência avançada"],
+      ["factor-advanced-scale", "Modificar Elevação: <strong>Escala avançada</strong>", "Modificar Elevação: Escala avançada"],
+      ["factor-advanced-duration", "Modificar Elevação: <strong>Duração avançada</strong>", "Modificar Elevação: Duração avançada"],
+      ["factor-indefinite-duration", "Modificar Elevação: <strong>Duração indefinida</strong>", "Modificar Elevação: Duração Indefinida"],
+      ["factor-sensory-range", "Modificar Elevação: <strong>Alcance avançado (Sensorial)</strong>", "Modificar Elevação: Alcance avançado (Sensorial)"],
+      ["factor-remote-viewing", "Modificar Elevação: <strong>Visualização remota</strong>", "Modificar Elevação: Visualização remota"],
+      ["factor-active-spell-slot", "Modificar Elevação: <strong>Controle de Feitiço Ativo</strong>", "Modificar Elevação: Controle de Feitiço Ativo"]
+    ];
+
+    const ZONES = [
+      ["zone-none", "Sem zona antimagia", 0, true],
+      ["zone-room", "Zona antimagia: 1 cômodo", 2],
+      ["zone-house", "Zona antimagia: 1 casa média", 4],
+      ["zone-floor", "Zona antimagia: 1 andar ou bairro pequeno", 6],
+      ["zone-village", "Zona antimagia: 1 vila", 8],
+      ["zone-city", "Zona antimagia: 1 cidade", 10]
+    ];
+
+    // ---------------------------------------------------------------------------
+    // Dados do ator / mecânica
+    // ---------------------------------------------------------------------------
+    const getActorWisdom = actor => Number(actor?.system?.mage_traits?.wisdom?.final ?? actor?.system?.mage_traits?.wisdom?.value ?? 5);
+    const getActorGnosis = actor => Number(actor?.system?.mage_traits?.gnosis?.final ?? actor?.system?.mage_traits?.gnosis?.value ?? 0);
+
+    const getActorArcanaValue = (actor, arcano) => {
+      const trait = U.path(actor?.system, ARCANA_PATHS[arcano]);
+      return Number(trait?.final ?? trait?.value ?? 0);
+    };
+
+    const getActorArcanaOptions = actor => {
+      const options = Object.keys(ARCANA_PATHS)
+        .map(arcano => ({
+          arcano,
+          value: getActorArcanaValue(actor, arcano)
+        }))
+        .filter(({ value }) => value > 0)
+        .map(({ arcano, value }) => `${arcano} ${value}`);
+
+      return options.length
+        ? options
+        : [{ value: "", label: "Nenhum Arcano maior que 0", disabled: true }];
+    };
+
+    const getDurationsByWisdom = wisdom => {
+      const w = Number(wisdom) || 0;
+      if (w >= 8) return { anomaly: "1 cena", condition: "1 arco / mês" };
+      if (w >= 4) return { anomaly: "1 capítulo / dia", condition: "1 capítulo / dia" };
+      if (w >= 1) return { anomaly: "1 arco / mês", condition: "1 cena" };
+      return { anomaly: "1 crônica / ano", condition: "1 turno" };
+    };
+
+    const getActorYantraOptions = actor => {
+      const yantras = (actor?.items ? Array.from(actor.items) : [])
+        .filter(item => String(item?.type ?? "").toLowerCase() === "yantra")
+        .map(item => item.name)
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b));
+
+      return yantras.length ? yantras : [{ value: "", label: "Nenhum Yantra encontrado", disabled: true }];
+    };
+
+    const detectDeferredParadox = actor => U.itemNumber(actor, /paradoxo\s+prorrogado\s*\((\d+)\)/i);
+    const detectAbyssalFatigue = actor => U.itemNumber(actor, /fadiga\s+abissal\s*\(-?(\d+)\)/i);
+
+    const actorResources = actor => ({
+      "Mana": Number(actor?.system?.mana?.value ?? 0),
+      "Força de Vontade": Number(actor?.system?.willpower?.value ?? 0)
+    });
+
+    const getCandidateActors = () => {
+      const actors = new Map();
+
+      const addActor = actor => {
+        if (actor && getActorGnosis(actor) > 0 && !actors.has(actor.id)) {
+          actors.set(actor.id, actor);
+        }
+      };
+
+      for (const token of canvas.tokens?.controlled ?? []) {
+        addActor(token.actor);
+      }
+
+      addActor(game.actors.get(ChatMessage.getSpeaker()?.actor));
+
+      for (const user of game.users.players) {
+        addActor(user.character);
+      }
+
+      addActor(this);
+
+      for (const actor of game.actors.contents) {
+        addActor(actor);
+      }
+
+      return Array.from(actors.values());
+    };
+
+    const candidateActors = getCandidateActors();
+    if (!candidateActors.length) {
+      ui.notifications.warn("Nenhum personagem encontrado.");
+      return;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Operações persistentes de ficha
+    // ---------------------------------------------------------------------------
+    const ActorOps = {
+      findItem(actor, baseName) {
+        const wanted = String(baseName ?? "").toLowerCase();
+        return Array.from(actor?.items ?? []).find(item => U.cleanItemName(item.name).toLowerCase() === wanted);
+      },
+
+      async deleteItem(actor, baseName) {
+        const item = ActorOps.findItem(actor, baseName);
+        if (item) await item.delete();
+      },
+
+      async assertUuid(uuid, message) {
+        const document = await fromUuid(U.rawUUID(uuid));
+        if (!document) throw new Error(message);
+        return document;
+      },
+
+      async importItem(actor, uuid) {
+        const source = await ActorOps.assertUuid(uuid, `Item não encontrado: ${uuid}`);
+        const data = source.toObject ? source.toObject() : foundry.utils.duplicate(source);
+        delete data._id;
+        return Item.create(data, { parent: actor });
+      },
+
+      async upsertItem(actor, baseName, uuid) {
+        return ActorOps.findItem(actor, baseName) ?? ActorOps.importItem(actor, uuid);
+      },
+
+      async validateAutomations(ctx, effects) {
+        const fatigue = effects.find(e => e.id === "abyssal-fatigue");
+        const consume = effects.find(e => e.id === "consume-resource");
+        const mageCondition = effects.find(e => e.id === "mage-condition");
+        const veto = effects.find(e => e.id === "abyssal-veto");
+
+        if (consume && consume.qty > (actorResources(ctx.actor)[consume.detail] ?? 0)) {
+          throw new Error(`${consume.detail} insuficiente.`);
+        }
+
+        if (fatigue) await ActorOps.assertUuid(UUIDS.fatigue, "Condição Fadiga abissal não encontrada.");
+
+        if (mageCondition) {
+          const label = U.plainUUID(mageCondition.detail);
+          const uuid = CONDITION_UUID_BY_NAME[label];
+          if (!uuid) throw new Error(`Condição paradoxal não reconhecida: ${label || "sem nome"}.`);
+          await ActorOps.assertUuid(uuid, `Condição ${label} não encontrada.`);
+        }
+
+        if (veto) {
+          const arcano = U.arcanoFromDetail(veto.detail);
+          if (!ARCANA_PATHS[arcano]) throw new Error(`Arcano inválido para Veto abissal: ${veto.detail || "sem Arcano"}.`);
+          await ActorOps.assertUuid(UUIDS.veto, "Condição Veto abissal não encontrada.");
+        }
+      },
+
+      async spendResource(actor, resource, qty) {
+        if (!qty) return;
+
+        const current = actorResources(actor)[resource] ?? 0;
+        if (qty > current) throw new Error(`${resource} insuficiente.`);
+
+        const path = resource === "Mana" ? "system.mana.value" : "system.willpower.value";
+        await actor.update({ [path]: current - qty });
+        ui.notifications.info(`${actor.name} teve ${qty} ponto(s) de ${resource} consumido(s)!`);
+      },
+
+      async addMageCondition(ctx, effect) {
+        const label = U.plainUUID(effect.detail);
+        const uuid = CONDITION_UUID_BY_NAME[label];
+        if (!uuid) throw new Error(`Condição paradoxal não reconhecida: ${label || "sem nome"}.`);
+
+        const item = await ActorOps.upsertItem(ctx.actor, label, uuid);
+        if (["Coice abissal", "Imago abissal"].includes(label)) await item.update({ name: `${label} (+${ctx.raises})` });
+      },
+
+      async applyFatigue(ctx, effect) {
+        const next = U.clamp(ctx.fatigue + effect.qty, 0, 5);
+
+        if (next <= 0) {
+          await ActorOps.deleteItem(ctx.actor, "Fadiga abissal");
+          return;
+        }
+
+        const item = await ActorOps.upsertItem(ctx.actor, "Fadiga abissal", UUIDS.fatigue);
+        await item.update({
+          name: `Fadiga abissal (-${next})`,
+          "system.effectsActive": true,
+          "system.effects": [
+            { name: "generalModifiers.physicalDicePools", value: -next, overFive: true },
+            { name: "generalModifiers.mentalDicePools", value: -next, overFive: true },
+            { name: "generalModifiers.socialDicePools", value: -next, overFive: true }
+          ]
+        });
+      },
+
+      async applyVeto(ctx, effect) {
+        const arcano = U.arcanoFromDetail(effect.detail);
+        const path = ARCANA_PATHS[arcano];
+        if (!path) throw new Error(`Arcano inválido para Veto abissal: ${effect.detail || "sem Arcano"}.`);
+
+        const item = await ActorOps.upsertItem(ctx.actor, "Veto abissal", UUIDS.veto);
+        await item.update({
+          name: `Veto abissal (${arcano})`,
+          "system.effectsActive": true,
+          "system.effects": [{ name: path, value: -3, overFive: true }]
+        });
+      },
+
+      async clearDeferredParadox(ctx) {
+        if (ctx.eruption && ctx.deferred > 0) await ActorOps.deleteItem(ctx.actor, "Paradoxo prorrogado");
+      },
+
+      async applyAutomations(ctx, effects) {
+        await ActorOps.validateAutomations(ctx, effects);
+
+        const fatigue = effects.find(e => e.id === "abyssal-fatigue");
+        const consume = effects.find(e => e.id === "consume-resource");
+        const mageCondition = effects.find(e => e.id === "mage-condition");
+        const veto = effects.find(e => e.id === "abyssal-veto");
+
+        if (consume) await ActorOps.spendResource(ctx.actor, consume.detail, consume.qty);
+        if (fatigue) await ActorOps.applyFatigue(ctx, fatigue);
+        if (mageCondition) await ActorOps.addMageCondition(ctx, mageCondition);
+        if (veto) await ActorOps.applyVeto(ctx, veto);
+        await ActorOps.clearDeferredParadox(ctx);
+      }
+    };
+
+    // ---------------------------------------------------------------------------
+    // Interface comum
+    // ---------------------------------------------------------------------------
+    const resizeToFit = dialog => this._codResizeDialogToFit(dialog, "form.paradox-helper-dialog, form.paradox-builder-dialog");
+
+    const bindNativeRadioGroup = (html, groupName) => this._codBindNativeRadioGroup(html, groupName);
+
+    const fieldLabel = input => {
+      const label = input.closest(".ph-effect-row, .ph-form-row").find("label").first().text().trim();
+      return label || input.attr("name") || input.attr("id") || "campo numérico";
+    };
+
+    const validateNumberLimits = root => {
+      const errors = [];
+
+      $(root).find("input[type='number']").each((_, el) => {
+        const input = $(el);
+        if (input.prop("disabled")) return;
+
+        const raw = String(input.val() ?? "").trim();
+        if (raw === "") return;
+
+        const value = Number(raw);
+        const label = fieldLabel(input);
+        const minRaw = input.attr("min");
+        const maxRaw = input.attr("max");
+        const min = minRaw !== undefined && minRaw !== "" ? Number(minRaw) : undefined;
+        const max = maxRaw !== undefined && maxRaw !== "" ? Number(maxRaw) : undefined;
+
+        if (!Number.isFinite(value)) errors.push(`Valor inválido em ${label}.`);
+        if (Number.isFinite(min) && value < min) errors.push(`${label} não pode ser menor que ${min}.`);
+        if (Number.isFinite(max) && value > max) errors.push(`${label} não pode ser maior que ${max}.`);
+      });
+
+      return errors;
+    };
+
+    const bindGuardedButton = (dialog, buttonName, handler) => {
+      requestAnimationFrame(() => {
+        const button = dialog?.element?.find(`button[data-button='${buttonName}']`)?.[0];
+        if (!button || button.dataset.phGuarded === "true") return;
+
+        button.dataset.phGuarded = "true";
+        button.addEventListener("click", async event => {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          await handler();
+        }, true);
+      });
+    };
+
+    const openJournalPage = async uuid => {
+      const page = await fromUuid(U.rawUUID(uuid));
+      if (!page) return ui.notifications.warn("Journal não encontrado.");
+
+      if (page.parent?.sheet) return page.parent.sheet.render(true, { pageId: page.id });
+      return page.sheet?.render(true);
+    };
+
+    // ---------------------------------------------------------------------------
+    // Catálogos de efeitos
+    // ---------------------------------------------------------------------------
+    const journalButton = (uuid, emoji, title) => `<button type="button" class="ph-journal-btn" data-uuid="${uuid}" title="${U.esc(title)}">${emoji}</button>`;
+
+    const baseEffectDefs = ctx => [
+      ...SPELL_FACTORS.map(([id, label, chat]) => ({ id, type: "checkbox", cost: 1, label, chat })),
+      { id: "target-condition", type: "checkbox", cost: 1, label: "Impor <strong>Condição paradoxal ao alvo</strong>", chat: "Impor Condição paradoxal ao alvo", detail: "select", options: PARADOX_CONDITION_LINKS },
+      {
+        id: "abyssal-fatigue",
+        type: "number",
+        cost: 2,
+        min: 0,
+        max: Math.max(0, 5 - ctx.fatigue),
+        disabled: ctx.fatigue >= 5,
+        label: ctx.fatigue >= 5
+          ? "Impor/aumentar <strong>Fadiga abissal</strong> (<em>máximo já atingido!</em>)"
+          : "Impor/aumentar <strong>Fadiga abissal</strong> (máximo 5x)",
+        chat: "Impor/aumentar Fadiga abissal"
+      },
+      { id: "deny-yantra", type: "checkbox", cost: 2, label: "<strong>Negar Yantra específico</strong> (exceto dedicado) por 1 cena", chat: "Negar acesso à Yantra específico por 1 cena", detail: "select", options: getActorYantraOptions(ctx.actor) },
+      { id: "change-target", type: "checkbox", cost: 2, label: "<strong>Mudar o alvo</strong> do feitiço", chat: "Mudar o alvo do feitiço", detail: "text", placeholder: "Novo alvo" },
+      { id: "delay-spell", type: "number", cost: 2, min: 0, max: 3, label: "<strong>Atrasar</strong> o efeito do feitiço em 1 turno (máximo 3x)", chat: "Atrasar o efeito do feitiço" },
+      { id: "force-concentration", type: "checkbox", cost: 2, label: "Forçar <strong>concentração</strong> no feitiço", chat: "Forçar concentração no feitiço" },
+      { id: "flare-nimbus", type: "checkbox", cost: 2, label: "<strong>Fulgura Nimbus obviamente</strong> por 1 cena", chat: "Fulgurar Nimbus por 1 cena" },
+      {
+        id: "common-incident",
+        type: "number",
+        cost: 2,
+        min: 0,
+        label: `Instaurar <strong>Incidente Pessoal ou Ambiental</strong> ${journalButton(UUIDS.personalIncident, "👤", "Incidentes Pessoais")} ${journalButton(UUIDS.environmentalIncident, "🏔️", "Incidentes Ambientais")}`,
+        chat: "Incidente Pessoal ou Ambiental",
+        detail: "text",
+        placeholder: "Incidente(s) escolhido(s)"
+      },
+      { id: "abyssal-incident", type: "number", cost: 3, min: 0, label: "Instaurar <strong>Incidente Ambiental abissal</strong>", chat: "Incidente Ambiental abissal", detail: "text", placeholder: "Incidente(s) escolhido(s)" },
+      { id: "lethal-damage", type: "number", cost: 3, min: 0, label: "Causar <strong>1 de dano letal</strong> ao conjurador ou alvo do feitiço", chat: "Dano letal", detail: "text", placeholder: "Quantidade e alvo do dano" },
+      { id: "consume-resource", type: "select-number", cost: 4, min: 0, label: "Consumir <strong>1 de Mana ou Força de Vontade</strong>", chat: "Consumir Mana/Força de Vontade", options: ["Mana", "Força de Vontade"] },
+      { id: "later-scene", type: "checkbox", cost: 4, label: "Manifestar Anomalias selecionadas <strong>em cena posterior</strong>", chat: "Manifestação posterior de Anomalias" },
+      { id: "abyssal-entity", type: "entity", cost: 5, costLabel: "5+", label: "Invocar <strong>Entidade abissal</strong> (posto 2, +1 por Elevação extra)", chat: "Invocar Entidade abissal" },
+      { id: "mage-condition", type: "checkbox", cost: 7, label: "Impor <strong>Condição paradoxal ao conjurador</strong>", chat: "Impor Condição paradoxal ao conjurador", detail: "select", options: PARADOX_CONDITION_LINKS }
+    ];
+
+    const eruptionEffectDefs = ctx => [
+      { id: "super-nimbus", type: "checkbox", cost: 4, label: "<strong>Fulgurar Nimbus obviamente</strong> pela duração especial", chat: "Fulgurar Nimbus pela duração especial" },
+      { id: "abyssal-veto", type: "checkbox", cost: 8, label: "Impor a Condição <strong>Veto abissal</strong>", chat: "Veto abissal", detail: "select", options: getActorArcanaOptions(ctx.actor) },
+      { id: "extreme-incident", type: "checkbox", cost: 8, label: "Instaurar <strong>Incidente Ambiental abissal extremo</strong>", chat: "Incidente Ambiental abissal extremo", detail: "text", placeholder: "Incidente escolhido" },
+      ...ZONES.map(([id, label, cost, checked]) => ({
+        id,
+        type: "zone-radio",
+        cost,
+        checked,
+        label,
+        chat: {
+          "zone-none": "Sem zona antimagia",
+          "zone-room": "Zona antimagia: 1 cômodo",
+          "zone-house": "Zona antimagia: 1 casa média",
+          "zone-floor": "Zona antimagia: 1 andar ou bairro pequeno",
+          "zone-village": "Zona antimagia: 1 vila",
+          "zone-city": "Zona antimagia: 1 cidade"
+        }[id]
+      }))
+    ];
+
+    const allEffectLabels = ctx => Object.fromEntries([...baseEffectDefs(ctx), ...eruptionEffectDefs(ctx)].map(effect => [effect.id, effect.chat ?? effect.label]));
+
+    // ---------------------------------------------------------------------------
+    // HTML comum
+    // ---------------------------------------------------------------------------
+
+
+    const headerRow = () => `<div class="ph-head"><div>Custo</div><div>Efeito paradoxal</div><div>Incidência</div></div>`;
+
+    const DetailRenderers = {
+      select: effect => `<select class="ph-detail ph-effect-detail">${U.options(effect.options)}</select>`,
+      text: effect => `<input type="text" class="ph-detail ph-effect-detail" placeholder="${U.esc(effect.placeholder ?? "Detalhes")}">`,
+      none: () => ""
+    };
+
+    const ControlRenderers = {
+      checkbox(effect) {
+        return `<label class="equipped checkBox ph-incidence-checkbox" for="ph-${effect.id}"><input id="ph-${effect.id}" type="checkbox" class="ph-effect-check"><span></span></label>`;
+      },
+
+      number(effect) {
+        const max = effect.max !== undefined && effect.max !== "" ? `max="${effect.max}"` : "";
+        const disabled = effect.disabled ? "disabled" : "";
+        return `<input id="ph-${effect.id}" type="number" class="attribute-value ph-effect-number" min="${effect.min ?? 0}" ${max} ${disabled} value="0">`;
+      },
+
+      "select-number"(effect) {
+        return `<input id="ph-${effect.id}" type="number" class="attribute-value ph-effect-number" min="${effect.min ?? 0}" value="0">`;
+      },
+
+      entity(effect) {
+        return `<label class="equipped checkBox ph-incidence-checkbox" for="ph-${effect.id}"><input id="ph-${effect.id}" type="checkbox" class="ph-entity-check"><span></span></label>`;
+      },
+
+      "zone-radio"(effect) {
+        return `<span class="cell ph-incidence-radio"><i class="activeIcon ${effect.checked ? "fas fa-dot-circle" : "far fa-circle"}"></i></span><input id="ph-${effect.id}" type="radio" name="antimagicZone" value="${effect.id}" ${effect.checked ? "checked" : ""} class="ph-hidden-radio">`;
+      }
+    };
+
+    const detailHTML = effect => {
+      if (effect.type === "select-number") return `<select class="ph-detail-select">${U.options(effect.options)}</select>`;
+      if (effect.type === "entity") return `<input type="number" class="ph-entity-extra" min="0" value="" placeholder="Posto adicional">`;
+      return DetailRenderers[effect.detail ?? "none"]?.(effect) ?? "";
+    };
+
+    const controlHTML = effect => ControlRenderers[effect.type]?.(effect) ?? "";
+
+    const effectRowHTML = effect => `
+<li class="ph-effect-row ${effect.type === "zone-radio" ? "item-row mta-native-radio ph-zone-choice ph-radio-row" : ""}"
+  data-radio-group="${effect.type === "zone-radio" ? "antimagic-zone" : ""}"
+  data-effect-id="${effect.id}"
+  data-control="${effect.type}"
+  data-cost="${effect.cost}">
+  <div class="ph-cost">${effect.costLabel ?? effect.cost}</div>
+  <div class="ph-effect-cell"><label for="ph-${effect.id}" class="ph-effect-label${effect.type === "zone-radio" ? " ph-clickable-label" : ""}">${effect.label}</label>${detailHTML(effect)}</div>
+  <div class="ph-control-cell">${controlHTML(effect)}</div>
+</li>`;
+
+    const effectTableHTML = effects => `<div class="ph-table">${headerRow()}<ul class="ph-effect-list">${effects.map(effectRowHTML).join("")}</ul></div>`;
+
+    // ---------------------------------------------------------------------------
+    // Primeiro diálogo
+    // ---------------------------------------------------------------------------
+    const actorOptionsHTML = () => candidateActors.map((actor, index) => `<option value="${actor.id}" ${index === 0 ? "selected" : ""}>${U.esc(actor.name)}</option>`).join("");
+
+    const buildFirstDialogContent = () => {
+      const actor = candidateActors[0];
+      const wisdom = getActorWisdom(actor);
+      const durations = getDurationsByWisdom(wisdom);
+
+      return `
+<form class="mta-sheet mta-dialogue paradox-helper-dialog">
+  <div class="ph-wrap">
+    <div class="ph-form-row ph-actor-row">
+      <label for="ph-actor"><strong>👤 Personagem</strong>:</label>
+      <select id="ph-actor" name="actorId" class="ph-select">${actorOptionsHTML()}</select>
+    </div>
+
+    <hr class="ph-hr">
+
+    <div class="ph-form-row"><label for="ph-raises"><strong>🔥 Elevações imediatas</strong>:</label><input id="ph-raises" type="number" name="raises" class="attribute-value ph-number" min="0" value="1"></div>
+    <div class="ph-form-row"><label for="ph-wisdom"><strong>🧠 Sabedoria</strong>:</label><input id="ph-wisdom" type="number" name="wisdom" class="attribute-value ph-number" min="0" max="10" value="${wisdom}"></div>
+    <div class="ph-form-row"><label for="ph-deferred"><strong>⏳ Paradoxo prorrogado</strong>:</label><input id="ph-deferred" type="number" name="deferred" class="attribute-value ph-number" min="0" value="${detectDeferredParadox(actor)}" readonly tabindex="-1"></div>
+    <div class="ph-form-row"><label for="ph-fatigue"><strong>🪫 Fadiga abissal</strong>:</label><input id="ph-fatigue" type="number" name="fatigue" class="attribute-value ph-number" min="0" max="5" value="${detectAbyssalFatigue(actor)}" readonly tabindex="-1"></div>
+    <div class="ph-form-row"><label for="ph-eruption"><strong>💥 Erupção abissal?</strong></label><label class="equipped checkBox" for="ph-eruption"><input id="ph-eruption" type="checkbox" name="eruption"><span></span></label></div>
+
+    <hr class="ph-hr">
+
+    <div class="ph-box">
+      <legend class="ph-title"><strong>📌 Prévia</strong></legend>
+      <p>• Aumento por prorrogação: <strong class="ph-deferred-bonus">0</strong></p>
+      <p>• Duração de Anomalias: <strong class="ph-anomaly-duration">${durations.anomaly}</strong></p>
+      <p>• Duração de Condições: <strong class="ph-condition-duration">${durations.condition}</strong></p>
+      <p>• Elevações totais: <strong class="ph-total">1</strong></p>
+    </div>
+
+    <hr class="ph-hr">
+
+    <legend class="ph-title"><strong>📣 Mensagem no chat</strong></legend>
+    <ul class="ph-radio-list">
+      <li class="item-row mta-native-radio" data-radio-group="visibility"><label for="ph-visible-gm" class="ph-clickable-label">👤 Somente para o <b>narrador</b></label><span class="cell"><i class="activeIcon fas fa-dot-circle"></i></span><input id="ph-visible-gm" type="radio" name="visibility" value="gm" checked class="ph-hidden-radio"></li>
+      <li class="item-row mta-native-radio" data-radio-group="visibility"><label for="ph-visible-public" class="ph-clickable-label">👥 Público para os <b>jogadores</b></label><span class="cell"><i class="activeIcon far fa-circle"></i></span><input id="ph-visible-public" type="radio" name="visibility" value="public" class="ph-hidden-radio"></li>
+    </ul>
+  </div>
+</form>`;
+    };
+
+    const collectFirstDialogData = async () => new Promise(resolve => {
+      let d;
+      let resolved = false;
+      const finish = value => {
+        if (!resolved) {
+          resolved = true;
+          resolve(value);
+        }
+      };
+
+      d = new Dialog({
+        title: "🌀 Parâmetros do Paradoxo",
+        content: buildFirstDialogContent(),
+        render: html => {
+          const actorSelect = html.find("#ph-actor");
+          const wisdomInput = html.find("#ph-wisdom");
+          const deferredInput = html.find("#ph-deferred");
+          const fatigueInput = html.find("#ph-fatigue");
+          const raisesInput = html.find("#ph-raises");
+          const eruptionInput = html.find("#ph-eruption");
+
+          bindNativeRadioGroup(html, "visibility");
+
+          const updatePreview = () => {
+            const raises = Math.max(0, Number(raisesInput.val()) || 0);
+            const wisdom = U.clamp(wisdomInput.val(), 0, 10);
+            const deferred = Math.max(0, Number(deferredInput.val()) || 0);
+            const durations = getDurationsByWisdom(wisdom);
+            const deferredBonus = Math.floor(deferred / 4);
+            const eruptionBonus = eruptionInput.prop("checked") ? deferred + 2 : 0;
+
+            html.find(".ph-deferred-bonus").text(deferredBonus);
+            html.find(".ph-anomaly-duration").text(durations.anomaly);
+            html.find(".ph-condition-duration").text(durations.condition);
+            html.find(".ph-total").text(raises + deferredBonus + eruptionBonus);
+          };
+
+          const syncActor = () => {
+            const actor = game.actors.get(actorSelect.val());
+            if (!actor) return;
+            wisdomInput.val(getActorWisdom(actor));
+            deferredInput.val(detectDeferredParadox(actor));
+            fatigueInput.val(detectAbyssalFatigue(actor));
+            updatePreview();
+          };
+
+          const submitFirst = () => {
+            const errors = validateNumberLimits(d.element);
+            if (errors.length) return ui.notifications.warn(errors[0]);
+
+            const actor = game.actors.get(actorSelect.val());
+            if (!actor) return ui.notifications.warn("Selecione um personagem válido.");
+
+            const raises = Math.max(0, Number(raisesInput.val()) || 0);
+            const wisdom = U.clamp(wisdomInput.val(), 0, 10);
+            const deferred = Math.max(0, Number(deferredInput.val()) || 0);
+            const fatigue = U.clamp(fatigueInput.val(), 0, 5);
+            const eruption = eruptionInput.prop("checked");
+            const deferredBonus = Math.floor(deferred / 4);
+            const durations = getDurationsByWisdom(wisdom);
+
+            finish({
+              actor,
+              raises,
+              wisdom,
+              deferred,
+              fatigue,
+              eruption,
+              deferredBonus,
+              available: raises + deferredBonus + (eruption ? deferred + 2 : 0),
+              visibility: html.find("input[name='visibility']:checked").val() || "gm",
+              anomalyDuration: durations.anomaly,
+              conditionDuration: durations.condition
+            });
+            d.close();
+          };
+
+          actorSelect.on("change", syncActor);
+          wisdomInput.add(deferredInput).add(fatigueInput).add(raisesInput).on("input", updatePreview);
+          eruptionInput.on("change", updatePreview);
+
+          updatePreview();
+          bindGuardedButton(d, "ok", submitFirst);
+        },
+        buttons: {
+          ok: { icon: '<i class="fas fa-check"></i>', label: "Continuar", callback: () => false },
+          cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar", callback: () => finish(null) }
+        },
+        default: "ok",
+        close: () => finish(null)
+      }, { width: 500, resizable: true });
+
+      d.render(true);
+    });
+
+    // ---------------------------------------------------------------------------
+    // Segundo diálogo / efeitos
+    // ---------------------------------------------------------------------------
+    const buildSecondDialogContent = ctx => `
+<form class="mta-sheet mta-dialogue paradox-builder-dialog">
+  <div class="ph-wrap">
+    <div class="ph-budget-grid">
+      <div class="ph-box"><p>Disponíveis</p><p class="value ph-budget-total">${ctx.available}</p></div>
+      <div class="ph-box"><p>Gastas</p><p class="value ph-budget-spent">0</p></div>
+      <div class="ph-box"><p>Restantes</p><p class="value ph-budget-left">${ctx.available}</p></div>
+    </div>
+
+    <hr class="ph-hr">
+
+    <legend class="ph-title ph-title-common"><strong>📜 Anomalias comuns</strong></legend>
+    ${effectTableHTML(baseEffectDefs(ctx))}
+
+    <hr class="ph-hr">
+
+    <div class="ph-eruption-section" ${ctx.eruption ? "" : "hidden"}>
+      <legend class="ph-title ph-title-eruption"><strong>💥 Anomalias superiores (Erupção abissal)</strong></legend>
+      ${effectTableHTML(eruptionEffectDefs(ctx))}
+    </div>
+
+    <div class="ph-warning ph-budget-warning"><strong>⚠️ Anomalias escolhidas excedem as Elevações disponíveis!</strong></div>
+  </div>
+</form>`;
+
+
+    const toggleRowDetails = row => {
+      const control = row.data("control");
+      const isActive = {
+        checkbox: () => row.find(".ph-effect-check").prop("checked"),
+        number: () => (Number(row.find(".ph-effect-number").val()) || 0) > 0,
+        "select-number": () => (Number(row.find(".ph-effect-number").val()) || 0) > 0,
+        entity: () => row.find(".ph-entity-check").prop("checked")
+      }[control]?.() ?? false;
+
+      row.find(".ph-detail, .ph-detail-select, .ph-entity-extra").toggle(isActive);
+    };
+
+    const EffectCollectors = {
+      checkbox(row, cost) {
+        if (!row.find(".ph-effect-check").prop("checked")) return null;
+        return { qty: 1, total: cost, detail: row.find(".ph-detail").val()?.trim() ?? "" };
+      },
+
+      number(row, cost) {
+        const qty = Math.max(0, Number(row.find(".ph-effect-number").val()) || 0);
+        if (qty <= 0) return null;
+        return { qty, total: cost * qty, detail: row.find(".ph-detail").val()?.trim() ?? "" };
+      },
+
+      "select-number"(row, cost) {
+        const qty = Math.max(0, Number(row.find(".ph-effect-number").val()) || 0);
+        if (qty <= 0) return null;
+        return { qty, total: cost * qty, detail: row.find(".ph-detail-select").val()?.trim() ?? "" };
+      },
+
+      entity(row) {
+        if (!row.find(".ph-entity-check").prop("checked")) return null;
+        const extra = Math.max(0, Number(row.find(".ph-entity-extra").val()) || 0);
+        return { qty: 1, total: 5 + extra, detail: `Posto ${2 + extra}${extra ? ` (+${extra} extra)` : ""}` };
+      },
+
+      "zone-radio"(row, cost, id) {
+        if (!row.find("input[type='radio']").prop("checked") || id === "zone-none") return null;
+        return { qty: 1, total: cost, detail: "" };
+      }
+    };
+
+    const collectSelectedEffects = (html, ctx) => {
+      const labels = allEffectLabels(ctx);
+      const effects = [];
+
+      html.find(".ph-effect-row").each((_, rowEl) => {
+        const row = $(rowEl);
+        const id = row.data("effect-id");
+        const control = row.data("control");
+        const cost = Number(row.data("cost")) || 0;
+        const collected = EffectCollectors[control]?.(row, cost, id);
+
+        if (collected) effects.push({ id, label: labels[id] ?? id, cost, ...collected });
+      });
+
+      return effects;
+    };
+
+    // ---------------------------------------------------------------------------
+    // Chat / atualizações
+    // ---------------------------------------------------------------------------
+    const UpdateText = {
+      safePart(value) {
+        const text = String(value ?? "").trim();
+        if (!text) return "";
+        return text.startsWith("@UUID[") ? text : U.esc(text);
+      },
+
+      paren(...parts) {
+        const text = parts.map(UpdateText.safePart).filter(Boolean).join(", ");
+        return text ? ` (${text})` : "";
+      },
+
+      detail(effect) {
+        return UpdateText.paren(effect?.detail);
+      }
+    };
+
+    const UpdateRules = {
+      "abyssal-fatigue": (ctx, effect) => {
+        const current = ctx.fatigue;
+        const next = U.clamp(current + effect.qty, 0, 5);
+        return `${UUIDS.fatigue}: ${current ? `-${current}` : "ausente"} → -${next}`;
+      },
+      "target-condition": (ctx, effect) => `<b>Condição paradoxal</b> no alvo ${UpdateText.paren(effect.detail, ctx.conditionDuration)}`,
+      "mage-condition": (ctx, effect) => `<b>Condição paradoxal</b> no conjurador${UpdateText.paren(effect.detail, ctx.conditionDuration)}`,
+      "abyssal-veto": (ctx, effect) => {
+        const arcano = U.arcanoFromDetail(effect.detail);
+        return `${UUIDS.veto}${arcano ? ` em ${U.esc(arcano)}` : ""} (${U.esc(ctx.conditionDuration)})`;
+      },
+      "deny-yantra": (_ctx, effect) => `<b>Yantra negado</b> por 1 cena${UpdateText.detail(effect)}`,
+      "later-scene": () => `<b>Manifestar posteriormente</b> anomalias selecionadas`,
+      "factor-active-spell-slot": () => `Modificar <b>controle de Feitiço Ativo</b>`,
+      "common-incident": (ctx, effect) => `Instaurar ${effect.qty} <b>Incidente(s) comum(ns)</b>${UpdateText.paren(effect.detail, ctx.anomalyDuration)}`,
+      "abyssal-incident": (ctx, effect) => `Instaurar ${effect.qty} <b>Incidente(s) Ambiental(is) abissal(is)</b>${UpdateText.paren(effect.detail, ctx.anomalyDuration)}`,
+      "extreme-incident": (ctx, effect) => `Instaurar <b>Incidente Ambiental abissal extremo</b>${UpdateText.paren(effect.detail, ctx.anomalyDuration)}`,
+      "lethal-damage": (_ctx, effect) => `Aplicar ${effect.qty} de <b>ferimento(s) letal</b>${UpdateText.detail(effect)}`,
+      "consume-resource": (_ctx, effect) => `<b>Consumir ${effect.qty}</b> de ${U.esc(effect.detail || "recurso")} do conjurador`
+    };
+
+    const buildSheetUpdates = (ctx, effects) => {
+      const updates = effects.map(effect => UpdateRules[effect.id]?.(ctx, effect, effects)).filter(Boolean);
+      if (ctx.eruption && ctx.deferred > 0) updates.push(`${UUIDS.deferred}: ${ctx.deferred} → 0`);
+      return updates;
+    };
+
+    const ChatCard = {
+
+
+      gap: `<p class="ph-chat-gap">&nbsp;</p><hr><p class="ph-chat-gap">&nbsp;</p>`,
+
+      effectDetail(effect) {
+        if (!effect.detail) return "";
+        const detailValue = effect.id === "abyssal-veto" ? U.arcanoFromDetail(effect.detail) : U.plainUUID(effect.detail);
+        return ` (<em>${U.esc(detailValue)}</em>)`;
+      },
+
+      effectLine(effect) {
+        const qtyText = effect.qty > 1 ? ` × ${effect.qty}` : "";
+        return `<li><strong>${effect.total}</strong>: ${U.esc(effect.label)}${qtyText}${ChatCard.effectDetail(effect)}</li>`;
+      },
+
+      render(ctx, effects) {
+        const effectLines = effects.length ? effects.map(effect => ChatCard.effectLine(effect)).join("") : `<li>Nenhuma Anomalia selecionada.</li>`;
+        const updateLines = buildSheetUpdates(ctx, effects).map(update => `<li>${update}</li>`).join("") || `<li>Nenhuma atualização de ficha</li>`;
+
+        return `
+<div class="paradox-chat-card">
+  <h3>🌀 Paradoxo (${U.esc(ctx.actor.name)})</h3>
+  <p>🧠 <strong>Sabedoria:</strong> ${ctx.wisdom}</p>
+  <p>⏱️ <strong>Anomalias:</strong> ${U.esc(ctx.anomalyDuration)}</p>
+  <p>🕯️ <strong>Condições:</strong> ${U.esc(ctx.conditionDuration)}</p>
+  <p>💥 <strong>Erupção abissal:</strong> ${ctx.eruption ? "sim" : "não"}</p>
+  ${ChatCard.gap}
+  <h3>📜 Anomalias escolhidas</h3>
+  <ul>${effectLines}</ul>
+  ${ChatCard.gap}
+  <h3>🆕 Atualizações de ficha</h3>
+  <ul>${updateLines}</ul>
+</div>`;
+      }
+    };
+
+    const postToChat = async (ctx, effects) => {
+      const chatData = {
+        speaker: ChatMessage.getSpeaker({ actor: ctx.actor }),
+        content: ChatCard.render(ctx, effects)
+      };
+      if (ctx.visibility === "gm") chatData.whisper = ChatMessage.getWhisperRecipients("GM").map(u => u.id);
+      await ChatMessage.create(chatData);
+    };
+
+    const openBuilderDialog = async ctx => new Promise(resolve => {
+      let d;
+      let resolved = false;
+      const finish = value => {
+        if (!resolved) {
+          resolved = true;
+          resolve(value);
+        }
+      };
+
+      d = new Dialog({
+        title: "🌀 Construção do Paradoxo",
+        content: buildSecondDialogContent(ctx),
+        render: html => {
+          bindNativeRadioGroup(html, "antimagic-zone");
+
+          const updateBudget = () => {
+            html.find(".ph-effect-row").each((_, rowEl) => toggleRowDetails($(rowEl)));
+
+            const effects = collectSelectedEffects(html, ctx);
+            const spent = effects.reduce((sum, e) => sum + e.total, 0);
+            const left = ctx.available - spent;
+            const leftEl = html.find(".ph-budget-left");
+
+            html.find(".ph-budget-spent").text(spent);
+            leftEl
+              .text(left)
+              .removeClass("ph-budget-negative ph-budget-positive")
+              .toggleClass("ph-budget-negative", left < 0)
+              .toggleClass("ph-budget-positive", left > 0);
+            html.find(".ph-budget-warning").toggle(left < 0);
+            resizeToFit(d);
+          };
+
+          const submitSecond = async () => {
+            const errors = validateNumberLimits(d.element);
+            if (errors.length) return ui.notifications.warn(errors[0]);
+
+            const effects = collectSelectedEffects(html, ctx);
+            const spent = effects.reduce((sum, e) => sum + e.total, 0);
+
+            if (ctx.available - spent < 0) {
+              ui.notifications.warn("Anomalias escolhidas excedem as Elevações disponíveis!");
+              updateBudget();
+              return;
+            }
+
+            try {
+              await ActorOps.applyAutomations(ctx, effects);
+            } catch (error) {
+              console.error(error);
+              ui.notifications.warn(error.message ?? "Falha ao atualizar a ficha.");
+              return;
+            }
+
+            await postToChat(ctx, effects);
+            finish(true);
+            d.close();
+          };
+
+          html.find(".ph-effect-check, .ph-entity-check, input[name='antimagicZone']").on("change", updateBudget);
+          html.find(".ph-effect-number, .ph-entity-extra").on("input", updateBudget);
+          html.find(".ph-detail-select").on("change", updateBudget);
+          html.find(".ph-journal-btn").on("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+            openJournalPage(event.currentTarget.dataset.uuid);
+          });
+          bindGuardedButton(d, "ok", submitSecond);
+
+          updateBudget();
+          resizeToFit(d);
+
+          requestAnimationFrame(() => {
+            d?.element?.find(".window-content").scrollTop(0);
+            d?.element?.find("button").trigger("blur");
+          });
+        },
+        buttons: {
+          ok: { icon: '<i class="fas fa-check"></i>', label: "Enviar ao chat", callback: () => false },
+          cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar", callback: () => finish(false) }
+        },
+        default: "ok",
+        close: () => finish(false)
+      }, { width: 700, resizable: true });
+
+      d.render(true);
+    });
+
+    const ctx = await collectFirstDialogData();
+    if (!ctx) return;
+    await openBuilderDialog(ctx);
   }
 
   addProgressDialogue() {
-    const escapeHTML = (value) => {
-      const div = document.createElement("div");
-      div.innerText = String(value ?? "");
-      return div.innerHTML;
-    };
+    const ownedActors = this._codGetPlayerCharacterActors();
+    const actorsById = new Map(ownedActors.map(actor => [actor.id, actor]));
+    const content = this._codProgressBuildDialogContent(ownedActors);
 
-    // Personagem principal de cada jogador (exclui GM)
-    const ownedActors = [...new Set(
-      game.users.players
-        .map(u => u.character)
-        .filter(a => !!a)
-    )];
+    let d;
 
-    const actorCheckboxes = ownedActors.length
-      ? ownedActors.map(a => {
-        const inputId = `cod-progress-actor-${a.id}`;
+    d = new Dialog({
+      title: "➕ Adicionar Experiência",
+      content,
+      render: html => this._codProgressBindDialog(html, d),
+      buttons: {
+        ok: {
+          icon: '<i class="fas fa-check"></i>',
+          label: "Confirmar",
+          callback: html => this._codProgressSubmit(html, actorsById)
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "Cancelar"
+        }
+      },
+      default: "ok"
+    });
 
-        return `
-        <li class="cod-check-row" style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-          <label for="${inputId}" style="margin:0;">${escapeHTML(a.name)}</label>
-          <label class="equipped checkBox" for="${inputId}">
-            <input id="${inputId}" type="checkbox" class="cod-actor-checkbox" value="${a.id}">
-            <span></span>
-          </label>
-        </li>
-      `;
-      }).join("")
-      : `
-      <li style="padding:2px 0;">
-        <p style="margin:0;">Nenhum personagem principal de jogador encontrado.</p>
-      </li>
-    `;
+    d.render(true);
+  }
 
-    const content = `
+  _codProgressBuildDialogContent(ownedActors) {
+    const actorCheckboxes = this._codBuildActorList(ownedActors, "cod-progress");
+    const selectAllDisabled = ownedActors.length ? "" : "disabled";
+
+    return `
 <form class="mta-sheet mta-dialogue cod-progress-dialog">
-  <div class="ms-wrap" style="padding:12px 14px 16px;">
+  <div class="ms-wrap">
 
-    <legend class="ms-title" style="display:block;width:100%;text-align:center;margin:0 0 8px;">
-      <strong>👤 Personagens</strong>
-    </legend>
+    <div class="cod-actor-header">
+      <span></span>
 
-    <ul class="cod-actor-list" style="
-      display:grid;
-      grid-template-columns:1fr;
-      row-gap:6px;
-      margin:0;
-      padding:0;
-      list-style:none;
-    ">
+      <legend class="cod-title">
+        <strong>👤 Personagens</strong>
+      </legend>
+
+      <div class="cod-select-all-wrap">
+        <label for="cod-progress-select-all" class="cod-select-all-label">✔️</label>
+
+        <label class="equipped checkBox" for="cod-progress-select-all">
+          <input
+            id="cod-progress-select-all"
+            type="checkbox"
+            class="cod-select-all-checkbox"
+            ${selectAllDisabled}
+          >
+          <span></span>
+        </label>
+      </div>
+    </div>
+
+    <ul class="cod-actor-list">
       ${actorCheckboxes}
     </ul>
 
-    <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
+    <hr role="separator" class="cod-separator">
 
-    <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;margin-top:6px;">
-      <label for="cod-progress-reason" style="margin:0;"><strong>🗂️ Motivo</strong>:</label>
+    <div class="cod-form-row">
+      <label for="cod-progress-reason" class="cod-field-label"><strong>🗂️ Motivo</strong>:</label>
 
-      <select id="cod-progress-reason" name="input.reason" class="cod-reason-select" style="margin:0;width:auto;min-width:220px;">
+      <select id="cod-progress-reason" name="input.reason" class="cod-reason-select">
         <optgroup label="Beat">
           <option value="beat:Presença">📆 Presença</option>
           <option value="beat:Aspiração">⌛ Aspiração</option>
@@ -2528,21 +3754,10 @@ export class ActorMtA extends Actor {
       </select>
     </div>
 
-    <div class="cod-presence-all-group" style="display:none;margin-top:10px;">
-      <ul style="display:grid;grid-template-columns:1fr;row-gap:6px;margin:0;padding:0;list-style:none;">
-        <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-          <label for="cod-presence-all" style="margin:0;">Todos presentes?</label>
-          <label class="equipped checkBox" for="cod-presence-all">
-            <input id="cod-presence-all" type="checkbox" class="cod-presence-all-checkbox" checked>
-            <span></span>
-          </label>
-        </li>
-      </ul>
-    </div>
+    <div class="cod-custom-group" hidden>
+      <div class="cod-form-row">
+        <label for="cod-custom-reason" class="cod-field-label"><strong>📋 Descrição:</strong></label>
 
-    <div class="cod-custom-group" style="display:none;margin-top:10px;">
-      <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;">
-        <label for="cod-custom-reason" style="margin:0;">📋 Descrição:</label>
         <input
           id="cod-custom-reason"
           type="text"
@@ -2550,74 +3765,39 @@ export class ActorMtA extends Actor {
           class="attribute-specialty cod-custom-reason"
           disabled
           placeholder="Descreva o motivo"
-          style="margin:0;min-width:220px;"
         />
       </div>
     </div>
 
     <div class="cod-amount-group">
-      <div class="cod-amount-number" style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;margin-top:10px;">
-        <label for="cod-progress-amount" style="margin:0;"><strong>#️⃣ Quantidade de Beats</strong>:</label>
+      <div class="cod-amount-number cod-form-row">
+        <label for="cod-progress-amount" class="cod-field-label"><strong>#️⃣ Quantidade de Beats</strong>:</label>
 
         <input
           id="cod-progress-amount"
           type="number"
-          class="attribute-value"
+          class="attribute-value cod-number-input"
           name="input.amount"
           data-dtype="Number"
           min="0"
           value="1"
-          style="margin:0;width:84px;padding:2px 6px;text-align:right;"
         />
       </div>
 
-      <div class="cod-amount-aspiration" style="display:none;grid-template-columns:1fr auto;align-items:center;column-gap:12px;margin-top:10px;">
-        <p style="margin:0;">Aspiração:</p>
+      <div class="cod-amount-aspiration" hidden>
+        <p><strong>#️⃣ Tipo de Aspiração:</strong></p>
 
-        <ul style="
-          display:grid;
-          grid-template-columns:1fr;
-          row-gap:4px;
-          margin:0;
-          padding:0;
-          list-style:none;
-          min-width:120px;
-        ">
-          <li
-            class="item-row mta-native-radio cod-aspiration-choice"
-            data-radio-group="input.aspirationMode"
-            style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;cursor:pointer;"
-          >
-            <label for="cod-aspiration-double" style="margin:0;cursor:pointer;">Dupla</label>
-            <span class="cell" style="padding:0;">
-              <i class="activeIcon fas fa-dot-circle"></i>
-            </span>
-            <input
-              id="cod-aspiration-double"
-              type="radio"
-              name="input.aspirationMode"
-              value="double"
-              checked
-              style="display:none;"
-            >
+        <ul class="cod-aspiration-list">
+          <li class="item-row mta-native-radio cod-aspiration-choice" data-radio-group="input.aspirationMode" data-checked="1" data-disabled="0">
+            <label for="cod-aspiration-double" class="cod-field-label cod-clickable-label">Dupla</label>
+            <span class="cell cod-radio-icon-cell"><i class="activeIcon fas fa-dot-circle"></i></span>
+            <input id="cod-aspiration-double" type="radio" name="input.aspirationMode" value="double" checked class="cod-hidden-radio">
           </li>
 
-          <li
-            class="item-row mta-native-radio cod-aspiration-choice"
-            data-radio-group="input.aspirationMode"
-            style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;cursor:pointer;"
-          >
-            <label for="cod-aspiration-single" style="margin:0;cursor:pointer;">Única</label>
-            <span class="cell" style="padding:0;">
-              <i class="activeIcon far fa-circle" style="visibility:visible;"></i>
-            </span>
-            <input
-              id="cod-aspiration-single"
-              type="radio"
-              name="input.aspirationMode"
-              value="single"
-              style="display:none;"
-            >
+          <li class="item-row mta-native-radio cod-aspiration-choice" data-radio-group="input.aspirationMode" data-checked="0" data-disabled="0">
+            <label for="cod-aspiration-single" class="cod-field-label cod-clickable-label">Única</label>
+            <span class="cell cod-radio-icon-cell"><i class="activeIcon far fa-circle"></i></span>
+            <input id="cod-aspiration-single" type="radio" name="input.aspirationMode" value="single" class="cod-hidden-radio">
           </li>
         </ul>
       </div>
@@ -2626,242 +3806,113 @@ export class ActorMtA extends Actor {
   </div>
 </form>
 `;
+  }
+
+  _codProgressBindDialog(html, dialog) {
+    const refs = {
+      selectAllCheckbox: html.find(".cod-select-all-checkbox"),
+      actorCheckboxes: html.find(".cod-actor-checkbox"),
+      reasonSelect: html.find(".cod-reason-select"),
+      customInput: html.find(".cod-custom-reason"),
+      customGroup: html.find(".cod-custom-group"),
+      amountNumberWrap: html.find(".cod-amount-number"),
+      amountAspWrap: html.find(".cod-amount-aspiration"),
+      aspirationRadios: html.find("input[name='input.aspirationMode']")
+    };
+
+    refs.selectAllCheckbox.on("change", () => this._codSyncSelectAll(refs));
+    refs.reasonSelect.on("change", () => this._codProgressUpdateDynamicSections(html, dialog, refs));
+
+    this._codBindNativeRadioGroup(html, "input.aspirationMode");
+    this._codSyncSelectAll(refs);
+    this._codProgressUpdateDynamicSections(html, dialog, refs);
+  }
+
+  _codProgressParseReason(value) {
+    const [kind = "", key = ""] = String(value ?? "").split(":");
+    return { kind, key };
+  }
+
+  _codProgressUpdateDynamicSections(html, dialog, refs) {
+    const { key } = this._codProgressParseReason(refs.reasonSelect.val());
+    const isCustom = key === "custom";
+    const isAspiration = key === "Aspiração";
+
+    refs.customGroup.prop("hidden", !isCustom);
+    refs.customInput.prop("disabled", !isCustom);
+    if (!isCustom) refs.customInput.val("");
+
+    refs.amountNumberWrap.prop("hidden", isAspiration);
+    refs.amountAspWrap.prop("hidden", !isAspiration);
+
+    if (isAspiration && !refs.aspirationRadios.filter(":checked").length) {
+      refs.aspirationRadios.filter("[value='double']").prop("checked", true);
+    }
+
+    if (isAspiration) this._codSyncNativeRadioGroup(html, "input.aspirationMode");
+    this._codResizeDialogToFit(dialog, "form.cod-progress-dialog");
+  }
+
+  _codProgressSubmit(html, actorsById) {
+    const actorIds = this._codGetSelectedActorIds(html);
+
+    if (!actorIds.length) {
+      ui.notifications.warn("Selecione pelo menos um personagem.");
+      return false;
+    }
+
+    const reasonValue = html.find("select[name='input.reason']").val();
+
+    if (!reasonValue) {
+      ui.notifications.warn("Selecione um motivo.");
+      return false;
+    }
+
+    const { kind, key } = this._codProgressParseReason(reasonValue);
+    const isArcane = kind === "arcane";
+    const isCustom = key === "custom";
+    let amount = 0;
+
+    if (key === "Aspiração") {
+      const mode = html.find("input[name='input.aspirationMode']:checked").val() || "double";
+      amount = mode === "double" ? 2 : 1;
+    } else {
+      amount = Number(html.find("input[name='input.amount']").val()) || 0;
+
+      if (amount < 0) {
+        ui.notifications.warn("Informe uma quantidade de Beats válida.");
+        return false;
+      }
+    }
+
+    const customReason = String(html.find("input[name='input.customReason']").val() ?? "").trim();
+
+    if (isCustom && !customReason) {
+      ui.notifications.warn("Preencha o motivo personalizado.");
+      return false;
+    }
+
+    const reasonLabel = isCustom ? customReason : key;
+    const name = `${this._codGetDateLabel()} - ${reasonLabel}`;
+    this._codApplyProgressToActors(actorIds, actorsById, name, isArcane ? 0 : amount, isArcane ? amount : 0);
+  }
+
+  spendProgressDialogue() {
+    const ownedActors = this._codGetPlayerCharacterActors();
+    const actorsById = new Map(ownedActors.map(actor => [actor.id, actor]));
+    const content = this._codSpendBuildDialogContent(ownedActors);
 
     let d;
+
     d = new Dialog({
-      title: "➕ Adicionar Experiência",
+      title: "➖ Gastar Experiência",
       content,
-      render: html => {
-        const reasonSelect = html.find(".cod-reason-select");
-        const customInput = html.find(".cod-custom-reason");
-        const customGroup = html.find(".cod-custom-group");
-
-        const presenceAllGroup = html.find(".cod-presence-all-group");
-        const presenceAllCheckbox = html.find(".cod-presence-all-checkbox");
-        const actorCheckboxes = html.find(".cod-actor-checkbox");
-
-        const amountNumberWrap = html.find(".cod-amount-number");
-        const amountAspWrap = html.find(".cod-amount-aspiration");
-        const aspirationRadios = html.find("input[name='input.aspirationMode']");
-
-        function syncNativeRadioGroup(groupName) {
-          const rows = html.find(`.mta-native-radio[data-radio-group="${groupName}"]`);
-
-          rows.each((i, rowEl) => {
-            const row = $(rowEl);
-            const input = row.find("input[type='radio']");
-            const icon = row.find(".activeIcon");
-            const checked = input.prop("checked");
-
-            if (checked) {
-              icon
-                .removeClass("far fa-circle")
-                .addClass("fas fa-dot-circle")
-                .css("visibility", "visible");
-
-              row.css("opacity", "1");
-            } else {
-              icon
-                .removeClass("fas fa-dot-circle")
-                .addClass("far fa-circle")
-                .css("visibility", "visible");
-
-              row.css("opacity", "0.72");
-            }
-          });
-        }
-
-        function bindNativeRadioGroup(groupName) {
-          const rows = html.find(`.mta-native-radio[data-radio-group="${groupName}"]`);
-
-          rows.on("click", event => {
-            const row = $(event.currentTarget);
-            const input = row.find("input[type='radio']");
-
-            if (input.prop("disabled")) return;
-
-            rows.find("input[type='radio']").prop("checked", false);
-            input.prop("checked", true).trigger("change");
-
-            syncNativeRadioGroup(groupName);
-          });
-
-          rows.find("input[type='radio']").on("change", () => {
-            syncNativeRadioGroup(groupName);
-          });
-
-          syncNativeRadioGroup(groupName);
-        }
-
-        function toggleCustom() {
-          const value = reasonSelect.val() || "";
-          const isCustom = value.endsWith(":custom");
-
-          if (isCustom) {
-            customGroup.show();
-            customInput.prop("disabled", false);
-          } else {
-            customGroup.hide();
-            customInput.prop("disabled", true).val("");
-          }
-        }
-
-        function applyPresenceAll() {
-          const value = reasonSelect.val() || "";
-          const isPresence = (value === "beat:Presença");
-          const allPresent = presenceAllCheckbox.prop("checked");
-
-          if (isPresence && allPresent) {
-            actorCheckboxes.prop("checked", true).prop("disabled", true);
-            actorCheckboxes.closest(".cod-check-row").css("opacity", "0.65");
-          } else {
-            actorCheckboxes.prop("disabled", false);
-            actorCheckboxes.closest(".cod-check-row").css("opacity", "1");
-          }
-        }
-
-        function togglePresenceUI() {
-          const value = reasonSelect.val() || "";
-          const isPresence = (value === "beat:Presença");
-          const wasVisible = presenceAllGroup.is(":visible");
-
-          if (isPresence) {
-            presenceAllGroup.show();
-
-            if (!wasVisible) {
-              presenceAllCheckbox.prop("checked", true);
-            }
-          } else {
-            presenceAllGroup.hide();
-            presenceAllCheckbox.prop("checked", false);
-          }
-
-          applyPresenceAll();
-        }
-
-        function toggleAmountUI() {
-          const value = reasonSelect.val() || "";
-          const parts = value.split(":");
-          const key = parts[1] || "";
-
-          const isAspiration = (key === "Aspiração");
-
-          if (isAspiration) {
-            amountNumberWrap.hide();
-            amountAspWrap.css("display", "grid");
-
-            if (!aspirationRadios.filter(":checked").length) {
-              aspirationRadios.filter("[value='double']").prop("checked", true);
-            }
-
-            syncNativeRadioGroup("input.aspirationMode");
-          } else {
-            amountAspWrap.hide();
-            amountNumberWrap.show();
-          }
-        }
-
-        reasonSelect.on("change", () => {
-          toggleCustom();
-          togglePresenceUI();
-          toggleAmountUI();
-          resizeToFit();
-        });
-
-        presenceAllCheckbox.on("change", () => {
-          applyPresenceAll();
-          resizeToFit();
-        });
-
-        function resizeToFit() {
-          requestAnimationFrame(() => {
-            if (!d?.element?.length) return;
-
-            const appEl = d.element;
-            const headerH = appEl.find(".window-header").outerHeight(true) || 0;
-
-            const contentEl = appEl.find(".window-content")[0];
-            const contentH = contentEl ? contentEl.scrollHeight : 0;
-
-            d.setPosition({ height: headerH + contentH + 8 });
-          });
-        }
-
-        bindNativeRadioGroup("input.aspirationMode");
-
-        toggleCustom();
-        togglePresenceUI();
-        toggleAmountUI();
-        resizeToFit();
-      },
+      render: html => this._codSpendBindDialog(html, d),
       buttons: {
         ok: {
           icon: '<i class="fas fa-check"></i>',
           label: "Confirmar",
-          callback: html => {
-            const actorIds = html.find(".cod-actor-checkbox:checked")
-              .map((i, el) => el.value)
-              .get();
-
-            if (!actorIds.length) {
-              ui.notifications.warn("Selecione pelo menos um personagem.");
-              return false;
-            }
-
-            const reasonValue = html.find("select[name='input.reason']").val();
-
-            if (!reasonValue) {
-              ui.notifications.warn("Selecione um motivo.");
-              return false;
-            }
-
-            const parts = reasonValue.split(":");
-            const kind = parts[0];
-            const key = parts[1];
-            const isArcane = (kind === "arcane");
-            const isCustom = (key === "custom");
-
-            let amount = 0;
-
-            if (key === "Aspiração") {
-              const mode = html.find("input[name='input.aspirationMode']:checked").val() || "double";
-              amount = (mode === "double") ? 2 : 1;
-            } else {
-              amount = Number(html.find("input[name='input.amount']").val()) || 0;
-
-              if (amount < 0) {
-                ui.notifications.warn("Informe uma quantidade de Beats válida.");
-                return false;
-              }
-            }
-
-            let customReason = html.find("input[name='input.customReason']").val();
-            if (customReason) customReason = customReason.trim();
-
-            if (isCustom && !customReason) {
-              ui.notifications.warn("Preencha o motivo personalizado.");
-              return false;
-            }
-
-            const today = new Date();
-            const day = String(today.getDate()).padStart(2, "0");
-            const month = String(today.getMonth() + 1).padStart(2, "0");
-            const year = String(today.getFullYear()).slice(-2);
-            const dateStr = `${day}/${month}/${year}`;
-
-            const reasonLabel = isCustom ? customReason : key;
-            const name = `${dateStr} - ${reasonLabel}`;
-
-            for (const id of actorIds) {
-              const actor = game.actors.get(id);
-              if (!actor || typeof actor.addProgress !== "function") continue;
-
-              const beats = isArcane ? 0 : amount;
-              const arcaneBeats = isArcane ? amount : 0;
-
-              actor.addProgress(name, beats, arcaneBeats);
-            }
-          }
+          callback: html => this._codSpendSubmit(html, actorsById)
         },
         cancel: {
           icon: '<i class="fas fa-times"></i>',
@@ -2874,75 +3925,44 @@ export class ActorMtA extends Actor {
     d.render(true);
   }
 
-  spendProgressDialogue() {
-    const escapeHTML = (value) => {
-      const div = document.createElement("div");
-      div.innerText = String(value ?? "");
-      return div.innerHTML;
-    };
+  _codSpendBuildDialogContent(ownedActors) {
+    const actorCheckboxes = this._codBuildActorList(ownedActors, "cod-spend");
+    const selectAllDisabled = ownedActors.length ? "" : "disabled";
 
-    // Personagem principal de cada jogador (exclui GM)
-    const ownedActors = [...new Set(
-      game.users.players
-        .map(u => u.character)
-        .filter(a => !!a)
-    )];
+    return `
+<form class="mta-sheet mta-dialogue cod-progress-dialog cod-spend-dialog">
+  <div class="ms-wrap">
 
-    const actorCheckboxes = ownedActors.length
-      ? ownedActors.map(a => {
-        const inputId = `cod-spend-actor-${a.id}`;
+    <div class="cod-actor-header">
+      <span></span>
 
-        return `
-        <li class="cod-check-row" style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-          <label for="${inputId}" style="margin:0;">${escapeHTML(a.name)}</label>
-          <label class="equipped checkBox" for="${inputId}">
-            <input id="${inputId}" type="checkbox" class="cod-actor-checkbox" value="${a.id}">
-            <span></span>
-          </label>
-        </li>
-      `;
-      }).join("")
-      : `
-      <li style="padding:2px 0;">
-        <p style="margin:0;">Nenhum personagem principal de jogador encontrado.</p>
-      </li>
-    `;
+      <legend class="cod-title">
+        <strong>👤 Personagens</strong>
+      </legend>
 
-    const content = `
-<form class="mta-sheet mta-dialogue cod-progress-dialog">
-  <div class="ms-wrap" style="padding:12px 14px 16px;">
+      <div class="cod-select-all-wrap">
+        <label for="cod-spend-select-all" class="cod-select-all-label">✔️</label>
 
-    <legend class="ms-title" style="display:block;width:100%;text-align:center;margin:0 0 8px;">
-      <strong>👤 Personagens</strong>
-    </legend>
+        <label class="equipped checkBox" for="cod-spend-select-all">
+          <input id="cod-spend-select-all" type="checkbox" class="cod-select-all-checkbox" ${selectAllDisabled}>
+          <span></span>
+        </label>
+      </div>
+    </div>
 
-    <ul class="cod-actor-list" style="
-      display:grid;
-      grid-template-columns:1fr;
-      row-gap:6px;
-      margin:0;
-      padding:0;
-      list-style:none;
-    ">
+    <ul class="cod-actor-list">
       ${actorCheckboxes}
     </ul>
 
-    <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
+    <hr role="separator" class="cod-separator">
 
-    <legend class="ms-title" style="display:block;width:100%;text-align:center;margin:0 0 8px;">
+    <legend class="cod-title cod-section-title">
       <strong>🔀 Modo de compra</strong>
     </legend>
 
-    <ul style="
-      display:grid;
-      grid-template-columns:1fr;
-      row-gap:6px;
-      margin:0;
-      padding:0;
-      list-style:none;
-    ">
-      <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <label for="cod-spend-mixed" style="margin:0;">💱 Compra mista?</label>
+    <ul class="cod-mode-list">
+      <li class="cod-check-row">
+        <label for="cod-spend-mixed" class="cod-field-label">💱 Compra mista?</label>
         <label class="equipped checkBox" for="cod-spend-mixed">
           <input id="cod-spend-mixed" type="checkbox" name="input.mixed">
           <span></span>
@@ -2950,356 +3970,198 @@ export class ActorMtA extends Actor {
       </li>
     </ul>
 
-    <div class="cod-type-fields" style="margin-top:10px;">
-      <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px;">
-        <p style="margin:0;">🎖️ Tipo de Beats:</p>
+    <div class="cod-type-fields">
+      <div class="cod-type-layout">
+        <p>🎖️ Tipo de Beats:</p>
 
-        <ul style="
-          display:grid;
-          grid-template-columns:1fr;
-          row-gap:4px;
-          margin:0;
-          padding:0;
-          list-style:none;
-          min-width:120px;
-        ">
-          <li
-            class="item-row mta-native-radio cod-type-choice"
-            data-radio-group="input.type"
-            style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;cursor:pointer;"
-          >
-            <label for="cod-spend-type-beat" style="margin:0;cursor:pointer;">Comuns</label>
-            <span class="cell" style="padding:0;">
-              <i class="activeIcon fas fa-dot-circle"></i>
-            </span>
-            <input
-              id="cod-spend-type-beat"
-              type="radio"
-              name="input.type"
-              value="beat"
-              checked
-              style="display:none;"
-            >
+        <ul class="cod-type-list">
+          <li class="item-row mta-native-radio cod-type-choice" data-radio-group="input.type" data-checked="1" data-disabled="0">
+            <label for="cod-spend-type-beat" class="cod-field-label cod-clickable-label">Comuns</label>
+            <span class="cell cod-radio-icon-cell"><i class="activeIcon fas fa-dot-circle"></i></span>
+            <input id="cod-spend-type-beat" type="radio" name="input.type" value="beat" checked class="cod-hidden-radio">
           </li>
 
-          <li
-            class="item-row mta-native-radio cod-type-choice"
-            data-radio-group="input.type"
-            style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;cursor:pointer;"
-          >
-            <label for="cod-spend-type-arcane" style="margin:0;cursor:pointer;">Arcanos</label>
-            <span class="cell" style="padding:0;">
-              <i class="activeIcon far fa-circle" style="visibility:visible;"></i>
-            </span>
-            <input
-              id="cod-spend-type-arcane"
-              type="radio"
-              name="input.type"
-              value="arcane"
-              style="display:none;"
-            >
+          <li class="item-row mta-native-radio cod-type-choice" data-radio-group="input.type" data-checked="0" data-disabled="0">
+            <label for="cod-spend-type-arcane" class="cod-field-label cod-clickable-label">Arcanos</label>
+            <span class="cell cod-radio-icon-cell"><i class="activeIcon far fa-circle"></i></span>
+            <input id="cod-spend-type-arcane" type="radio" name="input.type" value="arcane" class="cod-hidden-radio">
           </li>
         </ul>
       </div>
     </div>
 
-    <div class="cod-xp-fields" style="margin-top:10px;">
-      <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;">
-        <label for="cod-spend-xp" style="margin:0;">🆙 Pontos de XP:</label>
-
-        <input
-          id="cod-spend-xp"
-          type="number"
-          class="attribute-value"
-          name="input.amount"
-          data-dtype="Number"
-          min="0"
-          value="1"
-          style="margin:0;width:84px;padding:2px 6px;text-align:right;"
-        />
+    <div class="cod-xp-fields">
+      <div class="cod-form-row">
+        <label for="cod-spend-xp" class="cod-field-label">🆙 Pontos de XP:</label>
+        <input id="cod-spend-xp" type="number" class="attribute-value cod-number-input" name="input.amount" data-dtype="Number" min="0" value="1" />
       </div>
     </div>
 
-    <div class="cod-mixed-fields" style="display:none;margin-top:10px;">
-      <legend class="ms-title" style="display:block;width:100%;text-align:center;margin:0 0 8px;">
+    <hr class="cod-mixed-separator cod-separator" role="separator" hidden>
+
+    <div class="cod-mixed-fields" hidden>
+      <legend class="cod-title cod-section-title">
         <strong>💸 Beats gastos</strong>
       </legend>
 
-      <ul style="
-        display:grid;
-        grid-template-columns:1fr;
-        row-gap:6px;
-        margin:0;
-        padding:0;
-        list-style:none;
-      ">
-        <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-          <label for="cod-spend-beats-common" style="margin:0;">Comuns:</label>
-          <input
-            id="cod-spend-beats-common"
-            type="number"
-            class="attribute-value"
-            name="input.beatsCommon"
-            data-dtype="Number"
-            min="0"
-            value="0"
-            style="margin:0;width:84px;padding:2px 6px;text-align:right;"
-          />
+      <ul class="cod-mixed-list">
+        <li class="cod-form-row cod-compact-row">
+          <label for="cod-spend-beats-common" class="cod-field-label">Comuns:</label>
+          <input id="cod-spend-beats-common" type="number" class="attribute-value cod-number-input" name="input.beatsCommon" data-dtype="Number" min="0" value="0" />
         </li>
 
-        <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-          <label for="cod-spend-beats-arcane" style="margin:0;">Arcanos:</label>
-          <input
-            id="cod-spend-beats-arcane"
-            type="number"
-            class="attribute-value"
-            name="input.beatsArcane"
-            data-dtype="Number"
-            min="0"
-            value="0"
-            style="margin:0;width:84px;padding:2px 6px;text-align:right;"
-          />
+        <li class="cod-form-row cod-compact-row">
+          <label for="cod-spend-beats-arcane" class="cod-field-label">Arcanos:</label>
+          <input id="cod-spend-beats-arcane" type="number" class="attribute-value cod-number-input" name="input.beatsArcane" data-dtype="Number" min="0" value="0" />
         </li>
       </ul>
 
-      <p class="cod-mixed-summary" style="font-size:0.9em;opacity:0.8;margin:8px 0 0;text-align:center;">
-        Total: 0 Beats = 0 XP
-      </p>
+      <p class="cod-mixed-summary">Total: 0 Beats = 0 XP</p>
     </div>
 
-    <hr role="separator" style="border:0;border-top:1px solid #d59861e6;margin:12px 0 12px;">
+    <hr role="separator" class="cod-separator">
 
-    <div style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;">
-      <label for="cod-spend-custom-reason" style="margin:0;"><strong>🛍️ Compra</strong>:</label>
-
-      <input
-        id="cod-spend-custom-reason"
-        type="text"
-        name="input.customReason"
-        class="attribute-specialty cod-custom-reason"
-        placeholder="Descreva o gasto"
-        style="margin:0;min-width:220px;"
-      />
+    <div class="cod-form-row">
+      <label for="cod-spend-custom-reason" class="cod-field-label"><strong>🛍️ Compra</strong>:</label>
+      <input id="cod-spend-custom-reason" type="text" name="input.customReason" class="attribute-specialty cod-custom-reason" placeholder="Descreva o gasto" />
     </div>
 
   </div>
 </form>
 `;
+  }
 
-    let d;
-    d = new Dialog({
-      title: "➖ Gastar Experiência",
-      content,
-      render: html => {
-        const mixedCheckbox = html.find("input[name='input.mixed']");
-        const xpFields = html.find(".cod-xp-fields");
-        const mixedFields = html.find(".cod-mixed-fields");
-        const xpTypeRadios = html.find("input[name='input.type']");
-        const xpTypeGroup = html.find(".cod-type-fields");
-        const beatsCommonInput = html.find("input[name='input.beatsCommon']");
-        const beatsArcaneInput = html.find("input[name='input.beatsArcane']");
-        const mixedSummary = html.find(".cod-mixed-summary");
+  _codSpendBindDialog(html, dialog) {
+    const refs = {
+      selectAllCheckbox: html.find(".cod-select-all-checkbox"),
+      actorCheckboxes: html.find(".cod-actor-checkbox"),
+      mixedCheckbox: html.find("input[name='input.mixed']"),
+      xpFields: html.find(".cod-xp-fields"),
+      mixedFields: html.find(".cod-mixed-fields"),
+      mixedSeparator: html.find(".cod-mixed-separator"),
+      xpTypeRadios: html.find("input[name='input.type']"),
+      xpTypeGroup: html.find(".cod-type-fields"),
+      beatsCommonInput: html.find("input[name='input.beatsCommon']"),
+      beatsArcaneInput: html.find("input[name='input.beatsArcane']"),
+      mixedSummary: html.find(".cod-mixed-summary")
+    };
 
-        function syncNativeRadioGroup(groupName) {
-          const rows = html.find(`.mta-native-radio[data-radio-group="${groupName}"]`);
+    refs.selectAllCheckbox.on("change", () => this._codSyncSelectAll(refs));
+    refs.mixedCheckbox.on("change", () => {
+      this._codSpendUpdateMode(html, dialog, refs);
+      this._codSpendUpdateMixedSummary(refs);
+    });
+    refs.beatsCommonInput.on("input", () => this._codSpendUpdateMixedSummary(refs));
+    refs.beatsArcaneInput.on("input", () => this._codSpendUpdateMixedSummary(refs));
 
-          rows.each((i, rowEl) => {
-            const row = $(rowEl);
-            const input = row.find("input[type='radio']");
-            const icon = row.find(".activeIcon");
-            const checked = input.prop("checked");
-            const disabled = input.prop("disabled");
+    this._codBindNativeRadioGroup(html, "input.type");
+    this._codSyncSelectAll(refs);
+    this._codSpendUpdateMode(html, dialog, refs);
+    this._codSpendUpdateMixedSummary(refs);
+    this._codResizeDialogToFit(dialog, "form.cod-progress-dialog");
+  }
 
-            if (checked) {
-              icon
-                .removeClass("far fa-circle")
-                .addClass("fas fa-dot-circle")
-                .css("visibility", "visible");
+  _codSpendUpdateMode(html, dialog, refs) {
+    const mixed = refs.mixedCheckbox.prop("checked");
 
-              row.css("opacity", disabled ? "0.45" : "1");
-            } else {
-              icon
-                .removeClass("fas fa-dot-circle")
-                .addClass("far fa-circle")
-                .css("visibility", "visible");
+    refs.xpFields.prop("hidden", mixed);
+    refs.xpTypeGroup.prop("hidden", mixed);
+    refs.xpTypeRadios.prop("disabled", mixed);
+    refs.mixedSeparator.prop("hidden", !mixed);
+    refs.mixedFields.prop("hidden", !mixed);
 
-              row.css("opacity", disabled ? "0.35" : "0.72");
-            }
+    this._codSyncNativeRadioGroup(html, "input.type");
+    this._codResizeDialogToFit(dialog, "form.cod-progress-dialog");
+  }
 
-            row.css("cursor", disabled ? "default" : "pointer");
-          });
-        }
-
-        function bindNativeRadioGroup(groupName) {
-          const rows = html.find(`.mta-native-radio[data-radio-group="${groupName}"]`);
-
-          rows.on("click", event => {
-            const row = $(event.currentTarget);
-            const input = row.find("input[type='radio']");
-
-            if (input.prop("disabled")) return;
-
-            rows.find("input[type='radio']").prop("checked", false);
-            input.prop("checked", true).trigger("change");
-
-            syncNativeRadioGroup(groupName);
-          });
-
-          rows.find("input[type='radio']").on("change", () => {
-            syncNativeRadioGroup(groupName);
-          });
-
-          syncNativeRadioGroup(groupName);
-        }
-
-        function updateMode() {
-          const mixed = mixedCheckbox[0]?.checked;
-
-          if (mixed) {
-            xpFields.hide();
-            xpTypeGroup.hide();
-            xpTypeRadios.prop("disabled", true);
-            mixedFields.show();
-          } else {
-            xpFields.show();
-            xpTypeGroup.show();
-            xpTypeRadios.prop("disabled", false);
-            mixedFields.hide();
-          }
-
-          syncNativeRadioGroup("input.type");
-        }
-
-        function updateMixedSummary() {
-          const common = Number(beatsCommonInput.val()) || 0;
-          const arcane = Number(beatsArcaneInput.val()) || 0;
-          const totalBeats = common + arcane;
-          const xpEquivalent = totalBeats / 5;
-
-          const xpStr = xpEquivalent.toLocaleString("pt-BR", {
-            minimumFractionDigits: 1,
-            maximumFractionDigits: 2
-          });
-
-          mixedSummary.text(`Total: ${totalBeats} Beats = ${xpStr} XP`);
-        }
-
-        function resizeToFit() {
-          requestAnimationFrame(() => {
-            if (!d?.element?.length) return;
-
-            const appEl = d.element;
-            const headerH = appEl.find(".window-header").outerHeight(true) || 0;
-
-            const contentEl = appEl.find(".window-content")[0];
-            const contentH = contentEl ? contentEl.scrollHeight : 0;
-
-            d.setPosition({ height: headerH + contentH + 8 });
-          });
-        }
-
-        mixedCheckbox.on("change", () => {
-          updateMode();
-          updateMixedSummary();
-          resizeToFit();
-        });
-
-        beatsCommonInput.on("input", updateMixedSummary);
-        beatsArcaneInput.on("input", updateMixedSummary);
-
-        bindNativeRadioGroup("input.type");
-
-        updateMode();
-        updateMixedSummary();
-        resizeToFit();
-      },
-      buttons: {
-        ok: {
-          icon: '<i class="fas fa-check"></i>',
-          label: "Confirmar",
-          callback: html => {
-            const actorIds = html.find(".cod-actor-checkbox:checked")
-              .map((i, el) => el.value)
-              .get();
-
-            if (!actorIds.length) {
-              ui.notifications.warn("Selecione pelo menos um personagem.");
-              return false;
-            }
-
-            const mixed = html.find("input[name='input.mixed']")[0]?.checked;
-
-            let beats = 0;
-            let arcaneBeats = 0;
-
-            if (mixed) {
-              const common = Number(html.find("input[name='input.beatsCommon']").val()) || 0;
-              const arcane = Number(html.find("input[name='input.beatsArcane']").val()) || 0;
-
-              if (common <= 0 && arcane <= 0) {
-                ui.notifications.warn("Informe pelo menos alguns Beats comuns ou arcanos para a compra mista.");
-                return false;
-              }
-
-              beats = common > 0 ? -common : 0;
-              arcaneBeats = arcane > 0 ? -arcane : 0;
-            } else {
-              const xp = Number(html.find("input[name='input.amount']").val()) || 0;
-
-              if (xp <= 0) {
-                ui.notifications.warn("Informe uma quantidade de XP válida.");
-                return false;
-              }
-
-              const type = html.find("input[name='input.type']:checked").val();
-
-              if (!type) {
-                ui.notifications.warn("Selecione Beat ou Beat Arcano.");
-                return false;
-              }
-
-              const beatsSpent = -5 * xp;
-
-              if (type === "beat") {
-                beats = beatsSpent;
-              } else if (type === "arcane") {
-                arcaneBeats = beatsSpent;
-              }
-            }
-
-            let customReason = html.find("input[name='input.customReason']").val();
-            if (customReason) customReason = customReason.trim();
-
-            if (!customReason) {
-              ui.notifications.warn("Preencha o motivo personalizado do gasto.");
-              return false;
-            }
-
-            const today = new Date();
-            const day = String(today.getDate()).padStart(2, "0");
-            const month = String(today.getMonth() + 1).padStart(2, "0");
-            const year = String(today.getFullYear()).slice(-2);
-            const dateStr = `${day}/${month}/${year}`;
-
-            const name = `${dateStr} - ${customReason}`;
-
-            for (const id of actorIds) {
-              const actor = game.actors.get(id);
-              if (!actor || typeof actor.addProgress !== "function") continue;
-
-              actor.addProgress(name, beats, arcaneBeats);
-            }
-          }
-        },
-        cancel: {
-          icon: '<i class="fas fa-times"></i>',
-          label: "Cancelar"
-        }
-      },
-      default: "ok"
+  _codSpendUpdateMixedSummary(refs) {
+    const common = Number(refs.beatsCommonInput.val()) || 0;
+    const arcane = Number(refs.beatsArcaneInput.val()) || 0;
+    const totalBeats = common + arcane;
+    const xpEquivalent = totalBeats / 5;
+    const xpStr = xpEquivalent.toLocaleString("pt-BR", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 2
     });
 
-    d.render(true);
+    refs.mixedSummary.text(`Total: ${totalBeats} Beats = ${xpStr} XP`);
+  }
+
+  _codSpendSubmit(html, actorsById) {
+    const actorIds = this._codGetSelectedActorIds(html);
+
+    if (!actorIds.length) {
+      ui.notifications.warn("Selecione pelo menos um personagem.");
+      return false;
+    }
+
+    const mixed = html.find("input[name='input.mixed']").prop("checked");
+    let beats = 0;
+    let arcaneBeats = 0;
+
+    if (mixed) {
+      const common = Number(html.find("input[name='input.beatsCommon']").val()) || 0;
+      const arcane = Number(html.find("input[name='input.beatsArcane']").val()) || 0;
+
+      if (common <= 0 && arcane <= 0) {
+        ui.notifications.warn("Informe pelo menos alguns Beats comuns ou arcanos para a compra mista.");
+        return false;
+      }
+
+      beats = common > 0 ? -common : 0;
+      arcaneBeats = arcane > 0 ? -arcane : 0;
+    } else {
+      const xp = Number(html.find("input[name='input.amount']").val()) || 0;
+
+      if (xp <= 0) {
+        ui.notifications.warn("Informe uma quantidade de XP válida.");
+        return false;
+      }
+
+      const type = html.find("input[name='input.type']:checked").val();
+
+      if (!type) {
+        ui.notifications.warn("Selecione Beat ou Beat Arcano.");
+        return false;
+      }
+
+      const beatsSpent = -5 * xp;
+      if (type === "beat") beats = beatsSpent;
+      else if (type === "arcane") arcaneBeats = beatsSpent;
+    }
+
+    const customReason = String(html.find("input[name='input.customReason']").val() ?? "").trim();
+
+    if (!customReason) {
+      ui.notifications.warn("Preencha o motivo personalizado do gasto.");
+      return false;
+    }
+
+    this._codApplyProgressToActors(actorIds, actorsById, `${this._codGetDateLabel()} - ${customReason}`, beats, arcaneBeats);
+  }
+
+  callAmnion() {
+    const itemData = {
+      type: "condition",
+      name: "Amnion",
+      img: "systems/mta/icons/gui/macro-amnion.svg",
+      'system.effectsActive': true,
+      'system.effects': [
+        {
+          name: "derivedTraits.armor",
+          value: Math.min(this.system.mage_traits.gnosis.final, Math.max(...Object.values(this.system.arcana_subtle).map(arcanum => arcanum.value)))
+        },
+        {
+          name: "attributes_social_dream.finesse",
+          value: -2
+        },
+        {
+          name: "derivedTraits.defense",
+          value: -1
+        }
+      ]
+    }
+    return this.createEmbeddedDocuments("Item", [itemData]);
   }
 
   /**
