@@ -22,8 +22,6 @@ export class ImprovisedSpellDialogue extends FormApplication {
       else return ""
     });
 
-    // CÓDIGOS GPT
-
     if (!Handlebars.helpers.ptPrimary) {
       Handlebars.registerHelper('ptPrimary', function (raw) {
         const key = String(raw || "").trim().toLowerCase();
@@ -150,8 +148,6 @@ export class ImprovisedSpellDialogue extends FormApplication {
         return `${n} ${toPT(unit, n)}`;
       });
     }
-
-    // FIM DOS CÓDIGOS GPT
 
     this.effects = spell.system?.effects;
 
@@ -980,8 +976,6 @@ export class ImprovisedSpellDialogue extends FormApplication {
       }
     }
 
-    // CÓDIGOS GPT
-
     const H = Handlebars.helpers;
     const pt = {
       duration: v => (H.ptDuration ? H.ptDuration(v) : v),
@@ -1027,8 +1021,6 @@ export class ImprovisedSpellDialogue extends FormApplication {
           (spell.attainment_temporalSympathy ? " (Simpatia temporal)" : "")
       }
     ];
-
-    // FIM DOS CÓDIGOS GPT
 
 /*     data.spellFactors = [
       { name: game.i18n.localize('MTA.Potency'), value: data.potency.value, advanced: data.potency.isAdvanced, advString: data.potency.isAdvanced ? "(+2 withstand against dispell)" : "" },

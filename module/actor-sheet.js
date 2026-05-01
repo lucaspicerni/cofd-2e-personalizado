@@ -1325,7 +1325,6 @@ export class MtAActorSheet extends ActorSheet {
       this.actor.restorePattern();
     });    
 
-    // CÓDIGO GPT
     (() => {
       const $btn = html.find('.improvedRestorePatternButton');
       const $improved = html.find('.improvedRestorePatternButton');

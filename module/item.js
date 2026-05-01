@@ -529,8 +529,6 @@ export class ItemMtA extends Item {
         spellFactors[spellFactorsArray[i][0]] = { value: spellFactorsArray[i][1].trim(), isAdvanced: spellFactorsArray[i][2] };
       }
 
-      // --- ALIAS MAP: normaliza rótulos PT -> EN para chaves estáveis ---
-      // --- CÓDIGO GPT ---
       {
         const _safeMap = (entries) =>
           new Map(
@@ -744,8 +742,6 @@ export class ItemMtA extends Item {
         spellFactors[spellFactorsArray[i][0]] = { value: spellFactorsArray[i][1].trim(), isAdvanced: spellFactorsArray[i][2] };
       }
 
-      // --- ALIAS MAP: normaliza rótulos PT -> EN para chaves estáveis ---
-      // --- CÓDIGO GPT ---
       {
         const _safeMap = (entries) =>
           new Map(

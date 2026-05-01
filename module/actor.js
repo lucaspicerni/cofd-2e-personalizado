@@ -955,8 +955,6 @@ export class ActorMtA extends Actor {
     d.render(true);
   }
 
-  // CÓDIGO GPT
-
   openClashOfWillsDialogue() {
     const s = this.system || {};
     const gnosis = Number(s?.mage_traits?.gnosis?.final ?? s?.mage_traits?.gnosis?.value ?? 0);

@@ -92,12 +92,11 @@ export class DiceRollerDialogue extends Application {
     const ammoPerShot_input = html.find('[name="ammoPerShot"]');
 
     let dicePool_userMod = dicePool_userMod_input.length ? +dicePool_userMod_input[0].value : 0;
-    let explode_threshold = Math.max(0, +($('input[name=explodeThreshold]:checked').val()));
-    let rote_action = $('input[name=rote_action]').prop("checked");
-    let advancedAction = $('input[name=advancedAction]').prop("checked");
-    let extended = $('input[name=extended]').prop("checked");
+    let explode_threshold = Math.max(0, +(html.find('input[name=explodeThreshold]:checked').val() ?? 10));
+    let rote_action = html.find('input[name=rote_action]').prop("checked");
+    let advancedAction = html.find('input[name=advancedAction]').prop("checked");
+    let extended = html.find('input[name=extended]').prop("checked");
 
-    // CÓDIGO GPT
     const spendWillpower = html.find('input[name="spendWillpower"]')[0]?.checked ?? false;
 
     let dicePool_difficulty
@@ -114,12 +113,12 @@ export class DiceRollerDialogue extends Application {
     const automaticFireLabel = automaticFireInput.length
       ? String(automaticFireInput.data("label") ?? "")
       : "";
-    let applyArmor = $('input[name=applyArmor]').prop("checked");
-    let applyBallistic = $('input[name=applyBallistic]').prop("checked");
+    let applyArmor = html.find('input[name=applyArmor]').prop("checked");
+    let applyBallistic = html.find('input[name=applyBallistic]').prop("checked");
     let ignoreArmor = !applyArmor;
     let ignoreBallistic = !applyBallistic;
-    let noSuccessesToDamage = $('input[name=noSuccessesToDamage]').prop("checked");
-    let applyDefense = $('input[name=applyDefense]').prop("checked");
+    let noSuccessesToDamage = html.find('input[name=noSuccessesToDamage]').prop("checked");
+    let applyDefense = html.find('input[name=applyDefense]').prop("checked");
 
     // Fetch all specialties
     let specialties = [];
@@ -316,6 +315,27 @@ export class DiceRollerDialogue extends Application {
     return parsed;
   }
 
+  static _getAmmoValidationError({ spendAmmo = false, ammoPerShot = 0, itemRef = null } = {}) {
+    if (!spendAmmo || !ammoPerShot) return null;
+
+    if (!itemRef) {
+      return "Não foi possível verificar a munição: a arma não possui referência de item.";
+    }
+
+    if (!itemRef.system.magazine) {
+      return "A arma está sem munição!";
+    }
+
+    const ammo = Number(itemRef.system.magazine.system.quantity ?? 0);
+    const spent = Number(ammoPerShot ?? 0);
+
+    if (ammo - spent < 0) {
+      return "A arma não tem munição suficiente!";
+    }
+
+    return null;
+  }
+
   static _buildStructuredRollFlavor({
     baseFlavor = "Teste de habilidade",
     userMod = 0,
@@ -343,7 +363,6 @@ export class DiceRollerDialogue extends Application {
     const hasAdvancedAction = DiceRollerDialogue._isChecked(advancedAction);
     const hasExtended = DiceRollerDialogue._isChecked(extended);
     const hasSpendWillpower = DiceRollerDialogue._isChecked(spendWillpower);
-    const hasApplyDefense = DiceRollerDialogue._isChecked(applyDefense);
     const hasApplyArmor = DiceRollerDialogue._isChecked(applyArmor);
     const hasApplyBallistic = DiceRollerDialogue._isChecked(applyBallistic);
     const hasNoSuccessesToDamage = DiceRollerDialogue._isChecked(noSuccessesToDamage);
@@ -443,7 +462,17 @@ export class DiceRollerDialogue extends Application {
   async _executeRoll(html, ev) {
     const modifiers = this._fetchInputs(html);
 
-    // CÓDIGO GPT
+    const ammoValidationError = DiceRollerDialogue._getAmmoValidationError({
+      spendAmmo: this.spendAmmo,
+      ammoPerShot: modifiers.ammoPerShot,
+      itemRef: this.itemRef
+    });
+
+    if (ammoValidationError) {
+      ui.notifications.error(ammoValidationError);
+      return;
+    }
+
     const a = this.actor ?? this.actorOverride ?? null;
     const isCharacter = a?.type === "character";
 
@@ -465,7 +494,6 @@ export class DiceRollerDialogue extends Application {
 
     const roteAction = modifiers.rote_action;
 
-    // CÓDIGO GPT
     if (modifiers.spendWillpower) {
       const a = this.actor ?? this.actorOverride ?? null;
       const cur = Number(a?.system?.willpower?.value ?? 0);
@@ -478,11 +506,13 @@ export class DiceRollerDialogue extends Application {
       }
     }
 
-    //const explodeThreshold = modifiers.explode_threshold;
+    const effectiveDicePool =
+      this.damageRoll && modifiers.applyDefense
+        ? dicePool - Number(this.defense ?? 0)
+        : dicePool;
 
-    // CÓDIGO GPT
-    const isChanceDie = dicePool < 1;
-    const uiExplode = modifiers.explode_threshold;              // 8, 9, 10, 11(=None)
+    const isChanceDie = effectiveDicePool < 1;
+    const uiExplode = modifiers.explode_threshold;
     const explodeThreshold = isChanceDie ? 11 : uiExplode;
 
     const flavor = DiceRollerDialogue._buildStructuredRollFlavor({
@@ -750,7 +780,6 @@ export class DiceRollerDialogue extends Application {
     return msg;
   }
 
-  // CÓDIGO GPT
   static _normalizeChanceFlavorExact(flavor) {
     let out = flavor || "";
     const targets = [" (Explosão de 10)", " (Explosão de 9)", " (Explosão de 8)"];
@@ -803,6 +832,17 @@ export class DiceRollerDialogue extends Application {
     macro,
     actor
   }) {
+
+    const ammoValidationError = DiceRollerDialogue._getAmmoValidationError({
+      spendAmmo,
+      ammoPerShot,
+      itemRef
+    });
+
+    if (ammoValidationError) {
+      ui.notifications.error(ammoValidationError);
+      return;
+    }
 
     if (applyDefense) dicePool -= defense;
 
@@ -899,25 +939,14 @@ export class DiceRollerDialogue extends Application {
     }
 
     if (spendAmmo && ammoPerShot) {
-      if (itemRef) {
-        if (!itemRef.system.magazine) {
-          ui.notifications.error(`A arma está sem munição!`);
-          return;
-        }
-        let ammo = itemRef.system.magazine.system.quantity;
-        ammo -= ammoPerShot;
-        if (ammo < 0) {
-          ui.notifications.error(`A arma não tem munição suficiente!`);
-          return;
-        } else {
-          itemRef.update({
-            _id: itemRef.id,
-            'system.magazine.system.quantity': ammo
-          });
-        }
-      } else {
-        ui.notifications.warn(`No weapon reference was given (no ammo subtracted).`);
-      }
+      const ammo =
+        Number(itemRef.system.magazine.system.quantity ?? 0) -
+        Number(ammoPerShot ?? 0);
+
+      await itemRef.update({
+        _id: itemRef.id,
+        "system.magazine.system.quantity": ammo
+      });
     }
 
     //Create Roll Message
