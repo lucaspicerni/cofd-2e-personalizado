@@ -153,8 +153,6 @@ export class ItemMtA extends Item {
   async roll(target, quickRoll = false, { actorOverride, diceRollBonus = 0, exceptionalTarget = 5, additionalFlavor = "" } = {}) {
     // TODO: Combine item description and roll
 
-    if (this.type !== "combat_dice_pool") this.showChatCard();
-
     const actor = actorOverride ? actorOverride : this.actor;
 
     if (!actor) {
@@ -183,7 +181,16 @@ export class ItemMtA extends Item {
     }
 
     if (!traits.length && !diceBonus && this.type !== "combat_dice_pool" && this.type !== "general_dice_pool") {
-      if (macro) macro.execute({ actor: actor, token: actor.token ?? actor.getActiveTokens[0], item: this });
+      await this.showChatCard();
+
+      if (macro) {
+        macro.execute({
+          actor: actor,
+          token: actor.token ?? actor.getActiveTokens()[0],
+          item: this
+        });
+      }
+
       return;
     }
 
@@ -307,6 +314,10 @@ export class ItemMtA extends Item {
           actorOverride: actor,
           macro,
           actor: actor,
+          itemRef: this,
+          itemName: this.name,
+          itemImg: this.img,
+          itemDescr: this.system.description,
           comment: this.system.dicePool?.comment,
           exceptionalTarget
         });
@@ -546,7 +557,7 @@ export class ItemMtA extends Item {
           ["força de vontade", "Willpower"],
           ["forca de vontade", "Willpower"]
         ]);
-        
+
         const normalizeLabel = (label) => {
           if (!label) return label;
           const k = String(label).trim().toLowerCase();
@@ -615,21 +626,21 @@ export class ItemMtA extends Item {
           en1 = p1.replace(/\bsize\b/i, "Size");
         }
         const areaMapInv = {
-        "alcance do braço": "Arm's reach",
-        "cômodo pequeno": "Small room",
-        "comodo pequeno": "Small room",
-        "cômodo grande": "Large room",
-        "comodo grande": "Large room",
-        "um andar": "Single floor",
-        "casa pequena": "Small house",
-        "casa grande": "Large house",
-        "galpão pequeno": "Small warehouse",
-        "galpao pequeno": "Small warehouse",
-        "supermercado": "Supermarket",
-        "shopping": "Shopping mall",
-        "quarteirão": "City block",
-        "quarteirao": "City block",
-        "bairro pequeno": "Small neighborhood"
+          "alcance do braço": "Arm's reach",
+          "cômodo pequeno": "Small room",
+          "comodo pequeno": "Small room",
+          "cômodo grande": "Large room",
+          "comodo grande": "Large room",
+          "um andar": "Single floor",
+          "casa pequena": "Small house",
+          "casa grande": "Large house",
+          "galpão pequeno": "Small warehouse",
+          "galpao pequeno": "Small warehouse",
+          "supermercado": "Supermarket",
+          "shopping": "Shopping mall",
+          "quarteirão": "City block",
+          "quarteirao": "City block",
+          "bairro pequeno": "Small neighborhood"
         };
         let en2 = areaMapInv[parts[2]] || parts[2];
         en2 = en2.charAt(0).toUpperCase() + en2.slice(1);
@@ -761,7 +772,7 @@ export class ItemMtA extends Item {
           ["força de vontade", "Willpower"],
           ["forca de vontade", "Willpower"]
         ]);
-        
+
         const normalizeLabel = (label) => {
           if (!label) return label;
           const k = String(label).trim().toLowerCase();
@@ -817,21 +828,21 @@ export class ItemMtA extends Item {
           en1 = p1.replace(/\bsize\b/i, "Size");
         }
         const areaMapInv = {
-        "alcance do braço": "Arm's reach",
-        "cômodo pequeno": "Small room",
-        "comodo pequeno": "Small room",
-        "cômodo grande": "Large room",
-        "comodo grande": "Large room",
-        "um andar": "Single floor",
-        "casa pequena": "Small house",
-        "casa grande": "Large house",
-        "galpão pequeno": "Small warehouse",
-        "galpao pequeno": "Small warehouse",
-        "supermercado": "Supermarket",
-        "shopping": "Shopping mall",
-        "quarteirão": "City block",
-        "quarteirao": "City block",
-        "bairro pequeno": "Small neighborhood"
+          "alcance do braço": "Arm's reach",
+          "cômodo pequeno": "Small room",
+          "comodo pequeno": "Small room",
+          "cômodo grande": "Large room",
+          "comodo grande": "Large room",
+          "um andar": "Single floor",
+          "casa pequena": "Small house",
+          "casa grande": "Large house",
+          "galpão pequeno": "Small warehouse",
+          "galpao pequeno": "Small warehouse",
+          "supermercado": "Supermarket",
+          "shopping": "Shopping mall",
+          "quarteirão": "City block",
+          "quarteirao": "City block",
+          "bairro pequeno": "Small neighborhood"
         };
         let en2 = areaMapInv[parts[2]] || parts[2];
         en2 = en2.charAt(0).toUpperCase() + en2.slice(1);

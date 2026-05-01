@@ -4185,8 +4185,6 @@ export class ActorMtA extends Actor {
 
   /**
    * Removes a progress entry from the actor at a given position.
-   * Note, that the first entry (__INITIAL__) is not part of the progress array;
-   * the element coming after it has index 0.
    */
   removeProgress(index = 0) {
     const system = this.system;
@@ -4194,6 +4192,31 @@ export class ActorMtA extends Actor {
     progress.splice(index, 1);
     return this.update({
       'system.progress': progress
+    });
+  }
+
+  /**
+   * Updates a progress entry from the actor at a given position.
+   */
+  updateProgressEntry(index = 0, changes = {}) {
+    const progress = this.system.progress ? foundry.utils.duplicate(this.system.progress) : [];
+
+    if (!progress[index]) return;
+
+    if (Object.prototype.hasOwnProperty.call(changes, "name")) {
+      progress[index].name = String(changes.name ?? "").trim();
+    }
+
+    if (Object.prototype.hasOwnProperty.call(changes, "beats")) {
+      progress[index].beats = Number(changes.beats ?? 0);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(changes, "arcaneBeats")) {
+      progress[index].arcaneBeats = Number(changes.arcaneBeats ?? 0);
+    }
+
+    return this.update({
+      "system.progress": progress
     });
   }
 

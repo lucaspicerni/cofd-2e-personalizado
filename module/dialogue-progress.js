@@ -12,11 +12,6 @@ export class ProgressDialogue extends Application {
     Hooks.on("closeFullProgressDialogue", (app, ele) => {
       if (app === this._fullProgressDialogue) this._fullProgressDialogue = null;
     });
-
-    Handlebars.registerHelper('isInitial', value => {
-      let index = Math.max(0, this._actor.system.progress.length - 4) + value;
-      return index === 0;
-    });
   }
 
   /* -------------------------------------------- */
@@ -35,29 +30,39 @@ export class ProgressDialogue extends Application {
   getData() {
     const data = super.getData();
     data.actorData = this._actor.system;
-    data.progress = [{ name: "Início do jogo", beats: data.actorData.beats + 5 * data.actorData.experience, arcaneBeats: data.actorData.arcaneBeats + 5 * data.actorData.arcaneExperience }].concat(data.actorData.progress);
 
-    data.beats_total = data.progress.reduce((acc, cur) => {
-      return +cur.beats > 0 ? acc + +cur.beats : acc;
-    }, 0);
+    const progress = data.actorData.progress ?? [];
 
-    data.arcaneBeats_total = data.progress.reduce((acc, cur) => {
-      return +cur.arcaneBeats > 0 ? acc + +cur.arcaneBeats : acc;
-    }, 0);
+    const baseBeats =
+      Number(data.actorData.beats ?? 0) +
+      5 * Number(data.actorData.experience ?? 0);
 
-    data.beats = data.progress.reduce((acc, cur) => {
-      return acc + +cur.beats;
-    }, 0);
-    data.arcaneBeats = data.progress.reduce((acc, cur) => {
-      return acc + +cur.arcaneBeats;
-    }, 0);
+    const baseArcaneBeats =
+      Number(data.actorData.arcaneBeats ?? 0) +
+      5 * Number(data.actorData.arcaneExperience ?? 0);
+
+    data.beats_total = progress.reduce((acc, cur) => {
+      return Number(cur.beats ?? 0) > 0 ? acc + Number(cur.beats ?? 0) : acc;
+    }, Math.max(0, baseBeats));
+
+    data.arcaneBeats_total = progress.reduce((acc, cur) => {
+      return Number(cur.arcaneBeats ?? 0) > 0 ? acc + Number(cur.arcaneBeats ?? 0) : acc;
+    }, Math.max(0, baseArcaneBeats));
+
+    data.beats = progress.reduce((acc, cur) => {
+      return acc + Number(cur.beats ?? 0);
+    }, baseBeats);
+
+    data.arcaneBeats = progress.reduce((acc, cur) => {
+      return acc + Number(cur.arcaneBeats ?? 0);
+    }, baseArcaneBeats);
 
     const beatsKey = CONFIG.MTA.EXTRA_BEAT_CONFIG[data.actorData.characterType];
 
     data.extraBeatsName = beatsKey ? game.i18n.localize(beatsKey) : undefined;
     data.showExtraBeats = !!beatsKey;
-    data.progress = data.progress.slice(-5);
-    while (data.progress.length < 5) data.progress.push({ name: "" })
+    data.progress = progress.slice(-5);
+    while (data.progress.length < 5) data.progress.push({ name: "" });
     return data;
   }
 
@@ -76,8 +81,9 @@ export class ProgressDialogue extends Application {
   async onDeleteProgress(ev) {
     let index = Number(ev.currentTarget.dataset.index);
     index = Math.max(0, this._actor.system.progress.length - 5) + index;
-    if (this._actor.system.progress.length < 5) index -= 1;
+
     await this._actor.removeProgress(index);
+
     if (this._fullProgressDialogue) this._fullProgressDialogue.render();
     this.render();
   }
@@ -101,7 +107,7 @@ export class ProgressDialogue extends Application {
 
     const beatsToRemove = -5 * xp;
     const arcaneBeatsToRemove = -5 * arcaneXp;
-    
+
     await this._actor.addProgress(name, beatsToRemove, arcaneBeatsToRemove);
     if (this._fullProgressDialogue) this._fullProgressDialogue.render();
     this.render();
