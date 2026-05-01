@@ -1061,7 +1061,7 @@ export class ActorMtA extends Actor {
 
       ${canSpendWill ? `
       <li style="display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:8px;padding:2px 0;">
-        <p style="margin:0;"><b>⚡ Força de vontade</b></p>
+        <p style="margin:0;"><b>⚡ Força de Vontade</b></p>
         <label class="equipped checkBox" for="ms-mod-willpower">
           <input id="ms-mod-willpower" type="checkbox" name="willpower"><span></span>
         </label>
@@ -1123,7 +1123,7 @@ export class ActorMtA extends Actor {
             const flavorBase = `Choque de vontades: Gnose ${gnosis} + ${arcLabel} ${arcVal}`;
             const flavorMods = modsSum ? ` (fatores avançados: +${modsSum})` : "";
             const flavorGen = genericMod !== 0 ? ` (modificadores: ${genericMod})` : "";
-            const flavorWP = willSpent ? ` (Força de vontade)` : "";
+            const flavorWP = willSpent ? ` (Força de Vontade)` : "";
             const flavor = `${flavorBase}${flavorMods}${flavorGen}${flavorWP}`;
 
             // Rolagem

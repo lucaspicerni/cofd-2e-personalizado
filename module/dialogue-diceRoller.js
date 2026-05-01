@@ -61,8 +61,8 @@ export class DiceRollerDialogue extends Application {
     data.penalty = this.penalty;
     data.extended = this.extended;
     data.advancedAction = this.advancedAction;
-    data.ignoreArmor = this.ignoreArmor;
-    data.ignoreBallistic = this.ignoreBallistic;
+    data.applyArmor = !this.ignoreArmor;
+    data.applyBallistic = !this.ignoreBallistic;
     data.noSuccessesToDamage = this.noSuccessesToDamage;
     data.damageRoll = this.damageRoll;
     data.applyDefense = this.applyDefense;
@@ -105,8 +105,10 @@ export class DiceRollerDialogue extends Application {
     else dicePool_difficulty = 8;
 
     let ammoPerShot = ammoPerShot_input.length ? +ammoPerShot_input[0].value : 0;
-    let ignoreArmor = $('input[name=ignoreArmor]').prop("checked");
-    let ignoreBallistic = $('input[name=ignoreBallistic]').prop("checked");
+    let applyArmor = $('input[name=applyArmor]').prop("checked");
+    let applyBallistic = $('input[name=applyBallistic]').prop("checked");
+    let ignoreArmor = !applyArmor;
+    let ignoreBallistic = !applyBallistic;
     let noSuccessesToDamage = $('input[name=noSuccessesToDamage]').prop("checked");
     let applyDefense = $('input[name=applyDefense]').prop("checked");
 
@@ -204,20 +206,20 @@ export class DiceRollerDialogue extends Application {
     const uiExplode = modifiers.explode_threshold;              // 8, 9, 10, 11(=None)
     const explodeThreshold = isChanceDie ? 11 : uiExplode;
 
-    /*     if (dicePool < 1) flavor += " (Teste de sorte)";
-    if (explodeThreshold === 8) flavor += " (Explosão de 8+)";
-    else if (explodeThreshold === 9) flavor += " (Explosão de 9+)";
+    /*     if (dicePool < 1) flavor += " (Teste de Sorte)";
+    if (explodeThreshold === 8) flavor += " (Explosão de 8)";
+    else if (explodeThreshold === 9) flavor += " (Explosão de 9)";
     else if (explodeThreshold === 10) flavor += " (Explosão de 10)"; */
 
-    if (isChanceDie) flavor += " (Teste de sorte)";
+    if (isChanceDie) flavor += " (Teste de Sorte)";
     else {
-      if (explodeThreshold === 8) flavor += " (Explosão de 8+)";
-      else if (explodeThreshold === 9) flavor += " (Explosão de 9+)";
+      if (explodeThreshold === 8) flavor += " (Explosão de 8)";
+      else if (explodeThreshold === 9) flavor += " (Explosão de 9)";
       else if (explodeThreshold === 10) flavor += " (Explosão de 10)";
     }
 
-    if (modifiers.rote_action) flavor += " (Ação de rotina)";
-    if (modifiers.spendWillpower) flavor += " (Força de vontade)";
+    if (modifiers.rote_action) flavor += " (Ação de Rotina)";
+    if (modifiers.spendWillpower) flavor += " (Força de Vontade)";
 
     const targetNumber = Math.clamp(modifiers.dicePool_difficulty, 1, 10);
     const rollReturn = {};
@@ -286,11 +288,11 @@ export class DiceRollerDialogue extends Application {
     //Create Roll Message
     let speaker = ChatMessage.getSpeaker();
 
-    if (chanceDie) flavor += " (Teste de sorte)";
-    if (eightAgain) flavor += " (Explosão de 8+)";
-    else if (nineAgain) flavor += " (Explosão de 9+)";
+    if (chanceDie) flavor += " (Teste de Sorte)";
+    if (eightAgain) flavor += " (Explosão de 8)";
+    else if (nineAgain) flavor += " (Explosão de 9)";
     else if (tenAgain) flavor += " (Explosão de 10)";
-    if (roteAction) flavor += " (Ação de rotina)";
+    if (roteAction) flavor += " (Ação de Rotina)";
     if (!showFlavor) flavor = undefined;
 
     let chatData = {
@@ -459,12 +461,12 @@ export class DiceRollerDialogue extends Application {
   // CÓDIGO GPT
   static _normalizeChanceFlavorExact(flavor) {
     let out = flavor || "";
-    const targets = [" (Explosão de 10)", " (Explosão de 9+)", " (Explosão de 8+)"];
+    const targets = [" (Explosão de 10)", " (Explosão de 9)", " (Explosão de 8)"];
     for (const t of targets) {
       while (out.includes(t)) out = out.replace(t, "");
     }
 
-    if (!out.includes(" (Teste de sorte)")) out += " (Teste de sorte)";
+    if (!out.includes(" (Teste de Sorte)")) out += " (Teste de Sorte)";
     return out;
   }
 
