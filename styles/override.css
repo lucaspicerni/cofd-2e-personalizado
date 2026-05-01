@@ -1223,3 +1223,8 @@ form.paradox-builder-dialog .ph-effect-row[data-disabled="1"] {
   line-height: 1;
   text-align: center;
 }
+
+.automatic-fire-ammo-locked {
+  opacity: 0.3;
+  pointer-events: none;
+}

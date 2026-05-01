@@ -95,7 +95,7 @@
             {{/if}}
           </div>
         </dd>
-                {{#if specialties}}
+        {{#if specialties}}
         <dt>{{ localize "MTA.Specialties" }}:</dt>
         <dd>
           <div>
@@ -142,9 +142,39 @@
         </dd>
         {{/if}}
         {{#if spendAmmo}}
+        <dt>{{ localize "MTA.AutomaticFire" }}:</dt>
+        <dd>
+          <div>
+            <p>
+              <label class="checkBox marginR">
+                <input data-dtype="Boolean" class="automatic-fire-mode" name="autoFireShort" type="checkbox"
+                  data-ammo="3" data-bonus="1" data-label="{{ localize 'MTA.ShortBurst' }}">
+                <span>{{ localize "MTA.ShortBurst" }} (+1)</span>
+              </label>
+            </p>
+
+            <p>
+              <label class="checkBox marginR">
+                <input data-dtype="Boolean" class="automatic-fire-mode" name="autoFireMedium" type="checkbox"
+                  data-ammo="10" data-bonus="2" data-label="{{ localize 'MTA.MediumBurst' }}">
+                <span>{{ localize "MTA.MediumBurst" }} (+2)</span>
+              </label>
+            </p>
+
+            <p>
+              <label class="checkBox marginR">
+                <input data-dtype="Boolean" class="automatic-fire-mode" name="autoFireLong" type="checkbox"
+                  data-ammo="20" data-bonus="3" data-label="{{ localize 'MTA.LongBurst' }}">
+                <span>{{ localize "MTA.LongBurst" }} (+3)</span>
+              </label>
+            </p>
+          </div>
+        </dd>
+        {{/if}}
+        {{#if spendAmmo}}
         <dt>{{ localize "MTA.AmmoPerShot" }}:</dt>
         <dd>
-          <div class="niceNumber">
+          <div class="niceNumber ammo-per-shot-control">
             <div class="theNumber first"><input name="ammoPerShot" type="number" value="1"
                 onchange="this.value=Math.clamp(this.value,-99,99);"></div>
             <div class="numBtns">

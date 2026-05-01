@@ -1084,7 +1084,7 @@ export class ActorMtA extends Actor {
   `;
 
     new Dialog({
-      title: "🆚 Choque de vontades",
+      title: "🆚 Choque de Vontades",
       content,
       buttons: {
         confirm: {
@@ -1120,7 +1120,7 @@ export class ActorMtA extends Actor {
             // Pool e flavor (com arcano traduzido e tag de FV se usada)
             const dicePool = Math.max(0, gnosis + arcVal + durDice + advPot + willAdd + genericMod);
             const modsSum = durDice + advPot + willAdd;
-            const flavorBase = `Choque de vontades: Gnose ${gnosis} + ${arcLabel} ${arcVal}`;
+            const flavorBase = `Choque de Vontades: Gnose ${gnosis} + ${arcLabel} ${arcVal}`;
             const flavorMods = modsSum ? ` (fatores avançados: +${modsSum})` : "";
             const flavorGen = genericMod !== 0 ? ` (modificadores: ${genericMod})` : "";
             const flavorWP = willSpent ? ` (Força de Vontade)` : "";

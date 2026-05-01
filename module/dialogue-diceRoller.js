@@ -105,6 +105,15 @@ export class DiceRollerDialogue extends Application {
     else dicePool_difficulty = 8;
 
     let ammoPerShot = ammoPerShot_input.length ? +ammoPerShot_input[0].value : 0;
+    const automaticFireInput = html.find("input.automatic-fire-mode:checked").first();
+
+    const automaticFireBonus = automaticFireInput.length
+      ? Number(automaticFireInput.data("bonus") ?? 0)
+      : 0;
+
+    const automaticFireLabel = automaticFireInput.length
+      ? String(automaticFireInput.data("label") ?? "")
+      : "";
     let applyArmor = $('input[name=applyArmor]').prop("checked");
     let applyBallistic = $('input[name=applyBallistic]').prop("checked");
     let ignoreArmor = !applyArmor;
@@ -120,11 +129,49 @@ export class DiceRollerDialogue extends Application {
       }
     });
 
-    return { dicePool_userMod, explode_threshold, rote_action, dicePool_difficulty, ammoPerShot, advancedAction, extended, ignoreArmor, ignoreBallistic, noSuccessesToDamage, applyDefense, specialties, spendWillpower }
+    return { dicePool_userMod, explode_threshold, rote_action, dicePool_difficulty, ammoPerShot, automaticFireBonus, automaticFireLabel, advancedAction, extended, applyArmor, applyBallistic, ignoreArmor, ignoreBallistic, noSuccessesToDamage, applyDefense, specialties, spendWillpower }
   }
 
   activateListeners(html) {
     super.activateListeners(html);
+
+    const syncAutomaticFire = () => {
+      const ammoInput = html.find('[name="ammoPerShot"]');
+      const ammoControl = html.find(".ammo-per-shot-control");
+      const selected = html.find("input.automatic-fire-mode:checked").first();
+
+      if (!ammoInput.length) return;
+
+      if (selected.length) {
+        if (!ammoInput.prop("disabled")) {
+          ammoInput.data("manualValue", ammoInput.val());
+        }
+
+        ammoInput.val(Number(selected.data("ammo") ?? 1));
+        ammoInput.prop("disabled", true);
+        ammoControl.addClass("automatic-fire-ammo-locked");
+      } else {
+        ammoInput.prop("disabled", false);
+        ammoInput.val(ammoInput.data("manualValue") ?? 1);
+        ammoControl.removeClass("automatic-fire-ammo-locked");
+      }
+    };
+
+    html.find("input.automatic-fire-mode").change(function () {
+      if (this.checked) {
+        html.find("input.automatic-fire-mode").not(this).prop("checked", false);
+      }
+
+      syncAutomaticFire();
+    });
+
+    html.find('[name="ammoPerShot"]').change(function () {
+      if (!$(this).prop("disabled")) {
+        $(this).data("manualValue", this.value);
+      }
+    });
+
+    syncAutomaticFire();
 
     html.find('.niceNumber').click(function (event) {
       let v = $(event.target).text();
@@ -137,6 +184,8 @@ export class DiceRollerDialogue extends Application {
         // fallback: single input
         i = inputs.first();
       }
+
+      if (i.prop("disabled")) return;
 
       if (v === '+') {
         i.val(parseInt(i.val()) + 1);
@@ -162,6 +211,235 @@ export class DiceRollerDialogue extends Application {
     html.find('.roll-execute').click(ev => this._executeRoll(html, ev));
   }
 
+  static _formatSignedNumber(value) {
+    const number = Number(value ?? 0);
+    return number >= 0 ? `+${number}` : `${number}`;
+  }
+
+  static _escapeFlavor(value) {
+    const string = String(value ?? "");
+
+    if (foundry.utils.escapeHTML) {
+      return foundry.utils.escapeHTML(string);
+    }
+
+    return string
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  static _isChecked(value) {
+    return value === true || value === "true" || value === "on" || value === 1 || value === "1";
+  }
+
+  static _parseBaseRollFlavor(baseFlavor = "") {
+    let base = String(baseFlavor ?? "").trim();
+
+    const parsed = {
+      composition: base,
+      unskilled: false,
+      equipmentBonus: 0,
+      woundPenalty: 0,
+      genericModifiers: [],
+      targetName: ""
+    };
+
+    // Alvo marcado: "contra Nome"
+    const targetMatch = base.match(/\s+contra\s+(.+)$/i);
+    if (targetMatch) {
+      parsed.targetName = targetMatch[1].trim();
+      base = base.slice(0, targetMatch.index).trim();
+    }
+
+    // Inexperiência.
+    if (base.includes("(inexperiente)")) {
+      parsed.unskilled = true;
+      base = base.replaceAll(" (inexperiente)", "").replaceAll("(inexperiente)", "");
+    }
+
+    // Bônus de equipamento: "(+1 bônus do equipamento)".
+    base = base.replace(/\s*\(([+-]?\d+)\s+bônus do equipamento\)/gi, (_match, value) => {
+      parsed.equipmentBonus += Number(value);
+      return "";
+    });
+
+    // Bônus genérico de assembleDicePool: "(+1 bonus)".
+    base = base.replace(/\s*\(([+-]?\d+)\s+bonus\)/gi, (_match, value) => {
+      parsed.equipmentBonus += Number(value);
+      return "";
+    });
+
+    // Ferimentos: "(Ferimentos: -1)".
+    base = base.replace(/\s*\(Ferimentos:\s*([+-]?\d+)\)/gi, (_match, value) => {
+      parsed.woundPenalty = Math.abs(Number(value));
+      return "";
+    });
+
+    // Modificadores genéricos.
+    base = base.replace(/\s*\(([+-]?\d+)\s+em tudo\)/gi, (_match, value) => {
+      parsed.genericModifiers.push({
+        label: "Todas as paradas",
+        value: Number(value)
+      });
+      return "";
+    });
+
+    base = base.replace(/\s*\(([+-]?\d+)\s+físico\)/gi, (_match, value) => {
+      parsed.genericModifiers.push({
+        label: "Paradas físicas",
+        value: Number(value)
+      });
+      return "";
+    });
+
+    base = base.replace(/\s*\(([+-]?\d+)\s+social\)/gi, (_match, value) => {
+      parsed.genericModifiers.push({
+        label: "Paradas sociais",
+        value: Number(value)
+      });
+      return "";
+    });
+
+    base = base.replace(/\s*\(([+-]?\d+)\s+mental\)/gi, (_match, value) => {
+      parsed.genericModifiers.push({
+        label: "Paradas mentais",
+        value: Number(value)
+      });
+      return "";
+    });
+
+    parsed.composition = base.trim();
+
+    return parsed;
+  }
+
+  static _buildStructuredRollFlavor({
+    baseFlavor = "Teste de habilidade",
+    userMod = 0,
+    specialties = [],
+    uiExplode = 10,
+    isChanceDie = false,
+    roteAction = false,
+    advancedAction = false,
+    extended = false,
+    spendWillpower = false,
+    damageRoll = false,
+    applyDefense = false,
+    defense = 0,
+    applyArmor = false,
+    applyBallistic = false,
+    armor = 0,
+    ballistic = 0,
+    noSuccessesToDamage = false,
+    automaticFireLabel = "",
+    automaticFireBonus = 0
+  } = {}) {
+    const parsed = DiceRollerDialogue._parseBaseRollFlavor(baseFlavor);
+
+    const hasRoteAction = DiceRollerDialogue._isChecked(roteAction);
+    const hasAdvancedAction = DiceRollerDialogue._isChecked(advancedAction);
+    const hasExtended = DiceRollerDialogue._isChecked(extended);
+    const hasSpendWillpower = DiceRollerDialogue._isChecked(spendWillpower);
+    const hasApplyDefense = DiceRollerDialogue._isChecked(applyDefense);
+    const hasApplyArmor = DiceRollerDialogue._isChecked(applyArmor);
+    const hasApplyBallistic = DiceRollerDialogue._isChecked(applyBallistic);
+    const hasNoSuccessesToDamage = DiceRollerDialogue._isChecked(noSuccessesToDamage);
+
+    let header = DiceRollerDialogue._escapeFlavor(parsed.composition);
+
+    if (parsed.unskilled) {
+      header += " (<b>inexperiente</b>)";
+    }
+
+    if (parsed.equipmentBonus) {
+      header += ` ${DiceRollerDialogue._formatSignedNumber(parsed.equipmentBonus)} de equipamento`;
+    }
+
+    header += ":";
+
+    const lines = [];
+
+    if (!isChanceDie) {
+      if (uiExplode === 8) lines.push("Permutação: Explosão de 8");
+      else if (uiExplode === 9) lines.push("Permutação: Explosão de 9");
+      else if (uiExplode === 10) lines.push("Permutação: Explosão de 10");
+    }
+
+    if (hasRoteAction) {
+      lines.push("Ação de Rotina");
+    }
+
+    if (isChanceDie) {
+      lines.push("Teste de Sorte");
+    }
+
+    if (hasAdvancedAction) {
+      lines.push("Ação Avançada");
+    }
+
+    if (hasExtended) {
+      lines.push("Ação Estendida");
+    }
+
+    if (parsed.woundPenalty) {
+      lines.push(`Ferimentos: -${parsed.woundPenalty}`);
+    }
+
+    for (const modifier of parsed.genericModifiers) {
+      lines.push(`${modifier.label}: ${DiceRollerDialogue._formatSignedNumber(modifier.value)}`);
+    }
+
+    if (Number(userMod ?? 0) !== 0) {
+      lines.push(`Modificador situacional: ${DiceRollerDialogue._formatSignedNumber(userMod)}`);
+    }
+
+    if (specialties.length) {
+      const specialtyText = specialties
+        .map(s => DiceRollerDialogue._escapeFlavor(s))
+        .join(", ");
+
+      lines.push(`Especialização: ${specialtyText}`);
+    }
+
+    if (hasSpendWillpower) {
+      lines.push("<b>Força de Vontade</b>");
+    }
+
+
+    if (parsed.targetName) {
+      lines.push(`Alvo: <b>${DiceRollerDialogue._escapeFlavor(parsed.targetName)}</b>`);
+    }
+
+    if (damageRoll && applyDefense) {
+      lines.push(`Defesa: ${Number(defense ?? 0)}`);
+    }
+
+    if (damageRoll && (hasApplyArmor || hasApplyBallistic)) {
+      const armorValue = hasApplyArmor ? Number(armor ?? 0) : 0;
+      const ballisticValue = hasApplyBallistic ? Number(ballistic ?? 0) : 0;
+
+      if (armorValue !== 0 || ballisticValue !== 0) {
+        lines.push(`Armadura: ${armorValue}/${ballisticValue}`);
+      }
+    }
+
+    if (damageRoll && hasNoSuccessesToDamage) {
+      lines.push("Sem sucesso como dano");
+    }
+
+    if (automaticFireBonus) {
+      const label = DiceRollerDialogue._escapeFlavor(automaticFireLabel || "Rajada");
+      lines.push(`${label}: ${DiceRollerDialogue._formatSignedNumber(automaticFireBonus)}`);
+    }
+
+    if (!lines.length) return header;
+
+    return `${header}<br>${lines.map(line => `• ${line}`).join("<br>")}`;
+  }
+
   async _executeRoll(html, ev) {
     const modifiers = this._fetchInputs(html);
 
@@ -175,16 +453,17 @@ export class DiceRollerDialogue extends Application {
 
     const specBonus = isCharacter ? modifiers.specialties.length : 0;
 
-    let dicePool = this.dicePool + specBonus + userModNoSpecs;
+    const automaticFireBonus = Number(modifiers.automaticFireBonus ?? 0);
+
+    let dicePool =
+      this.dicePool +
+      specBonus +
+      userModNoSpecs +
+      automaticFireBonus;
+
     const extendedRollsMax = this.dicePool + specBonus;
 
     const roteAction = modifiers.rote_action;
-    let flavor = (this.flavor || "Teste de habilidade") + (modifiers.dicePool_userMod > 0 ? " + " + modifiers.dicePool_userMod : modifiers.dicePool_userMod < 0 ? " - " + -modifiers.dicePool_userMod : "");
-    if (isCharacter) {
-      for (const specialty of modifiers.specialties) {
-        flavor += ` (+${specialty})`;
-      }
-    }
 
     // CÓDIGO GPT
     if (modifiers.spendWillpower) {
@@ -206,20 +485,27 @@ export class DiceRollerDialogue extends Application {
     const uiExplode = modifiers.explode_threshold;              // 8, 9, 10, 11(=None)
     const explodeThreshold = isChanceDie ? 11 : uiExplode;
 
-    /*     if (dicePool < 1) flavor += " (Teste de Sorte)";
-    if (explodeThreshold === 8) flavor += " (Explosão de 8)";
-    else if (explodeThreshold === 9) flavor += " (Explosão de 9)";
-    else if (explodeThreshold === 10) flavor += " (Explosão de 10)"; */
-
-    if (isChanceDie) flavor += " (Teste de Sorte)";
-    else {
-      if (explodeThreshold === 8) flavor += " (Explosão de 8)";
-      else if (explodeThreshold === 9) flavor += " (Explosão de 9)";
-      else if (explodeThreshold === 10) flavor += " (Explosão de 10)";
-    }
-
-    if (modifiers.rote_action) flavor += " (Ação de Rotina)";
-    if (modifiers.spendWillpower) flavor += " (Força de Vontade)";
+    const flavor = DiceRollerDialogue._buildStructuredRollFlavor({
+      baseFlavor: this.flavor || "Teste de habilidade",
+      userMod: userModNoSpecs,
+      specialties: isCharacter ? modifiers.specialties : [],
+      uiExplode,
+      isChanceDie,
+      roteAction,
+      advancedAction: modifiers.advancedAction,
+      extended: modifiers.extended,
+      spendWillpower: modifiers.spendWillpower,
+      damageRoll: this.damageRoll,
+      applyDefense: modifiers.applyDefense,
+      defense: this.defense,
+      applyArmor: modifiers.applyArmor,
+      applyBallistic: modifiers.applyBallistic,
+      armor: this.armor,
+      ballistic: this.ballistic,
+      noSuccessesToDamage: modifiers.noSuccessesToDamage,
+      automaticFireLabel: modifiers.automaticFireLabel,
+      automaticFireBonus
+    });
 
     const targetNumber = Math.clamp(modifiers.dicePool_difficulty, 1, 10);
     const rollReturn = {};
@@ -284,6 +570,9 @@ export class DiceRollerDialogue extends Application {
     }
 
     let roll = await DiceRollerDialogue._roll({ dicePool: dicePool, targetNumber: targetNumber, tenAgain: tenAgain, nineAgain: nineAgain, eightAgain: eightAgain, roteAction: roteAction, chanceDie: chanceDie, exceptionalTarget: exceptionalTarget, advancedAction });
+
+    const formulaLabel = `${dicePool}d10`;
+
     if (rollReturn) rollReturn.roll = roll;
     //Create Roll Message
     let speaker = ChatMessage.getSpeaker();
@@ -308,10 +597,13 @@ export class DiceRollerDialogue extends Application {
 
 
     let html = await roll.render(chatData);
+    html = DiceRollerDialogue._shortenRollFormulaHtml(html, formulaLabel);
+
     if (roll.dramaticFailure) html = html.replace('class="dice-total"', 'class="dice-total dramaticFailure"');
     else if (roll.exceptionalSuccess) html = html.replace('class="dice-total"', 'class="dice-total exceptionalSuccess"');
     if (roll.advancedRoll) {
       let advHtml = await roll.advancedRoll.render(chatData);
+      advHtml = DiceRollerDialogue._shortenRollFormulaHtml(advHtml, formulaLabel);
       advHtml = advHtml.replace('class="dice-roll"', 'class="dice-roll advancedRoll"');
       console.log("ASD", advHtml);
       html += advHtml;
@@ -470,6 +762,13 @@ export class DiceRollerDialogue extends Application {
     return out;
   }
 
+  static _shortenRollFormulaHtml(html, formulaLabel) {
+    const wrapper = $("<div>").html(html);
+
+    wrapper.find(".dice-formula").text(formulaLabel);
+
+    return wrapper.html();
+  }
 
   static async rollWithDamage({
     dicePool = 1,
@@ -507,8 +806,7 @@ export class DiceRollerDialogue extends Application {
 
     if (applyDefense) dicePool -= defense;
 
-    //CÓDIGO GPT
-    if (dicePool < 1) {
+    if (dicePool < 1 && !String(flavor).includes("<br>•")) {
       flavor = DiceRollerDialogue._normalizeChanceFlavorExact(flavor);
     }
 
@@ -588,7 +886,7 @@ export class DiceRollerDialogue extends Application {
     //game.i18n.localize('MTA.DamageInflicted') 
 
     if (armorPiercing && rollReturn.roll.total) templateData.data.summary += " (" + armorPiercing + " PA)";
-    if (spendAmmo) templateData.data.summaryAddendum = ammoPerShot + " " + game.i18n.localize('MTA.AmmoSpent');
+    if (spendAmmo) templateData.data.summaryAddendum = game.i18n.localize('MTA.AmmoSpent') + " " + ammoPerShot;
     if (rollReturn.roll.total) {
       templateData.data.showDamageButton = true;
       templateData.data.damageInflicted = damageInflicted;
